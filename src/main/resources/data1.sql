@@ -127,8 +127,8 @@ values ('2024-04-15 00:00:00', 1, false, '2024-04-15 00:00:00', 1,
 -- ('2024-04-15 00:00', 3, 'false', '2024-04-15 00:00', 3, 'Moto G Power', 0, 5, 'PCS', 3);
 --
 -- --
--- insert into invoices(insert_date_time, insert_user_id, is_deleted, last_update_date_time, last_update_user_id,
---                      date, invoice_no, invoice_type, invoice_status, client_vendor_id, company_id)
+insert into invoices(insert_date_time, insert_user_id, is_deleted, last_update_date_time, last_update_user_id,
+                     date, invoice_no, invoice_type, invoice_status, client_vendor_id, company_id)
 -- values
 -- -- COMPANY-2 / Green Tech
 -- ('2024-04-09 00:00', 2, 'false', '2024-04-09 00:00', 2, '2024-04-09', 'P-001', 'PURCHASE', 'APPROVED', 2, 2),
