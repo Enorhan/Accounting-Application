@@ -20,6 +20,5 @@ public class CompanyDto {
     private String phone;
     private String website;
     private AddressDto addressDto;
-    @Enumerated(EnumType.STRING)
     private CompanyStatus companyStatus;
 }
