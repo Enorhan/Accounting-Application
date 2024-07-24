@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.core.convert.converter.Converter;
 
 @Component
-public class InvoiceDTOConverter implements Converter<Long, InvoiceDto> {
+public class InvoiceDTOConverter implements Converter<String, InvoiceDto> {
 
     private final InvoiceService invoiceService;
 
@@ -15,11 +15,11 @@ public class InvoiceDTOConverter implements Converter<Long, InvoiceDto> {
     }
 
     @Override
-    public InvoiceDto convert(Long source) {
-        if (source == null) {
+    public InvoiceDto convert(String source) {
+        if (source == null || source.equals("")) {
             return null;
         }
 
-        return invoiceService.findById(source);
+        return invoiceService.findById(Long.valueOf(source));
     }
 }
