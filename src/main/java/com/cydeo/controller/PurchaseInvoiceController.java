@@ -11,16 +11,16 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/purchaseInvoices")
-public class InvoiceController {
+public class PurchaseInvoiceController {
 
     private final InvoiceService invoiceService;
 
-    public InvoiceController(InvoiceService invoiceService) {
+    public PurchaseInvoiceController(InvoiceService invoiceService) {
         this.invoiceService = invoiceService;
     }
 
     @GetMapping("/list")
-    public String createInvoice(Model model){
+    public String listPurchaseInvoice(Model model){
         List<InvoiceDto> invoices = invoiceService.listAllPurchaseInvoices();
 
         model.addAttribute("invoices", invoices);
