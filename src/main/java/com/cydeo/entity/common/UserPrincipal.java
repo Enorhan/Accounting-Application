@@ -33,18 +33,18 @@ public class UserPrincipal implements UserDetails {
     }
 
     public String getFullNameForProfile(){
-        return this.user.getFirstName()+" "+this.user.getLastName();
+        return this.user.getFirstname()+" "+this.user.getLastname();
     }
 
 
     @Override
     public String getPassword() {
-        return this.user.getPassWord();
+        return this.user.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return this.user.getUserName();
+        return this.user.getUsername();
     }
 
     @Override
