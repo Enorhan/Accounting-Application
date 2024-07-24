@@ -7,7 +7,6 @@ import java.lang.reflect.Type;
 
 @Component
 public class MapperUtil {
-
     private final ModelMapper modelMapper;
 
     public MapperUtil(ModelMapper modelMapper) {
