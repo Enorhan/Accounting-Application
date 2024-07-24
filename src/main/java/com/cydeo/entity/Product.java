@@ -13,10 +13,6 @@ import javax.persistence.*;
 @Setter
 public class Product extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     private String name;
     private int quantityInStock;
     private int lowLimitAlert;
@@ -25,6 +21,5 @@ public class Product extends BaseEntity {
     private ProductUnit productUnit;
 
     @ManyToOne
-    @JoinColumn(name = "category")
     private Category category;
 }
