@@ -8,6 +8,9 @@ import com.cydeo.service.SecurityService;
 import com.cydeo.util.MapperUtil;
 import org.springframework.stereotype.Service;
 
+import java.util.NoSuchElementException;
+import java.util.Optional;
+
 @Service
 public class CompanyServiceImpl implements CompanyService {
 
@@ -28,6 +31,13 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     public Long getCompanyIdByLoggedInUser(Long id) {
         return securityService.getLoggedInUser().getCompany().getId();
+    }
+
+    @Override
+    public CompanyDto findById(Long id) {
+        Company company= companyRepository.findById(id)
+                .orElseThrow( () ->new NoSuchElementException("Incorrect id" + id + " Try another Id"));
+        return mapperUtil.convert(company,new CompanyDto());
     }
 }
 
