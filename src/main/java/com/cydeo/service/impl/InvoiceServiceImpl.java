@@ -1,18 +1,12 @@
 package com.cydeo.service.impl;
 
-import com.cydeo.dto.ClientVendorDto;
-import com.cydeo.dto.CompanyDto;
 import com.cydeo.dto.InvoiceDto;
-import com.cydeo.enums.InvoiceStatus;
 import com.cydeo.enums.InvoiceType;
 import com.cydeo.repository.InvoiceRepository;
 import com.cydeo.service.InvoiceService;
 import com.cydeo.util.MapperUtil;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,10 +21,9 @@ public class InvoiceServiceImpl implements InvoiceService {
         this.mapperUtil = mapperUtil;
     }
 
-
     @Override
-    public List<InvoiceDto> listAllPurchaseInvoices() {
-        return invoiceRepository.findAllByInvoiceTypeOrderByInvoiceNoDesc(InvoiceType.PURCHASE).stream()
+    public List<InvoiceDto> listAllInvoicesByType(InvoiceType invoiceType) {
+        return invoiceRepository.findAllByInvoiceTypeOrderByInvoiceNoDesc(invoiceType).stream()
                 .map(invoice -> mapperUtil.convert(invoice, new InvoiceDto()))
                 .collect(Collectors.toList());
     }
