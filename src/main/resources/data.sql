@@ -112,60 +112,60 @@ values
 ('2024-04-15 00:00:00', 3, false, '2024-04-15 00:00:00', 3, 'Phone', 3),
 ('2024-04-15 00:00:00', 3, false, '2024-04-15 00:00:00', 3, 'TV', 3),
 ('2024-04-15 00:00:00', 3, false, '2024-04-15 00:00:00', 3, 'Monitor', 3);
+
+insert into products(insert_date_time, insert_user_id, is_deleted, last_update_date_time, last_update_user_id,
+                     name, quantity_in_stock, low_limit_alert, product_unit, category_id)
+VALUES
+-- COMPANY-2 / Green Tech
+('2024-04-15 00:00', 2, 'false', '2024-04-15 00:00', 2, 'HP Elite 800G1 Desktop Computer Package', 8, 5, 'PCS', 1),
+('2024-04-15 00:00', 2, 'false', '2024-04-15 00:00', 2, '2021 Apple MacBook Pro', 0, 5, 'PCS', 1),
+('2024-04-15 00:00', 2, 'false', '2024-04-15 00:00', 2, 'Apple iPhone-13', 0, 5, 'PCS', 2),
+('2024-04-15 00:00', 2, 'false', '2024-04-15 00:00', 2, 'SAMSUNG Galaxy S22', 0, 5, 'PCS', 2),
+-- COMPANY-3 / Blue Tech
+('2024-04-15 00:00', 3, 'false', '2024-04-15 00:00', 3, 'Samsung Galaxy S20 (renewed)', 10, 5, 'PCS', 3),
+('2024-04-15 00:00', 3, 'false', '2024-04-15 00:00', 3, 'Samsung Galaxy S22', 20, 5, 'PCS', 3),
+('2024-04-15 00:00', 3, 'false', '2024-04-15 00:00', 3, 'Moto G Power', 0, 5, 'PCS', 3);
+
 --
--- insert into products(insert_date_time, insert_user_id, is_deleted, last_update_date_time, last_update_user_id,
---                      name, quantity_in_stock, low_limit_alert, product_unit, category_id)
--- VALUES
--- -- COMPANY-2 / Green Tech
--- ('2024-04-15 00:00', 2, 'false', '2024-04-15 00:00', 2, 'HP Elite 800G1 Desktop Computer Package', 8, 5, 'PCS', 1),
--- ('2024-04-15 00:00', 2, 'false', '2024-04-15 00:00', 2, '2021 Apple MacBook Pro', 0, 5, 'PCS', 1),
--- ('2024-04-15 00:00', 2, 'false', '2024-04-15 00:00', 2, 'Apple iPhone-13', 0, 5, 'PCS', 2),
--- ('2024-04-15 00:00', 2, 'false', '2024-04-15 00:00', 2, 'SAMSUNG Galaxy S22', 0, 5, 'PCS', 2),
--- -- COMPANY-3 / Blue Tech
--- ('2024-04-15 00:00', 3, 'false', '2024-04-15 00:00', 3, 'Samsung Galaxy S20 (renewed)', 10, 5, 'PCS', 3),
--- ('2024-04-15 00:00', 3, 'false', '2024-04-15 00:00', 3, 'Samsung Galaxy S22', 20, 5, 'PCS', 3),
--- ('2024-04-15 00:00', 3, 'false', '2024-04-15 00:00', 3, 'Moto G Power', 0, 5, 'PCS', 3);
---
--- --
---insert into invoices(insert_date_time, insert_user_id, is_deleted, last_update_date_time, last_update_user_id,
-    --                 date, invoice_no, invoice_type, invoice_status, client_vendor_id, company_id)
--- values
--- -- COMPANY-2 / Green Tech
--- ('2024-04-09 00:00', 2, 'false', '2024-04-09 00:00', 2, '2024-04-09', 'P-001', 'PURCHASE', 'APPROVED', 2, 2),
--- ('2024-04-10 00:00', 2, 'false', '2024-04-10 00:00', 2, '2024-04-10', 'P-002', 'PURCHASE', 'APPROVED', 3, 2),
--- ('2024-04-17 00:00', 2, 'false', '2024-04-17 00:00', 2, '2024-04-17', 'S-001', 'SALES', 'APPROVED', 1, 2),
--- ('2024-04-19 00:00', 2, 'false', '2024-04-19 00:00', 2, '2024-04-19', 'S-002', 'SALES', 'AWAITING_APPROVAL', 1, 2),
--- ('2024-05-20 00:00', 2, 'false', '2024-05-20 00:00', 2, '2024-05-20', 'S-003', 'SALES', 'AWAITING_APPROVAL', 1, 2),
---
--- -- COMPANY-3 / Blue Tech
--- ('2024-04-09 00:00', 3, 'false', '2024-04-09 00:00', 3, '2024-04-09', 'P-001', 'PURCHASE', 'APPROVED', 5, 3),
--- ('2024-04-10 00:00', 3, 'false', '2024-04-10 00:00', 3, '2024-04-10', 'P-002', 'PURCHASE', 'APPROVED', 5, 3),
--- ('2024-04-13 00:00', 3, 'false', '2024-04-13 00:00', 3, '2024-04-13', 'S-001', 'SALES', 'APPROVED', 4, 3),
--- ('2024-05-18 00:00', 3, 'false', '2024-05-18 00:00', 3, '2024-05-18', 'S-002', 'SALES', 'AWAITING_APPROVAL', 4, 3),
--- ('2024-05-19 00:00', 3, 'false', '2024-05-19 00:00', 3, '2024-05-19', 'S-003', 'SALES', 'AWAITING_APPROVAL', 4, 3),
--- ('2024-05-20 00:00', 3, 'false', '2024-05-20 00:00', 3, '2024-05-20', 'S-004', 'SALES', 'AWAITING_APPROVAL', 6, 3),
--- ('2024-05-21 00:00', 3, 'false', '2024-05-21 00:00', 3, '2024-05-21', 'S-005', 'SALES', 'AWAITING_APPROVAL', 6, 3),
--- ('2024-06-08 00:00', 3, 'false', '2024-06-08 00:00', 3, '2024-06-08', 'P-003', 'PURCHASE', 'AWAITING_APPROVAL', 6, 3);
---
--- insert into invoice_products(insert_date_time, insert_user_id, is_deleted, last_update_date_time, last_update_user_id,
---                              price, quantity, remaining_quantity, tax, profit_loss, invoice_id, product_id)
--- values
--- -- COMPANY-2 / Green Tech
--- ('2024-04-15 00:00', 2, 'false', '2024-04-15 00:00', 2, 250, 5, 3, 10, 0, 1, 1),   --purchase APPROVED
--- ('2024-04-15 00:00', 2, 'false', '2024-04-15 00:00', 2, 250, 5, 5, 10, 0, 2, 1),   --purchase APPROVED total cost (with tax) 2750
--- ('2024-04-15 00:00', 2, 'false', '2024-04-15 00:00', 2, 300, 2, 0, 10, 110, 3, 1), --sale APPROVED     total sale (with tax) 660 & profit : 110 with tax
--- ('2024-04-15 00:00', 2, 'false', '2024-04-15 00:00', 2, 200, 2, 0, 10, 0, 4, 1),   --sale AWAITING_APPROVAL after approval total sale (with tax) :1100 & profit (with tax) : 0
--- ('2024-04-15 00:00', 2, 'false', '2024-04-15 00:00', 2, 300, 5, 0, 10, 0, 5, 1),   --sale AWAITING_APPROVAL after approval total sale (with tax) :2750 & profit (with tax) : 275
---
--- -- COMPANY-3 / Blue Tech
--- ('2024-04-15 00:00', 3, 'false', '2024-04-15 00:00', 3, 200, 20, 0, 10, 0, 6, 5),  --purchase APPROVED
--- ('2024-04-15 00:00', 3, 'false', '2024-04-15 00:00', 3, 200, 20, 10, 10, 0, 6, 5), --purchase APPROVED
--- ('2024-04-15 00:00', 3, 'false', '2024-04-15 00:00', 3, 900, 10, 10, 10, 0, 7, 6), --purchase APPROVED
--- ('2024-04-15 00:00', 3, 'false', '2024-04-15 00:00', 3, 1000, 10, 10, 10, 0, 7, 6), --purchase APPROVED  total cost (with tax) 29700
--- ('2024-04-15 00:00', 3, 'false', '2024-04-15 00:00', 3, 300, 10, 0, 10, 1100, 8, 5),--sale APPROVED     total sale (with tax) 3300 & profit : 1100 with tax
--- ('2024-04-15 00:00', 3, 'false', '2024-04-15 00:00', 3, 300, 20, 0, 10, 2200, 8, 5), --sale APPROVED     total sale (with tax): 9900 & total profit : 3300 with tax
--- ('2024-04-15 00:00', 3, 'false', '2024-04-15 00:00', 3, 1200, 6, 0, 10, 0, 9, 6),  --sale AWAITING_APPROVAL after approval total sale (with tax) : 17820 & profit (with tax) : 3300+1980=5280
--- ('2024-04-15 00:00', 3, 'false', '2024-04-15 00:00', 3, 1200, 5, 0, 10, 0, 10, 6), --sale AWAITING_APPROVAL after approval total sale (with tax) : 24420 & profit (with tax) : 5280+1540=6820
--- ('2024-04-15 00:00', 3, 'false', '2024-04-15 00:00', 3, 1200, 2, 0, 10, 0, 11, 6), --sale AWAITING_APPROVAL after approval total sale (with tax) : 27060 & profit (with tax) : 6820+440=7260
--- ('2024-06-15 00:00', 3, 'false', '2024-06-15 00:00', 3, 600, 4, 0, 10, 0, 13, 7);  --purchase AWAITING_APPROVAL
---
+insert into invoices(insert_date_time, insert_user_id, is_deleted, last_update_date_time, last_update_user_id,
+                    date, invoice_no, invoice_type, invoice_status, client_vendor_id, company_id)
+values
+-- COMPANY-2 / Green Tech
+('2024-04-09 00:00', 2, 'false', '2024-04-09 00:00', 2, '2024-04-09', 'P-001', 'PURCHASE', 'APPROVED', 2, 2),
+('2024-04-10 00:00', 2, 'false', '2024-04-10 00:00', 2, '2024-04-10', 'P-002', 'PURCHASE', 'APPROVED', 3, 2),
+('2024-04-17 00:00', 2, 'false', '2024-04-17 00:00', 2, '2024-04-17', 'S-001', 'SALES', 'APPROVED', 1, 2),
+('2024-04-19 00:00', 2, 'false', '2024-04-19 00:00', 2, '2024-04-19', 'S-002', 'SALES', 'AWAITING_APPROVAL', 1, 2),
+('2024-05-20 00:00', 2, 'false', '2024-05-20 00:00', 2, '2024-05-20', 'S-003', 'SALES', 'AWAITING_APPROVAL', 1, 2),
+
+-- COMPANY-3 / Blue Tech
+('2024-04-09 00:00', 3, 'false', '2024-04-09 00:00', 3, '2024-04-09', 'P-001', 'PURCHASE', 'APPROVED', 5, 3),
+('2024-04-10 00:00', 3, 'false', '2024-04-10 00:00', 3, '2024-04-10', 'P-002', 'PURCHASE', 'APPROVED', 5, 3),
+('2024-04-13 00:00', 3, 'false', '2024-04-13 00:00', 3, '2024-04-13', 'S-001', 'SALES', 'APPROVED', 4, 3),
+('2024-05-18 00:00', 3, 'false', '2024-05-18 00:00', 3, '2024-05-18', 'S-002', 'SALES', 'AWAITING_APPROVAL', 4, 3),
+('2024-05-19 00:00', 3, 'false', '2024-05-19 00:00', 3, '2024-05-19', 'S-003', 'SALES', 'AWAITING_APPROVAL', 4, 3),
+('2024-05-20 00:00', 3, 'false', '2024-05-20 00:00', 3, '2024-05-20', 'S-004', 'SALES', 'AWAITING_APPROVAL', 6, 3),
+('2024-05-21 00:00', 3, 'false', '2024-05-21 00:00', 3, '2024-05-21', 'S-005', 'SALES', 'AWAITING_APPROVAL', 6, 3),
+('2024-06-08 00:00', 3, 'false', '2024-06-08 00:00', 3, '2024-06-08', 'P-003', 'PURCHASE', 'AWAITING_APPROVAL', 6, 3);
+
+insert into invoice_products(insert_date_time, insert_user_id, is_deleted, last_update_date_time, last_update_user_id,
+                             price, quantity, remaining_quantity, tax, profit_loss, invoice_id, product_id)
+values
+-- COMPANY-2 / Green Tech
+('2024-04-15 00:00', 2, 'false', '2024-04-15 00:00', 2, 250, 5, 3, 10, 0, 1, 1),   --purchase APPROVED
+('2024-04-15 00:00', 2, 'false', '2024-04-15 00:00', 2, 250, 5, 5, 10, 0, 2, 1),   --purchase APPROVED total cost (with tax) 2750
+('2024-04-15 00:00', 2, 'false', '2024-04-15 00:00', 2, 300, 2, 0, 10, 110, 3, 1), --sale APPROVED     total sale (with tax) 660 & profit : 110 with tax
+('2024-04-15 00:00', 2, 'false', '2024-04-15 00:00', 2, 200, 2, 0, 10, 0, 4, 1),   --sale AWAITING_APPROVAL after approval total sale (with tax) :1100 & profit (with tax) : 0
+('2024-04-15 00:00', 2, 'false', '2024-04-15 00:00', 2, 300, 5, 0, 10, 0, 5, 1),   --sale AWAITING_APPROVAL after approval total sale (with tax) :2750 & profit (with tax) : 275
+
+-- COMPANY-3 / Blue Tech
+('2024-04-15 00:00', 3, 'false', '2024-04-15 00:00', 3, 200, 20, 0, 10, 0, 6, 5),  --purchase APPROVED
+('2024-04-15 00:00', 3, 'false', '2024-04-15 00:00', 3, 200, 20, 10, 10, 0, 6, 5), --purchase APPROVED
+('2024-04-15 00:00', 3, 'false', '2024-04-15 00:00', 3, 900, 10, 10, 10, 0, 7, 6), --purchase APPROVED
+('2024-04-15 00:00', 3, 'false', '2024-04-15 00:00', 3, 1000, 10, 10, 10, 0, 7, 6), --purchase APPROVED  total cost (with tax) 29700
+('2024-04-15 00:00', 3, 'false', '2024-04-15 00:00', 3, 300, 10, 0, 10, 1100, 8, 5),--sale APPROVED     total sale (with tax) 3300 & profit : 1100 with tax
+('2024-04-15 00:00', 3, 'false', '2024-04-15 00:00', 3, 300, 20, 0, 10, 2200, 8, 5), --sale APPROVED     total sale (with tax): 9900 & total profit : 3300 with tax
+('2024-04-15 00:00', 3, 'false', '2024-04-15 00:00', 3, 1200, 6, 0, 10, 0, 9, 6),  --sale AWAITING_APPROVAL after approval total sale (with tax) : 17820 & profit (with tax) : 3300+1980=5280
+('2024-04-15 00:00', 3, 'false', '2024-04-15 00:00', 3, 1200, 5, 0, 10, 0, 10, 6), --sale AWAITING_APPROVAL after approval total sale (with tax) : 24420 & profit (with tax) : 5280+1540=6820
+('2024-04-15 00:00', 3, 'false', '2024-04-15 00:00', 3, 1200, 2, 0, 10, 0, 11, 6), --sale AWAITING_APPROVAL after approval total sale (with tax) : 27060 & profit (with tax) : 6820+440=7260
+('2024-06-15 00:00', 3, 'false', '2024-06-15 00:00', 3, 600, 4, 0, 10, 0, 13, 7);  --purchase AWAITING_APPROVAL
+
