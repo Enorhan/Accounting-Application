@@ -12,11 +12,11 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/purchaseInvoices")
-public class PurchaseInvoiceController {
+public class PurchasesInvoiceController {
 
     private final InvoiceService invoiceService;
 
-    public PurchaseInvoiceController(InvoiceService invoiceService) {
+    public PurchasesInvoiceController(InvoiceService invoiceService) {
         this.invoiceService = invoiceService;
     }
 
