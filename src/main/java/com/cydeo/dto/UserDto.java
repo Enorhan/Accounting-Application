@@ -19,6 +19,7 @@ public class UserDto {
     private boolean enabled;
     private String phone;
     private RoleDto role;
+    private CompanyDto company;
     private boolean isOnlyAdmin;
 
 }
