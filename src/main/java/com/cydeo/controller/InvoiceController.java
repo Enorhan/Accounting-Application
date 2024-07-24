@@ -21,7 +21,7 @@ public class InvoiceController {
 
     @GetMapping("/list")
     public String createInvoice(Model model){
-        List<InvoiceDto> invoices = invoiceService.listAllInvoices();
+        List<InvoiceDto> invoices = invoiceService.listAllPurchaseInvoices();
 
         model.addAttribute("invoices", invoices);
 

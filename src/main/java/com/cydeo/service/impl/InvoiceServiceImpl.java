@@ -29,8 +29,8 @@ public class InvoiceServiceImpl implements InvoiceService {
 
 
     @Override
-    public List<InvoiceDto> listAllInvoices() {
-        return invoiceRepository.findAllByOrderByInvoiceNoDesc().stream()
+    public List<InvoiceDto> listAllPurchaseInvoices() {
+        return invoiceRepository.findAllByInvoiceTypeOrderByInvoiceNoDesc(InvoiceType.PURCHASE).stream()
                 .map(invoice -> mapperUtil.convert(invoice, new InvoiceDto()))
                 .collect(Collectors.toList());
     }
