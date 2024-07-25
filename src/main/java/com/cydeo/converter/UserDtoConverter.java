@@ -2,7 +2,6 @@ package com.cydeo.converter;
 
 import com.cydeo.dto.UserDto;
 import com.cydeo.service.UserService;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +20,7 @@ public class UserDtoConverter implements Converter<String, UserDto> {
             return null;
         }
 
-        return userService.findByUserName(source);
+        return userService.findByusername(source);
 
     }
 
