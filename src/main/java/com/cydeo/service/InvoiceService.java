@@ -9,4 +9,6 @@ public interface InvoiceService {
     List<InvoiceDto> listAllInvoicesByType(InvoiceType invoiceType);
     InvoiceDto findById(Long id);
 
+    String getNewPurchaseInvoiceNumberId();
+
 }

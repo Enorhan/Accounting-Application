@@ -8,6 +8,7 @@ import com.cydeo.service.InvoiceService;
 import com.cydeo.util.MapperUtil;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -35,5 +36,28 @@ public class InvoiceServiceImpl implements InvoiceService {
                 .orElseThrow(() -> new NoSuchElementException("Invoice not found with id: " + id));
 
         return mapperUtil.convert(invoice, new InvoiceDto());
+    }
+
+    @Override
+    public String getNewPurchaseInvoiceNumberId() {
+        String lastPurchaseInvoiceNumberId = invoiceRepository
+                .findAllByInvoiceTypeOrderByInvoiceNoDesc(InvoiceType.PURCHASE)
+                .get(0)
+                .getInvoiceNo();
+
+        if (lastPurchaseInvoiceNumberId == null) {
+            return "P-001";
+        }
+
+        String nextPurchaseInvoiceNumberId;
+        long nextPurchaseInvoiceId;
+
+        String[] dividedLastInvoiceNumber = lastPurchaseInvoiceNumberId.split("-");
+
+        nextPurchaseInvoiceId =  Long.parseLong(dividedLastInvoiceNumber[1]) + 1;
+
+        nextPurchaseInvoiceNumberId = String.format("P-%03d", nextPurchaseInvoiceId);
+
+        return nextPurchaseInvoiceNumberId;
     }
 }
