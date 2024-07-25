@@ -29,7 +29,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> listAllUser() {
-        List<User> useList = userRepository.findAll(Sort.by("firstName"));
+        List<User> useList = userRepository.findAll(Sort.by("firstname"));
         List<UserDto> userDtoList = useList.stream().map(user -> (
                 mapperUtil.convert(user, new UserDto()))
         ).collect(Collectors.toList());
