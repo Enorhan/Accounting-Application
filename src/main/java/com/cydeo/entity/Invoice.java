@@ -19,7 +19,7 @@ import java.time.LocalDate;
 @Table(name = "invoices")
 public class Invoice extends BaseEntity {
 
-//    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     String invoiceNo;
 
     @Column(nullable = false)
