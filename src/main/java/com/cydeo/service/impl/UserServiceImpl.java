@@ -14,10 +14,11 @@ import java.util.stream.Collectors;
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private MapperUtil mapperUtil;
+    private final MapperUtil mapperUtil;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, MapperUtil mapperUtil) {
         this.userRepository = userRepository;
+        this.mapperUtil = mapperUtil;
     }
 
     @Override
