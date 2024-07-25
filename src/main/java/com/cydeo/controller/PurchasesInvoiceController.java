@@ -50,15 +50,16 @@ public class PurchasesInvoiceController {
     }
 
     @PostMapping("/create")
-    public String createPurchaseInvoice(@Valid @ModelAttribute("project") InvoiceDto project, BindingResult bindingResult, Model model) {
-
+    public String createPurchaseInvoice(@Valid @ModelAttribute("newPurchaseInvoice") InvoiceDto invoiceDto, BindingResult bindingResult, Model model) {
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("newPurchaseInvoice", project);
+            model.addAttribute("newPurchaseInvoice", invoiceDto);
             model.addAttribute("vendors", clientVendorService.findAll());
 
             return "invoice/purchase-invoice-create";
         }
+
+        invoiceService.save(invoiceDto, InvoiceType.PURCHASE);
 
         return "redirect:list";
     }
