@@ -22,16 +22,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto findByUserName(String username) {
-        User user = userRepository.findByUsername(username);
+        User user = userRepository.findByUsernameAndIsDeleted(username,false);
         return mapperUtil.convert(user,new UserDto());
     }
 
     @Override
     public List<UserDto> listAllUser() {
-        List<User> useList = userRepository.findAll(Sort.by("firstName"));
-        List<UserDto> userDtoList = useList.stream().map(user -> (
+
+        List<User> userList = userRepository.findAllByIsDeletedOrderByCompanyTitleAsc(false);
+        List<UserDto> userDtoList =userList.stream().map(user -> (
                 mapperUtil.convert(user, new UserDto()))
         ).collect(Collectors.toList());
         return userDtoList;
     }
+
+
+
 }

@@ -7,6 +7,7 @@ import com.cydeo.service.RoleService;
 import com.cydeo.util.MapperUtil;
 import org.springframework.stereotype.Service;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -21,7 +22,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public RoleDto findById(Long id) {
-        Role role = roleRepository.findById(id).get();
+        Role role = roleRepository.findById(id).orElseThrow(()->new NoSuchElementException("role not found with id: "+id));
         return mapperUtil.convert(role,new RoleDto());
     }
 }
