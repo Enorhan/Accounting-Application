@@ -1,8 +1,8 @@
 package com.cydeo.service;
-import com.cydeo.entity.Category;
+import com.cydeo.dto.CategoryDto;
 
 import java.util.List;
 
 public interface CategoryService {
-    List<Category> listAllCategories();
+    List<CategoryDto> listAllCategories();
 }
