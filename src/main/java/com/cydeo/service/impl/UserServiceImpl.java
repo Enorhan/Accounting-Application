@@ -22,7 +22,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto findByusername(String username) {
+    public UserDto findByUsername(String username) {
         User user = userRepository.findByUsername(username);
         return mapperUtil.convert(user,new UserDto());
     }
