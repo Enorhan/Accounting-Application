@@ -29,7 +29,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> listAllUser() {
 
-        List<User> userList = userRepository.findAllByIsDeletedOrderByCompanyTitleAsc(false);
+        List<User> userList = userRepository.findAllByOrderByCompanyTitleAsc();
         List<UserDto> userDtoList =userList.stream().map(user -> (
                 mapperUtil.convert(user, new UserDto()))
         ).collect(Collectors.toList());

@@ -13,7 +13,6 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Entity
 @Table(name = "users")
-@Where(clause="is_deleted=false")
 public class User extends BaseEntity {
     private String firstname;
     private String lastname;
