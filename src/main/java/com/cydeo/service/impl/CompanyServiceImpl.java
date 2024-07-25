@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class CompanyServiceImpl implements CompanyService {
+
     private final CompanyRepository companyRepository;
     private final SecurityService securityService;
     private final MapperUtil mapperUtil;
@@ -22,10 +23,10 @@ public class CompanyServiceImpl implements CompanyService {
     
 
 
-    public CompanyServiceImpl(CompanyRepository companyRepository, SecurityService securityService, MapperUtil mapperUtil) {
+    public CompanyServiceImpl(CompanyRepository companyRepository, SecurityService securityService, MapperUtil mapperUtil, MapperUtil mapperUtil1) {
         this.companyRepository = companyRepository;
         this.securityService = securityService;
-        this.mapperUtil = mapperUtil;
+        this.mapperUtil = mapperUtil1;
     }
 
     @Override
