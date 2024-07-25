@@ -27,6 +27,7 @@ public class Invoice extends BaseEntity {
     @Enumerated(EnumType.STRING)
     InvoiceType invoiceType;
 
+    @Column(columnDefinition = "DATE")
     LocalDate date;
 
     @ManyToOne
