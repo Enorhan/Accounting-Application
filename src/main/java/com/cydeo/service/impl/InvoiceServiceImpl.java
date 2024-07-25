@@ -1,14 +1,15 @@
 package com.cydeo.service.impl;
 
 import com.cydeo.dto.InvoiceDto;
+import com.cydeo.dto.UserDto;
 import com.cydeo.entity.Invoice;
 import com.cydeo.enums.InvoiceType;
 import com.cydeo.repository.InvoiceRepository;
 import com.cydeo.service.InvoiceService;
+import com.cydeo.service.SecurityService;
 import com.cydeo.util.MapperUtil;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -17,15 +18,19 @@ import java.util.stream.Collectors;
 public class InvoiceServiceImpl implements InvoiceService {
     private final InvoiceRepository invoiceRepository;
     private final MapperUtil mapperUtil;
+    private final SecurityService securityService;
 
-    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, MapperUtil mapperUtil) {
+    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, MapperUtil mapperUtil, SecurityService securityService) {
         this.invoiceRepository = invoiceRepository;
         this.mapperUtil = mapperUtil;
+        this.securityService = securityService;
     }
 
     @Override
     public List<InvoiceDto> listAllInvoicesByType(InvoiceType invoiceType) {
-        return invoiceRepository.findAllByInvoiceTypeOrderByInvoiceNoDesc(invoiceType).stream()
+        UserDto userId = securityService.getLoggedInUser();
+//        System.out.println(userId);
+        return invoiceRepository.findAllByInvoiceTypeAndCompanyIdOrderByInvoiceNoDesc(invoiceType, 2L).stream()
                 .map(invoice -> mapperUtil.convert(invoice, new InvoiceDto()))
                 .collect(Collectors.toList());
     }
@@ -40,8 +45,10 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public String getNewPurchaseInvoiceNumberId() {
+//        Long userId = securityService.getLoggedInUser().getCompany().getId();
+
         String lastPurchaseInvoiceNumberId = invoiceRepository
-                .findAllByInvoiceTypeOrderByInvoiceNoDesc(InvoiceType.PURCHASE)
+                .findAllByInvoiceTypeAndCompanyIdOrderByInvoiceNoDesc(InvoiceType.PURCHASE, 2L)
                 .get(0)
                 .getInvoiceNo();
 

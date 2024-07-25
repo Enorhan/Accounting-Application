@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -49,7 +50,7 @@ public class PurchasesInvoiceController {
     }
 
     @PostMapping("/create")
-    public String createPurchaseInvoice(@ModelAttribute("project") InvoiceDto project, BindingResult bindingResult, Model model) {
+    public String createPurchaseInvoice(@Valid @ModelAttribute("project") InvoiceDto project, BindingResult bindingResult, Model model) {
 
 
         if (bindingResult.hasErrors()) {
