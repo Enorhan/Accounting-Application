@@ -4,6 +4,7 @@ import com.cydeo.entity.Invoice;
 import com.cydeo.entity.User;
 import com.cydeo.enums.InvoiceType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

@@ -112,23 +112,4 @@ public class InvoiceServiceImpl implements InvoiceService {
         }
     }
 
-    @Override
-    public void save(InvoiceDto invoiceDto, InvoiceType invoiceType) {
-        Invoice invoice = mapperUtil.convert(invoiceDto, new Invoice());
-
-        Long userId = securityService.getLoggedInUser().getId();
-        CompanyDto companyDto = securityService.getLoggedInUser().getCompany();
-        Company company = mapperUtil.convert(companyDto, new Company());
-
-        invoice.setInvoiceType(invoiceType);
-        invoice.setInsertDateTime(LocalDateTime.now());
-        invoice.setLastUpdateDateTime(LocalDateTime.now());
-        invoice.setInsertUserId(userId);
-        invoice.setLastUpdateUserId(userId);
-        invoice.setCompany(company);
-        invoice.setInvoiceStatus(InvoiceStatus.AWAITING_APPROVAL);
-
-        invoiceRepository.save(invoice);
-    }
-
 }
