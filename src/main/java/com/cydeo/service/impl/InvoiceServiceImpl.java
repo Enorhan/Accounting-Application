@@ -99,7 +99,8 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Transactional
     public String createNewSalesInvoiceNo() {
 
-        Invoice latestInvoice = invoiceRepository.findTopSalesInvoice();
+        String company=securityService.getLoggedInUser().getCompany().getTitle();
+        Invoice latestInvoice = invoiceRepository.findTopSalesInvoice(company);
 
         if (latestInvoice == null) {
             return "S-001";
