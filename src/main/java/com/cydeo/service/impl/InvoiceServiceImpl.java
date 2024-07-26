@@ -9,11 +9,13 @@ import com.cydeo.enums.InvoiceType;
 import com.cydeo.repository.InvoiceRepository;
 import com.cydeo.service.ClientVendorService;
 import com.cydeo.service.CompanyService;
+import com.cydeo.repository.UserRepository;
 import com.cydeo.service.InvoiceService;
 import com.cydeo.service.SecurityService;
 import com.cydeo.util.MapperUtil;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -91,4 +93,24 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         invoiceRepository.save(invoice);
     }
+
+
+    @Override
+    @Transactional
+    public String createNewSalesInvoiceNo() {
+
+        String company=securityService.getLoggedInUser().getCompany().getTitle();
+        Invoice latestInvoice = invoiceRepository.findTopSalesInvoice(company);
+
+        if (latestInvoice == null) {
+            return "S-001";
+        } else {
+
+            String latestInvoiceNo = latestInvoice.getInvoiceNo();
+            int latestNumber = Integer.parseInt(latestInvoiceNo.substring(2));
+
+            return "S-" + String.format("%03d", latestNumber+1);
+        }
+    }
+
 }
