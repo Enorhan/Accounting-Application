@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class CompanyServiceImpl implements CompanyService {
+public  class CompanyServiceImpl implements CompanyService {
 
     private final CompanyRepository companyRepository;
     private final SecurityService securityService;
@@ -27,7 +27,7 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
-    public Long getCompanyIdByLoggedInUser(Long id) {
+    public Long getCompanyIdByLoggedInUser() {
         return securityService.getLoggedInUser().getCompany().getId();
     }
 
@@ -61,5 +61,7 @@ public class CompanyServiceImpl implements CompanyService {
                 })
                 .map(company -> mapperUtil.convert(company, new CompanyDto())).collect(Collectors.toList());
     }
+
+
 }
 
