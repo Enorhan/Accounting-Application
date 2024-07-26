@@ -126,6 +126,29 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoiceRepository.save(invoice);
     }
 
+    @Override
+    public InvoiceDto update(InvoiceDto invoiceDto, Long id) {
+        Invoice oldInvoice = invoiceRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Invoice not found with id: " + id));
+        invoiceDto.setId(id);
+        Invoice invoice = mapperUtil.convert(invoiceDto, new Invoice());
+
+        Long userId = userService.getCurrentUserId();
+
+        invoice.setLastUpdateDateTime(LocalDateTime.now());
+        invoice.setLastUpdateUserId(userId);
+
+        invoice.setInsertDateTime(oldInvoice.getInsertDateTime());
+        invoice.setInsertUserId(oldInvoice.getInsertUserId());
+        invoice.setInvoiceStatus(oldInvoice.getInvoiceStatus());
+        invoice.setInvoiceType(oldInvoice.getInvoiceType());
+        invoice.setCompany(oldInvoice.getCompany());
+
+        invoiceRepository.save(invoice);
+
+        return findById(invoiceDto.getId());
+    }
+
 
     @Override
     @Transactional

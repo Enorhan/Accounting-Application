@@ -11,5 +11,6 @@ public interface InvoiceService {
     InvoiceDto findById(Long id);
     String getNewPurchaseInvoiceNumberId();
     void save(InvoiceDto invoiceDto, InvoiceType invoiceType);
+    InvoiceDto update(InvoiceDto invoiceDto, Long invoiceId);
     String createNewSalesInvoiceNo();
 }
