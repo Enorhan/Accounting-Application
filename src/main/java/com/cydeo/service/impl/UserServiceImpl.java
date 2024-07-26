@@ -36,12 +36,14 @@ public class UserServiceImpl implements UserService {
     public List<UserDto> listAllUser() {
         User currentUser = mapperUtil.convert(securityService.getLoggedInUser(), new User());
         List<User> userList;
-        if (currentUser.getRole().getDescription().equals("Root User")) {
-            userList = userRepository.findAllByRoleDescriptionOrderByCompanyTitleAsc("Admin");
+        if (currentUser.getRole().getDescription().equals("Root User")) {//Root User can list only admins of all companies.
+            userList = userRepository.findAllByRoleDescription("Admin");
         } else {
-            userList = userRepository.findByCompanyId(currentUser.getCompany().getId());
+            userList = userRepository.findByCompanyId(currentUser.getCompany().getId());//Admin can only see his/her company's users.
         }
-        return userList.stream()
+//        Users should be sorted by their companies then their roles.
+        return userList.stream().sorted(Comparator.comparing((User user)-> user.getCompany().getTitle())
+                        .thenComparing((User user)-> user.getRole().getDescription()))
                 .map(entity -> {
                     UserDto dto = mapperUtil.convert(entity, new UserDto());
                     dto.setIsOnlyAdmin(dto.getRole().getDescription().equals("Admin") && this.checkIfOnlyAdmin(dto));

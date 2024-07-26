@@ -14,6 +14,6 @@ public interface UserRepository extends JpaRepository<User,Long> {
 
     //Root User can list only admins of all companies.
     //Admin can only see his/her company's users.
-    List<User> findAllByRoleDescriptionOrderByCompanyTitleAsc(String roleDescription);
+    List<User> findAllByRoleDescription(String roleDescription);
     List<User> findByCompanyId(Long companyId);
 }
