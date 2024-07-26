@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 import com.cydeo.util.MapperUtil;
 
 
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 public class InvoiceProductServiceImpl implements InvoiceProductService {
@@ -32,4 +34,12 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
         return mapperUtil.convert(invoiceProduct, new InvoiceProductDto());
     }
 
+    @Override
+    public List<InvoiceProductDto> findAllByInvoiceId(Long id) {
+        List<InvoiceProduct> invoiceProducts = invoiceProductRepository.findAllByInvoiceId(id);
+
+        return invoiceProducts.stream()
+                .map(invoiceProduct -> mapperUtil.convert(invoiceProduct, new InvoiceProductDto()))
+                .collect(Collectors.toList());
+    }
 }
