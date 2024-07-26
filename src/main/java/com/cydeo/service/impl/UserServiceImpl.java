@@ -17,7 +17,6 @@ import java.util.NoSuchElementException;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final MapperUtil mapperUtil;
-
     private final SecurityService securityService;
 
     public UserServiceImpl(UserRepository userRepository, MapperUtil mapperUtil, @Lazy SecurityService securityService) {
@@ -64,6 +63,11 @@ public class UserServiceImpl implements UserService {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public Long getCurrentUserId() {
+        return securityService.getLoggedInUser().getId();
     }
 
     @Override

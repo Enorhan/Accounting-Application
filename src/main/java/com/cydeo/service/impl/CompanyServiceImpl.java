@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,9 +19,6 @@ public class CompanyServiceImpl implements CompanyService {
     private final SecurityService securityService;
     private final MapperUtil mapperUtil;
 
-    
-
-
     public CompanyServiceImpl(CompanyRepository companyRepository, SecurityService securityService, MapperUtil mapperUtil, MapperUtil mapperUtil1) {
         this.companyRepository = companyRepository;
         this.securityService = securityService;
@@ -30,8 +26,18 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
-    public Long getCompanyIdByLoggedInUser(Long id) {
+    public Long getCompanyIdByLoggedInUser() {
         return securityService.getLoggedInUser().getCompany().getId();
+    }
+
+    @Override
+    public CompanyDto getCompanyDtoByLoggedInUser() {
+        return securityService.getLoggedInUser().getCompany();
+    }
+
+    @Override
+    public String getCurrentCompanyTitle() {
+        return securityService.getLoggedInUser().getCompany().getTitle();
     }
 
     @Override
