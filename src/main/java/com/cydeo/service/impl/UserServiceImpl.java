@@ -14,21 +14,22 @@ import java.util.stream.Collectors;
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private MapperUtil mapperUtil;
+    private final MapperUtil mapperUtil;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, MapperUtil mapperUtil) {
         this.userRepository = userRepository;
+        this.mapperUtil = mapperUtil;
     }
 
     @Override
-    public UserDto findByUserName(String username) {
-        User user = userRepository.findByUserName(username);
+    public UserDto findByUsername(String username) {
+        User user = userRepository.findByUsername(username);
         return mapperUtil.convert(user,new UserDto());
     }
 
     @Override
     public List<UserDto> listAllUser() {
-        List<User> useList = userRepository.findAll(Sort.by("firstName"));
+        List<User> useList = userRepository.findAll(Sort.by("firstname"));
         List<UserDto> userDtoList = useList.stream().map(user -> (
                 mapperUtil.convert(user, new UserDto()))
         ).collect(Collectors.toList());
