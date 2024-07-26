@@ -112,7 +112,7 @@ public class DashboardServiceImpl implements DashboardService {
             BigDecimal unitPrice=invoiceProducts.get(i).getPrice();
 
             invoiceDtos.get(i).setPrice(quantity.multiply(unitPrice));
-            invoiceDtos.get(i).setTax(quantity.multiply(unitPrice).divide(taxRate));
+            invoiceDtos.get(i).setTax(quantity.multiply(unitPrice).multiply(taxRate.divide(BigDecimal.valueOf(100))));
             invoiceDtos.get(i).setTotal(quantity.multiply(unitPrice).add(quantity.multiply(unitPrice).divide(taxRate)));
 
         }
