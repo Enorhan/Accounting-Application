@@ -4,15 +4,16 @@ import com.cydeo.entity.Company;
 import com.cydeo.entity.Role;
 import com.cydeo.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
 public interface UserRepository extends JpaRepository<User,Long> {
 
     User findByUsername(String username);
-    List<User> findAllByOrderByCompanyTitleAsc();
 
-
-
-
+    //Root User can list only admins of all companies.
+    //Admin can only see his/her company's users.
+    List<User> findAllByRoleDescriptionOrderByCompanyTitleAsc(String roleDescription);
+    List<User> findByCompanyId(Long companyId);
 }

@@ -7,6 +7,7 @@ import com.cydeo.service.RoleService;
 import com.cydeo.util.MapperUtil;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -24,5 +25,10 @@ public class RoleServiceImpl implements RoleService {
     public RoleDto findById(Long id) {
         Role role = roleRepository.findById(id).orElseThrow(()->new NoSuchElementException("role not found with id: "+id));
         return mapperUtil.convert(role,new RoleDto());
+    }
+    @Override
+    public List<RoleDto> listAllRoles() {
+        return roleRepository.findAll().stream()
+                .map(role -> mapperUtil.convert(role, new RoleDto())).toList();
     }
 }
