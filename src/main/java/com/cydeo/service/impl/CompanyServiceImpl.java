@@ -1,5 +1,6 @@
 package com.cydeo.service.impl;
 
+import com.cydeo.dto.CompanyDto;
 import com.cydeo.service.CompanyService;
 import com.cydeo.service.SecurityService;
 import org.springframework.stereotype.Service;
@@ -13,8 +14,18 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
-    public Long getCompanyIdByLoggedInUser(Long id) {
+    public Long getCompanyIdByLoggedInUser() {
         return securityService.getLoggedInUser().getCompany().getId();
+    }
+
+    @Override
+    public CompanyDto getCompanyDtoByLoggedInUser() {
+        return securityService.getLoggedInUser().getCompany();
+    }
+
+    @Override
+    public String getCurrentCompanyTitle() {
+        return securityService.getLoggedInUser().getCompany().getTitle();
     }
 }
 
