@@ -20,7 +20,6 @@ public class CompanyServiceImpl implements CompanyService {
     private final SecurityService securityService;
     private final MapperUtil mapperUtil;
 
-
     public CompanyServiceImpl(CompanyRepository companyRepository, SecurityService securityService, MapperUtil mapperUtil, MapperUtil mapperUtil1) {
         this.companyRepository = companyRepository;
         this.securityService = securityService;
@@ -30,6 +29,16 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     public Long getCompanyIdByLoggedInUser(Long id) {
         return securityService.getLoggedInUser().getCompany().getId();
+    }
+
+    @Override
+    public CompanyDto getCompanyDtoByLoggedInUser() {
+        return securityService.getLoggedInUser().getCompany();
+    }
+
+    @Override
+    public String getCurrentCompanyTitle() {
+        return securityService.getLoggedInUser().getCompany().getTitle();
     }
 
     @Override
