@@ -17,4 +17,6 @@ public interface UserService {
 
     UserDto update(UserDto user);
 
+    Long getCurrentUserId();
+
 }
