@@ -20,7 +20,7 @@ public class CompanyController {
     }
 
 
-    @GetMapping
+    @GetMapping("/list")
     public String getCompanies(Model model) {
         List<CompanyDto> companies = companyService.getAllCompanies();
 
