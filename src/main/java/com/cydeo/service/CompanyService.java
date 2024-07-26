@@ -1,6 +1,17 @@
 package com.cydeo.service;
 
-public interface CompanyService {
+import com.cydeo.dto.CompanyDto;
 
-     Long getCompanyIdByLoggedInUser(Long id);
+import java.util.List;
+
+public interface CompanyService {
+     CompanyDto findById(Long id);
+
+     List<CompanyDto> getAllCompanies();
+
+     Long getCompanyIdByLoggedInUser();
+
+     CompanyDto getCompanyDtoByLoggedInUser();
+
+     String getCurrentCompanyTitle();
 }
