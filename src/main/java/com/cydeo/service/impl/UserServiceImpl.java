@@ -24,7 +24,6 @@ public class UserServiceImpl implements UserService {
     private final MapperUtil mapperUtil;
     private final PasswordEncoder passwordEncoder;
     private final CompanyService companyService;
-
     private final SecurityService securityService;
 
     public UserServiceImpl(UserRepository userRepository, MapperUtil mapperUtil, @Lazy PasswordEncoder passwordEncoder, @Lazy CompanyService companyService, @Lazy SecurityService securityService) {
@@ -79,8 +78,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void save(UserDto userDto) {
 
+    public void save(UserDto userDto) {
 
         userRepository.save(mapperUtil.convert(userDto,new User()));
     }
