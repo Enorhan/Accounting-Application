@@ -2,6 +2,7 @@ package com.cydeo.service.impl;
 
 import com.cydeo.dto.CompanyDto;
 import com.cydeo.entity.Company;
+import com.cydeo.enums.CompanyStatus;
 import com.cydeo.repository.CompanyRepository;
 import com.cydeo.service.CompanyService;
 import com.cydeo.service.SecurityService;
@@ -39,6 +40,15 @@ public  class CompanyServiceImpl implements CompanyService {
     @Override
     public String getCurrentCompanyTitle() {
         return securityService.getLoggedInUser().getCompany().getTitle();
+    }
+
+    @Override
+    public void save(CompanyDto companyDto) {
+        Company company = mapperUtil.convert(companyDto, new Company());
+        if(company.getId() == null){
+            company.setCompanyStatus(CompanyStatus.PASSIVE);
+        }
+        companyRepository.save(company);
     }
 
     @Override
