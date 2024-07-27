@@ -1,6 +1,7 @@
 package com.cydeo.service.impl;
 
 import com.cydeo.dto.ProductDto;
+import com.cydeo.entity.Product;
 import com.cydeo.repository.ProductRepository;
 import com.cydeo.service.CompanyService;
 import com.cydeo.service.ProductService;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,7 +34,14 @@ public class ProductServiceImpl implements ProductService {
                 .filter(product -> product.getQuantityInStock() > 0)
                 .map(product -> mapperUtil.convert(product, new ProductDto()))
                 .collect(Collectors.toList());
-
         return collect;
+    }
+
+    @Override
+    public ProductDto findById(Long productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new NoSuchElementException("Product not found with id: " + productId));
+
+        return mapperUtil.convert(product, new ProductDto());
     }
 }

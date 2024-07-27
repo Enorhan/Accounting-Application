@@ -8,4 +8,6 @@ public interface ProductService {
 
 
     List<ProductDto>findAllInStock();
+
+    ProductDto findById(Long productId);
 }

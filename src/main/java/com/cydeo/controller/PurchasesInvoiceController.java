@@ -2,8 +2,10 @@ package com.cydeo.controller;
 
 import com.cydeo.dto.InvoiceDto;
 import com.cydeo.dto.InvoiceProductDto;
+import com.cydeo.dto.ProductDto;
 import com.cydeo.enums.InvoiceType;
 import com.cydeo.service.ClientVendorService;
+import com.cydeo.service.InvoiceProductService;
 import com.cydeo.service.InvoiceService;
 import com.cydeo.service.ProductService;
 import org.springframework.stereotype.Controller;
@@ -20,11 +22,13 @@ import java.util.List;
 public class PurchasesInvoiceController {
 
     private final InvoiceService invoiceService;
+    private final InvoiceProductService invoiceProductService;
     private final ClientVendorService clientVendorService;
     private final ProductService productService;
 
-    public PurchasesInvoiceController(InvoiceService invoiceService, ClientVendorService clientVendorService, ProductService productService) {
+    public PurchasesInvoiceController(InvoiceService invoiceService, InvoiceProductService invoiceProductService, ClientVendorService clientVendorService, ProductService productService) {
         this.invoiceService = invoiceService;
+        this.invoiceProductService = invoiceProductService;
         this.clientVendorService = clientVendorService;
         this.productService = productService;
     }
@@ -90,16 +94,17 @@ public class PurchasesInvoiceController {
     }
 
 
-    @PostMapping("/addInvoiceProduct/{id}")
+    @PostMapping("/addInvoiceProduct/{invoiceId}")
     public String updatePurchaseInvoice(@Valid @ModelAttribute("newInvoiceProduct") InvoiceProductDto invoiceProductDto, @PathVariable("invoiceId") String invoiceId, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
-//            model.addAttribute("vendors", clientVendorService.findAll());
+            model.addAttribute("vendors", clientVendorService.findAll());
+            model.addAttribute("products", productService.findAllInStock());
 
             return "invoice/purchase-invoice-update";
         }
 
-//        invoiceService.update(invoiceDto, Long.valueOf(invoiceId));
+        invoiceProductService.save(invoiceProductDto, Long.valueOf(invoiceId));
 
-        return "redirect:{invoiceId}";
+        return "redirect:/purchaseInvoices/update/{invoiceId}";
     }
 }

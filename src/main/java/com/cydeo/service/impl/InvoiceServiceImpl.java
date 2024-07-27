@@ -167,5 +167,4 @@ public class InvoiceServiceImpl implements InvoiceService {
             return "S-" + String.format("%03d", latestNumber + 1);
         }
     }
-
 }

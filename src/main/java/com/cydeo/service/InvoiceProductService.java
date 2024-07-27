@@ -8,4 +8,5 @@ public interface InvoiceProductService {
     InvoiceProductDto findById(Long id);
     List<InvoiceProductDto> findAllByInvoiceId(Long id);
 
+    void save(InvoiceProductDto invoiceProductDto, Long invoiceId);
 }
