@@ -10,6 +10,8 @@ import com.cydeo.service.SecurityService;
 import com.cydeo.service.UserService;
 import com.cydeo.util.MapperUtil;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -50,7 +52,6 @@ public class UserServiceImpl implements UserService {
             userList = userRepository.findByCompanyId(currentUser.getCompany().getId());//Admin can only see his/her company's users.
         }
 
-
 //        Users should be sorted by their companies then their roles.
         return userList.stream().sorted(Comparator.comparing((User user)-> user.getCompany().getTitle())
                         .thenComparing((User user)-> user.getRole().getDescription()))
@@ -84,33 +85,10 @@ public class UserServiceImpl implements UserService {
         userRepository.save(mapperUtil.convert(userDto,new User()));
     }
 
-    private Map<String, Object> getOptions() {
-       // If current user is a "Root User", selectable option will be only "Admin" and it should be selected by default
-//If current user is an "Admin", selectable options will be "Admin", "Manager", and "Employee"
-        User currentUser = mapperUtil.convert(securityService.getLoggedInUser(), new User());
-        List<String> options;
-        String defaultSelection;
 
-        switch (currentUser.getRole().getDescription()) {
-            case "Root User":
-                options = List.of("Admin");
-                defaultSelection = "Admin";
-                break;
-            case "Admin":
-                options = List.of("Admin", "Manager", "Employee");
-                defaultSelection = "Admin";
-                break;
-            default:
-                options = List.of(); // No options available
-                defaultSelection = "";
-                break;
-        }
-        return Map.of("options", options, "defaultSelection", defaultSelection);
-    }
 
     @Override
     public void update(UserDto userDto) {
-
         User user = mapperUtil.convert(userDto, new User());
         userRepository.save(user);
     }
@@ -123,6 +101,23 @@ public class UserServiceImpl implements UserService {
         user.setIsDeleted(true);
         //save the object in the db
         userRepository.save(user);
+    }
+
+    @Override
+    public UserDto getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username);
+        return mapperUtil.convert(user,new UserDto());
+
+    }
+
+    @Override
+    public Long getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username);
+        return user.getId();
     }
 
 

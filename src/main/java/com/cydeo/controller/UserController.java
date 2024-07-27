@@ -1,7 +1,9 @@
 package com.cydeo.controller;
 
+import com.cydeo.dto.CompanyDto;
 import com.cydeo.dto.RoleDto;
 import com.cydeo.dto.UserDto;
+import com.cydeo.entity.User;
 import com.cydeo.service.CompanyService;
 import com.cydeo.service.RoleService;
 import com.cydeo.service.UserService;
@@ -36,13 +38,21 @@ public class UserController {
 
     @GetMapping("/create")
     public String createUserForm(Model model) {
-        model.addAttribute("newUser", new UserDto());
+        UserDto currentUser = userService.getCurrentUser();
+        String currentUserRole = currentUser.getRole().getDescription(); // Implement this method to get the current user role
+        List<String> roles = currentUserRole.equals("Root User")
+                ? List.of("Admin")
+                : List.of("Admin", "Manager", "Employee");
 
-        model.addAttribute("Title","Cydeo Accounting-User");
-        model.addAttribute("users", userService.listAllUser());
-        model.addAttribute("userRoles", roleService.listAllRoles());
-        List<RoleDto> roleDtos = roleService.listAllRoles();
-        List<String>
+        List<CompanyDto> companies = currentUserRole.equals("Root User")
+                ? companyService.getAllCompaniesExcept("CYDEO")
+                : List.of(companyService.getCompanyByUserId(userService.getCurrentUserId()));
+
+        model.addAttribute("newUser", new UserDto());
+        model.addAttribute("user", currentUser);
+        model.addAttribute("roles", roles);
+        model.addAttribute("companies", companies);
+        model.addAttribute("currentUserRole", currentUserRole);
 
 
         model.addAttribute("companies", companyService.getAllCompanies());
@@ -50,17 +60,7 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public String saveUser(@ModelAttribute("newUser") UserDto userDto,BindingResult result,Model model) {
-
-        if (result.hasErrors()) {
-            model.addAttribute("Title","Cydeo Accounting-User");
-            model.addAttribute("users", userService.listAllUser());
-            model.addAttribute("userRoles", roleService.listAllRoles());
-            model.addAttribute("companies", companyService.getAllCompanies());
-
-            return "/user/user-create";
-
-        }
+    public String saveUser(@ModelAttribute("newUser") UserDto userDto){
 
         userService.save(userDto);
         return "redirect:/users/list";
@@ -78,29 +78,35 @@ public class UserController {
 
         UserDto userDto = userService.findById(id);
         model.addAttribute("user", userDto);
-        model.addAttribute("users", userService.listAllUser());
-        model.addAttribute("userRoles", roleService.listAllRoles());
-        model.addAttribute("companies", companyService.getAllCompanies());
-
         return "/user/user-update";
 
     }
 
 
     @PostMapping("/update")
-    public String updateUser( @ModelAttribute("newUser") UserDto user) {
+    public String updateUser( @ModelAttribute("newUser") UserDto userDto) {
 
-        userService.update(user);
+        userService.update(userDto);
 
         return "redirect:/users/list";
 
     }
 
-    @GetMapping("/delete/{id}")
-    public String deleteUser(@PathVariable("id") Long id) {
-        userService.delete(id);
+    @ModelAttribute
+    public void commonAttributes(Model model) {
 
-        return "redirect:/user/create";
+        model.addAttribute("users", userService.listAllUser());
+        model.addAttribute("Title","Cydeo Accounting-User");
+        model.addAttribute("userRoles", roleService.listAllRoles());
+        model.addAttribute("companies", companyService.getAllCompanies());
+
     }
+
+//    @GetMapping("/delete/{id}")
+//    public String deleteUser(@PathVariable("id") Long id) {
+//        userService.delete(id);
+//
+//        return "redirect:/user/create";
+//    }
 
 }
