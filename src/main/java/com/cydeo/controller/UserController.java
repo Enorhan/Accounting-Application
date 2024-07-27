@@ -83,7 +83,7 @@ public class UserController {
     }
 
 
-    @PostMapping("/update")
+    @PutMapping("/update")
     public String updateUser( @ModelAttribute("newUser") UserDto userDto) {
 
         userService.update(userDto);
