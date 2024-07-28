@@ -79,7 +79,7 @@ public class SalesInvoiceController {
         //Long invoiceCompanyId=invoiceService.findById(invoiceId).getCompany().getId();
 
         model.addAttribute("invoice",invoiceService.findById(invoiceId));
-        model.addAttribute("clients",clientVendorService.findAll());
+        model.addAttribute("clients",clientVendorService.listAllClientVendorsByCompany());
         model.addAttribute("products",productService.findAllInStock());
         model.addAttribute("invoiceProducts",invoiceProductService.findAllByInvoiceId(invoiceId));
         model.addAttribute("newInvoiceProduct", new InvoiceProductDto());
@@ -106,7 +106,7 @@ public class SalesInvoiceController {
         if (bindingResult.hasErrors()) {
 
             model.addAttribute("invoice", invoiceService.findById(invoiceId));
-            model.addAttribute("clients", clientVendorService.findAll());
+            model.addAttribute("clients", clientVendorService.listAllClientVendorsByCompany());
             model.addAttribute("products", productService.findAllInStock());
             model.addAttribute("invoiceProducts", invoiceProductService.findAllByInvoiceId(invoiceId));
             return "invoice/sales-invoice-update";
