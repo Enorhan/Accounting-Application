@@ -51,16 +51,15 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public String saveUser(@ModelAttribute() UserDto userDto, BindingResult result, Model model) {
+    public String saveUser(@Valid @ModelAttribute("newUser") UserDto userDto, BindingResult result, Model model) {
 
-//        if (result.hasErrors()) {
-//            model.addAttribute("roles", roleService.listAllRoles());
-//            model.addAttribute("userRoles", userService.listAllUser());
-//            model.addAttribute("companies", companyService.getAllCompanies());
-//
-//
-//            return "/user/user-create";
-//        }
+        if (result.hasErrors()) {
+            return "/user/user-create";
+        }
+        if (userService.userNameExists(userDto)) {
+            result.rejectValue("username",
+                    "A user with this email already exists. Please try with different email.");
+        }
 
         userService.save(userDto);
         return "redirect:/users/list";
@@ -79,6 +78,7 @@ public class UserController {
 
         UserDto userDto = userService.findById(id);
         model.addAttribute("user", userDto);
+        model.addAttribute("users", userService.listAllUser());
         model.addAttribute("userRoles", roleService.listRolesByLoggedInUser());
         model.addAttribute("companies", userService.listCompaniesByLoggedInUser());
 
@@ -88,9 +88,23 @@ public class UserController {
 
 
     @PostMapping("/update/{id}")
-    public String updateUser(@ModelAttribute() UserDto userDto, Model model) {
-        model.addAttribute("userRoles", roleService.listRolesByLoggedInUser());
-        model.addAttribute("companies", userService.listCompaniesByLoggedInUser());
+    public String updateUser(@Valid @ModelAttribute("user") UserDto userDto,BindingResult result, Model model) {
+
+        if (result.hasErrors()) {
+            model.addAttribute("users", userService.listAllUser());
+            model.addAttribute("userRoles", roleService.listRolesByLoggedInUser());
+            model.addAttribute("companies", userService.listCompaniesByLoggedInUser());
+
+            return "/user/user-update";
+        }
+        if (userService.userNameExists(userDto)) {
+            result.rejectValue("username",
+                    "A user with this email already exists. Please try with different email.");
+        }
+
+//        model.addAttribute("users", userService.listAllUser());
+//        model.addAttribute("userRoles", roleService.listRolesByLoggedInUser());
+//        model.addAttribute("companies", userService.listCompaniesByLoggedInUser());
 
         userService.update(userDto);
 

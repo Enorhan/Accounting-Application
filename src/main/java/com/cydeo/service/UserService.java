@@ -22,5 +22,6 @@ public interface UserService {
     UserDto getCurrentUser();
     Long getCurrentUserId();
     List<CompanyDto> listCompaniesByLoggedInUser();
+    boolean userNameExists(UserDto userDto);
 
 }

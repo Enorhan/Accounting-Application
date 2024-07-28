@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -83,6 +84,9 @@ public class UserServiceImpl implements UserService {
     public void save(UserDto userDto) {
         User user = mapperUtil.convert(userDto, new User());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        if (!user.getPassword().equals(userDto.getConfirmPassword())){
+           throw new IllegalArgumentException("Passwords do not match");
+        }
         user.setEnabled(true);
         userRepository.save(user);
     }
@@ -134,6 +138,10 @@ public class UserServiceImpl implements UserService {
         String username = authentication.getName();
         User user = userRepository.findByUsername(username);
         return user.getId();
+    }
+
+    public boolean userNameExists(UserDto userDto){
+        return userRepository.existsByUsername(userDto.getUsername());
     }
 
 
