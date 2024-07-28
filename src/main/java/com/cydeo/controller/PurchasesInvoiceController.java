@@ -2,7 +2,6 @@ package com.cydeo.controller;
 
 import com.cydeo.dto.InvoiceDto;
 import com.cydeo.dto.InvoiceProductDto;
-import com.cydeo.dto.ProductDto;
 import com.cydeo.enums.InvoiceType;
 import com.cydeo.service.ClientVendorService;
 import com.cydeo.service.InvoiceProductService;
@@ -49,7 +48,7 @@ public class PurchasesInvoiceController {
         newInvoice.setDate(LocalDate.now());
 
         model.addAttribute("newPurchaseInvoice", newInvoice);
-        model.addAttribute("vendors", clientVendorService.findAll());
+        model.addAttribute("vendors", clientVendorService.listAllClientVendors());
 
         return "invoice/purchase-invoice-create";
     }
@@ -59,7 +58,7 @@ public class PurchasesInvoiceController {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("newPurchaseInvoice", invoiceDto);
-            model.addAttribute("vendors", clientVendorService.findAll());
+            model.addAttribute("vendors", clientVendorService.listAllClientVendors());
 
             return "invoice/purchase-invoice-create";
         }
@@ -73,7 +72,7 @@ public class PurchasesInvoiceController {
     public String getUpdatePurchaseInvoice(@PathVariable("invoiceId") Long invoiceId, Model model) {
 
         model.addAttribute("invoice", invoiceService.findById(invoiceId));
-        model.addAttribute("vendors", clientVendorService.findAll());
+        model.addAttribute("vendors", clientVendorService.listAllClientVendors());
         model.addAttribute("newInvoiceProduct", new InvoiceProductDto());
         model.addAttribute("products", productService.findAllInStock());
         model.addAttribute("invoiceProducts", invoiceProductService.findAllByInvoiceIdAndIsDeleted(invoiceId, false));
@@ -84,7 +83,7 @@ public class PurchasesInvoiceController {
     @PostMapping("/update/{invoiceId}")
     public String updatePurchaseInvoice(@Valid @ModelAttribute("invoice") InvoiceDto invoiceDto, @PathVariable("invoiceId") Long invoiceId, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("vendors", clientVendorService.findAll());
+            model.addAttribute("vendors", clientVendorService.listAllClientVendors());
 
             return "invoice/purchase-invoice-update";
         }
@@ -98,7 +97,7 @@ public class PurchasesInvoiceController {
     @PostMapping("/addInvoiceProduct/{invoiceId}")
     public String updatePurchaseInvoice(@PathVariable("invoiceId") Long invoiceId, @Valid @ModelAttribute("newInvoiceProduct") InvoiceProductDto invoiceProductDto, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("vendors", clientVendorService.findAll());
+            model.addAttribute("vendors", clientVendorService.listAllClientVendors());
             model.addAttribute("products", productService.findAllInStock());
             model.addAttribute("invoice", invoiceService.findById(invoiceId));
             model.addAttribute("invoiceProducts", invoiceProductService.findAllByInvoiceIdAndIsDeleted(invoiceId, false));

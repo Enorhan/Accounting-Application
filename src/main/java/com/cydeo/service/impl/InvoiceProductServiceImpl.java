@@ -8,7 +8,6 @@ import com.cydeo.repository.InvoiceProductRepository;
 import com.cydeo.service.InvoiceProductService;
 import com.cydeo.service.InvoiceService;
 import com.cydeo.service.UserService;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import com.cydeo.util.MapperUtil;
 
@@ -26,7 +25,7 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
     private final UserService userService;
     private final InvoiceService invoiceService;
 
-    public InvoiceProductServiceImpl(InvoiceProductRepository invoiceProductRepository, MapperUtil mapperUtil, UserService userService, @Lazy InvoiceService invoiceService) {
+    public InvoiceProductServiceImpl(InvoiceProductRepository invoiceProductRepository, MapperUtil mapperUtil, UserService userService, InvoiceService invoiceService) {
         this.invoiceProductRepository = invoiceProductRepository;
         this.mapperUtil = mapperUtil;
         this.userService = userService;
@@ -38,7 +37,6 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
         InvoiceProduct invoiceProduct = invoiceProductRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Invoice not found with id: " + id));
 
-
         return mapperUtil.convert(invoiceProduct, new InvoiceProductDto());
     }
 
@@ -47,7 +45,12 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
         List<InvoiceProduct> invoiceProducts = invoiceProductRepository.findAllByInvoiceIdAndIsDeleted(id, isDeleted);
 
         return invoiceProducts.stream()
-                .map(invoiceProduct -> mapperUtil.convert(invoiceProduct, new InvoiceProductDto()))
+                .map(invoiceProduct -> {
+                    InvoiceProductDto dto = mapperUtil.convert(invoiceProduct, new InvoiceProductDto());
+                    BigDecimal totalPrice = calculateTotalPrice(dto.getPrice(), dto.getQuantity(), dto.getTax());
+                    dto.setTotal(totalPrice);
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -84,4 +87,17 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
         invoiceProductRepository.save(invoiceProduct);
     }
 
+    @Override
+    public void removeInvoiceProduct(Long invoiceProductId) {
+        InvoiceProduct invoiceProduct = invoiceProductRepository.findById(invoiceProductId)
+                .orElseThrow(() -> new NoSuchElementException("Invoice product not found with id: " + invoiceProductId));
+        invoiceProduct.setIsDeleted(true);
+        invoiceProductRepository.save(invoiceProduct);
+    }
+
+    private BigDecimal calculateTotalPrice(BigDecimal price, int quantity, int tax) {
+        BigDecimal totalPrice = price.multiply(BigDecimal.valueOf(quantity));
+        BigDecimal taxAmount = totalPrice.multiply(BigDecimal.valueOf(tax)).divide(BigDecimal.valueOf(100));
+        return totalPrice.add(taxAmount);
+    }
 }

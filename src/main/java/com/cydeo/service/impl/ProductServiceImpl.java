@@ -8,7 +8,6 @@ import com.cydeo.service.ProductService;
 import com.cydeo.util.MapperUtil;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -30,11 +29,10 @@ public class ProductServiceImpl implements ProductService {
     public List<ProductDto> findAllInStock() {
         Long companyId = companyService.getCompanyIdByLoggedInUser();
 
-        List<ProductDto> collect = productRepository.findAllByCompanyId(companyId).stream()
+        return productRepository.findAllByCompanyId(companyId).stream()
                 .filter(product -> product.getQuantityInStock() > 0)
                 .map(product -> mapperUtil.convert(product, new ProductDto()))
                 .collect(Collectors.toList());
-        return collect;
     }
 
     @Override
