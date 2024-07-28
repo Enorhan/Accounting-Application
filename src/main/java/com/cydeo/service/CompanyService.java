@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface CompanyService {
 
-     Long getCompanyIdByLoggedInUser(Long id);
+     Long getCompanyIdByLoggedInUser();
 
      CompanyDto findById(Long id);
 

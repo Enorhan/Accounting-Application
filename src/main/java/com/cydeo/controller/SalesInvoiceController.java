@@ -2,8 +2,10 @@ package com.cydeo.controller;
 
 import com.cydeo.dto.InvoiceDto;
 import com.cydeo.dto.InvoiceProductDto;
+import com.cydeo.dto.ProductDto;
 import com.cydeo.entity.ClientVendor;
 import com.cydeo.entity.Invoice;
+import com.cydeo.entity.InvoiceProduct;
 import com.cydeo.enums.InvoiceType;
 import com.cydeo.service.ClientVendorService;
 import com.cydeo.service.InvoiceProductService;
@@ -79,18 +81,50 @@ public class SalesInvoiceController {
     @GetMapping("/update/{invoiceId}")
     public String editSalesInvoice(@PathVariable("invoiceId") Long invoiceId,Model model){
 
-        Long invoiceCompanyId=invoiceService.findById(invoiceId).getCompany().getId();
+        //Long invoiceCompanyId=invoiceService.findById(invoiceId).getCompany().getId();
 
         model.addAttribute("invoice",invoiceService.findById(invoiceId));
         model.addAttribute("clients",clientVendorService.findAll());
-        model.addAttribute("products",productService.findAllInStockByCompanyId(invoiceCompanyId));
+        model.addAttribute("products",productService.findAllInStock());
         model.addAttribute("invoiceProducts",invoiceProductService.findAllByInvoiceId(invoiceId));
         model.addAttribute("newInvoiceProduct", new InvoiceProductDto());
+
 
         return "invoice/sales-invoice-update";
     }
 
 
+    @GetMapping("/removeInvoiceProduct/{invoiceId}/{invoiceProductId}")
+    public String removeInvoiceProduct(@PathVariable("invoiceId") Long invoiceId,
+                                       @PathVariable("invoiceProductId") Long invoiceProductId) {
+        invoiceProductService.removeInvoiceProduct(invoiceProductId);
+        return "redirect:/salesInvoices/update/" + invoiceId;
+    }
 
+
+    @PostMapping("/addInvoiceProduct/{invoiceId}")
+    public String addInvoiceProduct(@PathVariable("invoiceId") Long invoiceId,
+                                    @Valid @ModelAttribute("newInvoiceProduct") InvoiceProductDto invoiceProductDto,
+                                    BindingResult bindingResult,
+                                    Model model) {
+
+        if (bindingResult.hasErrors()) {
+
+            bindingResult.getAllErrors().forEach(error -> {
+                System.out.println("Binding error: " + error.toString());
+            });
+
+            model.addAttribute("invoice", invoiceService.findById(invoiceId));
+            model.addAttribute("clients", clientVendorService.findAll());
+            model.addAttribute("products", productService.findAllInStock());
+            model.addAttribute("invoiceProducts", invoiceProductService.findAllByInvoiceId(invoiceId));
+            return "invoice/sales-invoice-update";
+        }
+
+
+        invoiceProductService.save(invoiceProductDto,invoiceId);
+
+        return "redirect:/salesInvoices/update/" + invoiceId;
+    }
 
 }

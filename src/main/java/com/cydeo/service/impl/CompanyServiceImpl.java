@@ -20,8 +20,6 @@ public class CompanyServiceImpl implements CompanyService {
     private final SecurityService securityService;
     private final MapperUtil mapperUtil;
 
-    
-
 
     public CompanyServiceImpl(CompanyRepository companyRepository, SecurityService securityService, MapperUtil mapperUtil, MapperUtil mapperUtil1) {
         this.companyRepository = companyRepository;
@@ -29,10 +27,6 @@ public class CompanyServiceImpl implements CompanyService {
         this.mapperUtil = mapperUtil1;
     }
 
-    @Override
-    public Long getCompanyIdByLoggedInUser(Long id) {
-        return securityService.getLoggedInUser().getCompany().getId();
-    }
 
     @Override
     public CompanyDto findById(Long id) {
@@ -45,6 +39,11 @@ public class CompanyServiceImpl implements CompanyService {
     public List<CompanyDto> getAllCompanies() {
         return companyRepository.findAll().stream()
                 .map(company -> mapperUtil.convert(company,new CompanyDto())).collect(Collectors.toList());
+    }
+
+    @Override
+    public Long getCompanyIdByLoggedInUser() {
+        return securityService.getLoggedInUser().getCompany().getId();
     }
 }
 
