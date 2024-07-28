@@ -9,6 +9,7 @@ import com.cydeo.service.SecurityService;
 import com.cydeo.util.MapperUtil;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -45,11 +46,16 @@ public  class CompanyServiceImpl implements CompanyService {
     @Override
     public void save(CompanyDto companyDto) {
         Company company = mapperUtil.convert(companyDto, new Company());
-        if(company.getId() == null){
+        if (companyDto.getId() == null) {
             company.setCompanyStatus(CompanyStatus.PASSIVE);
-        }
+            company.getAddress().setInsertDateTime(LocalDateTime.now());
+        } else {
+
+            if (company.getAddress().getInsertDateTime() == null) {
+                company.getAddress().setInsertDateTime(LocalDateTime.now());
+            }
         companyRepository.save(company);
-    }
+    }}
 
     @Override
     public CompanyDto findById(Long id) {

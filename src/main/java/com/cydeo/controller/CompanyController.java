@@ -33,16 +33,22 @@ public class CompanyController {
     }
 
     @GetMapping("/create")
-    public String createCompany(@Valid @ModelAttribute("company") CompanyDto companyDto, BindingResult bindingResult , Model model) {
-        if(bindingResult.hasErrors()) {
-            model.addAttribute("company", new CompanyDto());
-            model.addAttribute("company", companyDto);
-            model.addAttribute("companies", companyService.getAllCompanies());
+    public String getCreateCompany(Model model) {
+        model.addAttribute("newCompany", new CompanyDto());
+        return "company/company-create";
+    }
 
-            return "company/company-create";
-        }
+
+    @PostMapping("/create")
+    public String createCompany( @ModelAttribute("newCompany") CompanyDto companyDto, BindingResult bindingResult , Model model) {
+//      //  if(bindingResult.hasErrors()) {
+//            model.addAttribute("newCompany", companyDto);
+//            model.addAttribute("companies", companyService.getAllCompanies());
+//
+//            return "company/company-create";
+//        }
         companyService.save(companyDto);
 
-        return "redirect:/company-list";
-    }
+        return "redirect:/companies/list";
+}
 }
