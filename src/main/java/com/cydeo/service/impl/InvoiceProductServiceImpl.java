@@ -10,6 +10,8 @@ import com.cydeo.repository.InvoiceProductRepository;
 import com.cydeo.repository.InvoiceRepository;
 import com.cydeo.service.CompanyService;
 import com.cydeo.service.InvoiceProductService;
+import com.cydeo.service.InvoiceService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import com.cydeo.util.MapperUtil;
 
@@ -28,13 +30,13 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
 
     private final CompanyService companyService;
 
-    private final InvoiceRepository invoiceRepository;
+    private final InvoiceService invoiceService;
 
-    public InvoiceProductServiceImpl(InvoiceProductRepository invoiceProductRepository, MapperUtil mapperUtil, CompanyService companyService, InvoiceRepository invoiceRepository) {
+    public InvoiceProductServiceImpl(InvoiceProductRepository invoiceProductRepository, MapperUtil mapperUtil, CompanyService companyService, @Lazy  InvoiceService invoiceService) {
         this.invoiceProductRepository = invoiceProductRepository;
         this.mapperUtil = mapperUtil;
         this.companyService = companyService;
-        this.invoiceRepository = invoiceRepository;
+        this.invoiceService = invoiceService;
     }
 
     @Override
@@ -119,7 +121,7 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
         Long companyId = companyService.getCompanyIdByLoggedInUser();
 
 
-        List<Invoice>  invoices = invoiceRepository.findTop3ByCompanyIdAndInvoiceStatusOrderByDateDesc(companyId,InvoiceStatus.APPROVED);
+        List<Invoice>  invoices = invoiceService.findTop3ApprovedInvoicesByCompanyId(companyId,InvoiceStatus.APPROVED);
         List<InvoiceProduct> invoiceProducts = invoiceProductRepository.find3LastApprovedTransactionDesc(companyId);
 
 

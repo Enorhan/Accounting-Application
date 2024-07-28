@@ -145,4 +145,8 @@ public class InvoiceServiceImpl implements InvoiceService {
         }
     }
 
+    public List<Invoice> findTop3ApprovedInvoicesByCompanyId(Long companyId,InvoiceStatus invoiceStatus) {
+        return invoiceRepository.findTop3ByCompanyIdAndInvoiceStatusOrderByDateDesc(companyId, InvoiceStatus.APPROVED);
+
+    }
 }
