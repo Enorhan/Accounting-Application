@@ -44,18 +44,13 @@ public  class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
-    public void save(CompanyDto companyDto) {
+    public CompanyDto save(CompanyDto companyDto) {
         Company company = mapperUtil.convert(companyDto, new Company());
-        if (companyDto.getId() == null) {
+        if(company.getId() == null){
             company.setCompanyStatus(CompanyStatus.PASSIVE);
-            company.getAddress().setInsertDateTime(LocalDateTime.now());
-        } else {
-
-            if (company.getAddress().getInsertDateTime() == null) {
-                company.getAddress().setInsertDateTime(LocalDateTime.now());
-            }
-        companyRepository.save(company);
-    }}
+        }
+        return mapperUtil.convert(companyRepository.save(company), new CompanyDto());
+    }
 
     @Override
     public CompanyDto findById(Long id) {
