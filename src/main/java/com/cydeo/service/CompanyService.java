@@ -15,5 +15,5 @@ public interface CompanyService {
 
      String getCurrentCompanyTitle();
 
-     void save(CompanyDto companyDto);
+     CompanyDto save(CompanyDto companyDto);
 }
