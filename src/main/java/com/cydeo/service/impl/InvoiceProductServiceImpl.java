@@ -2,6 +2,7 @@ package com.cydeo.service.impl;
 
 import com.cydeo.dto.InvoiceProductDto;
 import com.cydeo.entity.Invoice;
+import com.cydeo.entity.InvoiceProduct;
 import com.cydeo.repository.InvoiceProductRepository;
 import com.cydeo.service.InvoiceProductService;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
 
     @Override
     public InvoiceProductDto findById(Long id) {
-        Invoice invoiceProduct = invoiceProductRepository.findById(id)
+        InvoiceProduct invoiceProduct = invoiceProductRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Invoice not found with id: " + id));
 
 
