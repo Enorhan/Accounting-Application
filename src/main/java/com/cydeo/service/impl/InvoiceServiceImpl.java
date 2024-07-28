@@ -30,7 +30,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     private final CompanyService companyService;
     private final InvoiceProductService invoiceProductService;
 
-    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, MapperUtil mapperUtil, UserService userService, CompanyService companyService,@Lazy InvoiceProductService invoiceProductService) {
+    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, MapperUtil mapperUtil, UserService userService, CompanyService companyService, @Lazy InvoiceProductService invoiceProductService) {
         this.invoiceRepository = invoiceRepository;
         this.mapperUtil = mapperUtil;
         this.userService = userService;
@@ -173,9 +173,9 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public void delete(Long id) {
-        Optional<Invoice> invoice=invoiceRepository.findById(id);
-        invoice.get().setIsDeleted(true);
-        invoiceRepository.save(invoice.get());
-
+        Invoice invoice = invoiceRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Invoice not found with id: " + id));
+        invoice.setIsDeleted(true);
+        invoiceRepository.save(invoice);
     }
 }
