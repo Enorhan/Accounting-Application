@@ -61,7 +61,5 @@ public  class CompanyServiceImpl implements CompanyService {
                 })
                 .map(company -> mapperUtil.convert(company, new CompanyDto())).collect(Collectors.toList());
     }
-
-
 }
 
