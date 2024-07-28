@@ -7,6 +7,7 @@ import com.cydeo.repository.ClientVendorRepository;
 import com.cydeo.repository.InvoiceRepository;
 import com.cydeo.service.ClientVendorService;
 import com.cydeo.service.CompanyService;
+import com.cydeo.service.SecurityService;
 import com.cydeo.util.MapperUtil;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -19,12 +20,15 @@ public class ClientVendorServiceImpl implements ClientVendorService {
     private final MapperUtil mapperUtil;
     private final CompanyService companyService;
     private final InvoiceRepository invoiceRepository;
+    private final SecurityService securityService;
 
     public ClientVendorServiceImpl(ClientVendorRepository clientVendorRepository, MapperUtil mapperUtil, CompanyService companyService, InvoiceRepository invoiceRepository) {
+    public ClientVendorServiceImpl(ClientVendorRepository clientVendorRepository, MapperUtil mapperUtil, SecurityService securityService) {
         this.clientVendorRepository = clientVendorRepository;
         this.mapperUtil = mapperUtil;
         this.companyService = companyService;
         this.invoiceRepository = invoiceRepository;
+        this.securityService = securityService;
     }
 
     @Override
