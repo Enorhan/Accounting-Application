@@ -1,8 +1,6 @@
 package com.cydeo.service.impl;
 
-import com.cydeo.dto.CompanyDto;
 import com.cydeo.dto.UserDto;
-import com.cydeo.entity.Company;
 import com.cydeo.entity.User;
 import com.cydeo.repository.UserRepository;
 import com.cydeo.service.CompanyService;
@@ -17,22 +15,21 @@ import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final MapperUtil mapperUtil;
-    private final PasswordEncoder passwordEncoder;
     private final CompanyService companyService;
+    private final PasswordEncoder passwordEncoder;
     private final SecurityService securityService;
 
-    public UserServiceImpl(UserRepository userRepository, MapperUtil mapperUtil, @Lazy PasswordEncoder passwordEncoder, @Lazy CompanyService companyService, @Lazy SecurityService securityService) {
+    public UserServiceImpl(UserRepository userRepository, MapperUtil mapperUtil, @Lazy CompanyService companyService, @Lazy PasswordEncoder passwordEncoder, @Lazy SecurityService securityService) {
         this.userRepository = userRepository;
         this.mapperUtil = mapperUtil;
-        this.passwordEncoder = passwordEncoder;
         this.companyService = companyService;
+        this.passwordEncoder = passwordEncoder;
         this.securityService = securityService;
     }
 
@@ -81,8 +78,10 @@ public class UserServiceImpl implements UserService {
     @Override
 
     public void save(UserDto userDto) {
-
-        userRepository.save(mapperUtil.convert(userDto,new User()));
+        User user = mapperUtil.convert(userDto, new User());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setEnabled(true);
+        userRepository.save(user);
     }
 
 
@@ -90,7 +89,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public void update(UserDto userDto) {
         User user = mapperUtil.convert(userDto, new User());
-        userRepository.save(user);
+        UserDto loggedInUserDto = securityService.getLoggedInUser();
+        User user1 = mapperUtil.convert(loggedInUserDto, new User());
+        user.setId(user1.getId());
+
+        userRepository.save(user1);
     }
 
     @Override

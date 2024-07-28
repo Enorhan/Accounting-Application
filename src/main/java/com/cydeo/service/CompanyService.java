@@ -14,6 +14,4 @@ public interface CompanyService {
      CompanyDto getCompanyDtoByLoggedInUser();
 
      String getCurrentCompanyTitle();
-     List<CompanyDto> getAllCompaniesExcept(String companyName);
-     CompanyDto getCompanyByUserId(Long userId);
 }

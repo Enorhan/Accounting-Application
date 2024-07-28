@@ -41,15 +41,6 @@ public  class CompanyServiceImpl implements CompanyService {
         return securityService.getLoggedInUser().getCompany().getTitle();
     }
 
-    @Override
-    public List<CompanyDto> getAllCompaniesExcept(String companyName) {
-        return null;
-    }
-
-    @Override
-    public CompanyDto getCompanyByUserId(Long userId) {
-        return null;
-    }
 
     @Override
     public CompanyDto findById(Long id) {
