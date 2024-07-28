@@ -175,7 +175,12 @@ public class InvoiceServiceImpl implements InvoiceService {
     public void delete(Long id) {
         Invoice invoice = invoiceRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Invoice not found with id: " + id));
+        Long userId = userService.getCurrentUserId();
+
         invoice.setIsDeleted(true);
+        invoice.setLastUpdateUserId(userId);
+        invoice.setLastUpdateDateTime(LocalDateTime.now());
+
         invoiceRepository.save(invoice);
     }
 }
