@@ -81,8 +81,4 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    @Override
-    public Long getCurrentUserId() {
-        return securityService.getLoggedInUser().getId();
-    }
 }
