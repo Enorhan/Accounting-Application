@@ -10,6 +10,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Arrays;
 
 @Controller
 @RequestMapping("/clientVendors")
@@ -32,16 +33,16 @@ public class ClientVendorController {
     @GetMapping("/create")
     public String createClientVendorForm(Model model) {
         model.addAttribute("newClientVendor", new ClientVendorDto());
-        model.addAttribute("clientVendorTypes", ClientVendorType.values());
+        model.addAttribute("clientVendorTypes", Arrays.asList(ClientVendorType.values()));
         return "clientVendor/clientVendor-create";
     }
 
     @PostMapping("/create")
-    public String createClientVendor(@ModelAttribute("newClientVendor") @Valid ClientVendorDto clientVendorDto, BindingResult result, Model model) {
-        if (result.hasErrors()) {
-            model.addAttribute("clientVendorTypes", ClientVendorType.values());
-            return "clientVendor/clientVendor-create";
-        }
+    public String createClientVendor(@Valid @ModelAttribute("newClientVendor") ClientVendorDto clientVendorDto, BindingResult result, Model model) {
+//        if (result.hasErrors()) {
+//            model.addAttribute("clientVendorTypes", Arrays.asList(ClientVendorType.values()));
+//            return "clientVendor/clientVendor-create";
+//        }
         clientVendorService.createClientVendor(clientVendorDto);
         return "redirect:/clientVendors/list";
     }

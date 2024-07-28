@@ -6,6 +6,7 @@ import com.cydeo.entity.ClientVendor;
 import com.cydeo.repository.ClientVendorRepository;
 import com.cydeo.repository.InvoiceRepository;
 import com.cydeo.service.ClientVendorService;
+import com.cydeo.service.CompanyService;
 import com.cydeo.util.MapperUtil;
 import org.springframework.stereotype.Service;
 
@@ -15,14 +16,25 @@ import java.util.stream.Collectors;
 @Service
 public class ClientVendorServiceImpl implements ClientVendorService {
 
-    private ClientVendorRepository clientVendorRepository;
+    private final ClientVendorRepository clientVendorRepository;
 
-    private MapperUtil mapperUtil;
+    private final MapperUtil mapperUtil;
 
-    private InvoiceRepository invoiceRepository;
+    private final InvoiceRepository invoiceRepository;
+
+    private final CompanyService companyService;
+
+    public ClientVendorServiceImpl(ClientVendorRepository clientVendorRepository, MapperUtil mapperUtil, InvoiceRepository invoiceRepository, CompanyService companyService) {
+        this.clientVendorRepository = clientVendorRepository;
+        this.mapperUtil = mapperUtil;
+        this.invoiceRepository = invoiceRepository;
+        this.companyService = companyService;
+    }
+
 
     @Override
     public ClientVendorDto createClientVendor(ClientVendorDto clientVendorDTO) {
+        clientVendorDTO.setCompany(companyService.getCompanyDtoByLoggedInUser());
         ClientVendor clientVendor = mapperUtil.convert(clientVendorDTO, new ClientVendor());
         clientVendor = clientVendorRepository.save(clientVendor);
         return mapperUtil.convert(clientVendor, new ClientVendorDto());
