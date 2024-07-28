@@ -19,6 +19,7 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,6 +44,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         List<InvoiceDto> invoiceDtos = invoiceRepository.
                 findAllByInvoiceTypeAndCompanyIdOrderByInvoiceNoDesc(invoiceType, companyId).stream()
+                .filter(invoice -> invoice.getIsDeleted().equals(false))
                 .map(invoice -> mapperUtil.convert(invoice, new InvoiceDto()))
                 .collect(Collectors.toList());
 
@@ -147,4 +149,11 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoiceDto.setTotal(totalPriceWithTax);
     }
 
+    @Override
+    public void delete(Long id) {
+        Optional<Invoice> invoice=invoiceRepository.findById(id);
+        invoice.get().setIsDeleted(true);
+        invoiceRepository.save(invoice.get());
+
+    }
 }

@@ -118,4 +118,14 @@ public class SalesInvoiceController {
         return "redirect:/salesInvoices/update/" + invoiceId;
     }
 
+
+    @GetMapping("/delete/{invoiceId}")
+    public String deleteSaleInvoices(@PathVariable("invoiceId") String invoiceId){
+
+        invoiceService.delete(Long.valueOf(invoiceId));
+
+        return "redirect:/salesInvoices/list";
+
+    }
+
 }
