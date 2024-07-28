@@ -11,4 +11,8 @@ public interface CompanyService {
      CompanyDto findById(Long id);
 
      List<CompanyDto> getAllCompanies();
+
+     CompanyDto getCompanyDtoByLoggedInUser();
+
+     String getCurrentCompanyTitle();
 }

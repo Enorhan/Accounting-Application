@@ -26,17 +26,18 @@ import java.util.stream.Collectors;
 public class InvoiceServiceImpl implements InvoiceService {
     private final InvoiceRepository invoiceRepository;
     private final MapperUtil mapperUtil;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final CompanyService companyService;
     private final InvoiceProductService invoiceProductService;
 
-    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, MapperUtil mapperUtil, SecurityService securityService, CompanyService companyService, @Lazy InvoiceProductService invoiceProductService) {
+    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, MapperUtil mapperUtil, UserService userService, CompanyService companyService,@Lazy InvoiceProductService invoiceProductService) {
         this.invoiceRepository = invoiceRepository;
         this.mapperUtil = mapperUtil;
-        this.securityService = securityService;
+        this.userService = userService;
         this.companyService = companyService;
         this.invoiceProductService = invoiceProductService;
     }
+
 
     @Override
     public List<InvoiceDto> listAllInvoicesByType(InvoiceType invoiceType) {
@@ -65,7 +66,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public String getNewPurchaseInvoiceNumberId() {
-        Long companyId = securityService.getLoggedInUser().getCompany().getId();
+        Long companyId = companyService.getCompanyIdByLoggedInUser();
 
         String lastPurchaseInvoiceNumberId = invoiceRepository
                 .findAllByInvoiceTypeAndCompanyIdOrderByInvoiceNoDesc(InvoiceType.PURCHASE, companyId)
@@ -81,7 +82,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         String[] dividedLastInvoiceNumber = lastPurchaseInvoiceNumberId.split("-");
 
-        nextPurchaseInvoiceId =  Long.parseLong(dividedLastInvoiceNumber[1]) + 1;
+        nextPurchaseInvoiceId = Long.parseLong(dividedLastInvoiceNumber[1]) + 1;
 
         nextPurchaseInvoiceNumberId = String.format("P-%03d", nextPurchaseInvoiceId);
 
@@ -92,8 +93,8 @@ public class InvoiceServiceImpl implements InvoiceService {
     public void save(InvoiceDto invoiceDto, InvoiceType invoiceType) {
         Invoice invoice = mapperUtil.convert(invoiceDto, new Invoice());
 
-        Long userId = securityService.getLoggedInUser().getId();
-        CompanyDto companyDto = securityService.getLoggedInUser().getCompany();
+        Long userId = userService.getCurrentUserId();
+        CompanyDto companyDto = companyService.getCompanyDtoByLoggedInUser();
         Company company = mapperUtil.convert(companyDto, new Company());
 
         invoice.setInvoiceType(invoiceType);
@@ -112,7 +113,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Transactional
     public String createNewSalesInvoiceNo() {
 
-        String company=securityService.getLoggedInUser().getCompany().getTitle();
+        String company = companyService.getCurrentCompanyTitle();
         Invoice latestInvoice = invoiceRepository.findTopSalesInvoice(company);
 
         if (latestInvoice == null) {
@@ -122,7 +123,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             String latestInvoiceNo = latestInvoice.getInvoiceNo();
             int latestNumber = Integer.parseInt(latestInvoiceNo.substring(2));
 
-            return "S-" + String.format("%03d", latestNumber+1);
+            return "S-" + String.format("%03d", latestNumber + 1);
         }
     }
 

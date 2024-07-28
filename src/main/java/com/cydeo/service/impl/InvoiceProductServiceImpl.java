@@ -11,7 +11,6 @@ import com.cydeo.service.UserService;
 import org.springframework.stereotype.Service;
 import com.cydeo.util.MapperUtil;
 
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,7 +24,6 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
     private final InvoiceService invoiceService;
     private final UserService userService;
 
-
     public InvoiceProductServiceImpl(InvoiceProductRepository invoiceProductRepository, MapperUtil mapperUtil, InvoiceService invoiceService, UserService userService) {
         this.invoiceProductRepository = invoiceProductRepository;
         this.mapperUtil = mapperUtil;
@@ -37,7 +35,6 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
     public InvoiceProductDto findById(Long id) {
         InvoiceProduct invoiceProduct = invoiceProductRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Invoice not found with id: " + id));
-
 
         return mapperUtil.convert(invoiceProduct, new InvoiceProductDto());
     }
@@ -55,7 +52,6 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
                 })
                 .collect(Collectors.toList());
     }
-
 
     @Override
     public void removeInvoiceProduct(Long invoiceProductId) {
@@ -84,7 +80,6 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
         invoiceProductRepository.save(invoiceProduct);
 
     }
-
 
     private BigDecimal calculateTotalPrice(BigDecimal price, int quantity, int tax) {
         BigDecimal totalPrice = price.multiply(BigDecimal.valueOf(quantity));
