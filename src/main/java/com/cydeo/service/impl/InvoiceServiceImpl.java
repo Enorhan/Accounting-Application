@@ -38,7 +38,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     private void calculateTotalsForInvoice(InvoiceDto invoiceDto) {
         Long invoiceId = invoiceDto.getId();
-        List<InvoiceProductDto> invoiceProducts = invoiceProductService.findAllByInvoiceId(invoiceId);
+        List<InvoiceProductDto> invoiceProducts = invoiceProductService.findAllByInvoiceIdAndIsDeleted(invoiceId, false);
 
         BigDecimal totalPriceWithoutTax = invoiceProducts.stream()
                 .map(invoiceProduct -> invoiceProduct.getPrice().multiply(BigDecimal.valueOf(invoiceProduct.getQuantity())))

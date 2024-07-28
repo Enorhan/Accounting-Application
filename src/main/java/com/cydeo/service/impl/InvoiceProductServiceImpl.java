@@ -43,8 +43,8 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
     }
 
     @Override
-    public List<InvoiceProductDto> findAllByInvoiceId(Long id) {
-        List<InvoiceProduct> invoiceProducts = invoiceProductRepository.findAllByInvoiceId(id);
+    public List<InvoiceProductDto> findAllByInvoiceIdAndIsDeleted(Long id, boolean isDeleted) {
+        List<InvoiceProduct> invoiceProducts = invoiceProductRepository.findAllByInvoiceIdAndIsDeleted(id, isDeleted);
 
         return invoiceProducts.stream()
                 .map(invoiceProduct -> mapperUtil.convert(invoiceProduct, new InvoiceProductDto()))
@@ -57,8 +57,6 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
         InvoiceDto invoiceDto = invoiceService.findById(invoiceId);
         Invoice invoice = mapperUtil.convert(invoiceDto, new Invoice());
 
-//        invoiceProduct.setProduct();
-
         Long userId = userService.getCurrentUserId();
 
         invoiceProduct.setInvoice(invoice);
@@ -69,33 +67,21 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
         invoiceProduct.setInsertUserId(userId);
         invoiceProduct.setLastUpdateUserId(userId);
 
-
-//        int quantity;
-//        BigDecimal price;
-//        int tax;
-//        BigDecimal profitLoss;
-//        int remainingQuantity;
-//
-//        @ManyToOne
-//        Invoice invoice;
-//
-//        @ManyToOne
-//        Product product;
-
         invoiceProductRepository.save(invoiceProduct);
-
     }
 
-//    public void save(InvoiceDto invoiceDto, InvoiceType invoiceType) {
-//        Invoice invoice = mapperUtil.convert(invoiceDto, new Invoice());
-//
-//        CompanyDto companyDto = companyService.getCompanyDtoByLoggedInUser();
-//        Company company = mapperUtil.convert(companyDto, new Company());
-//
-//        invoice.setCompany(company);
-//
-//        invoiceRepository.save(invoice);
-//    }
+    @Override
+    public void delete(Long invoiceProductId) {
+        InvoiceProduct invoiceProduct = invoiceProductRepository.findById(invoiceProductId)
+                .orElseThrow(() -> new NoSuchElementException("Invoice product not found with id: " + invoiceProductId));
 
+        Long userId = userService.getCurrentUserId();
+
+        invoiceProduct.setIsDeleted(true);
+        invoiceProduct.setLastUpdateUserId(userId);
+        invoiceProduct.setLastUpdateDateTime(LocalDateTime.now());
+
+        invoiceProductRepository.save(invoiceProduct);
+    }
 
 }

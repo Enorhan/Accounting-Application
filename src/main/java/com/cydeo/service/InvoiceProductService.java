@@ -6,7 +6,8 @@ import java.util.List;
 
 public interface InvoiceProductService {
     InvoiceProductDto findById(Long id);
-    List<InvoiceProductDto> findAllByInvoiceId(Long id);
+    List<InvoiceProductDto> findAllByInvoiceIdAndIsDeleted(Long id, boolean isDeleted);
 
     void save(InvoiceProductDto invoiceProductDto, Long invoiceId);
+    void delete(Long invoiceProductId);
 }
