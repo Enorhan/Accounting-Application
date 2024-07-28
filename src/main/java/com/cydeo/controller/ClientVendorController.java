@@ -39,10 +39,6 @@ public class ClientVendorController {
 
     @PostMapping("/create")
     public String createClientVendor(@Valid @ModelAttribute("newClientVendor") ClientVendorDto clientVendorDto, BindingResult result, Model model) {
-//        if (result.hasErrors()) {
-//            model.addAttribute("clientVendorTypes", Arrays.asList(ClientVendorType.values()));
-//            return "clientVendor/clientVendor-create";
-//        }
         clientVendorService.createClientVendor(clientVendorDto);
         return "redirect:/clientVendors/list";
     }
@@ -57,10 +53,6 @@ public class ClientVendorController {
 
     @PostMapping("/update/{id}")
     public String updateClientVendor(@PathVariable Long id, @ModelAttribute("clientVendor") @Valid ClientVendorDto clientVendorDto, BindingResult result, Model model) {
-        if (result.hasErrors()) {
-            model.addAttribute("clientVendorTypes", ClientVendorType.values());
-            return "clientVendor/clientVendor-update";
-        }
         clientVendorService.updateClientVendor(id, clientVendorDto);
         return "redirect:/clientVendors/list";
     }
