@@ -32,25 +32,26 @@ public class UserController {
         this.companyService = companyService;
         this.securityService = securityService;
     }
+
     @GetMapping("/list")
     public String retrieveUserList(Model model) {
-       model.addAttribute("users", userService.listAllUser());
+        model.addAttribute("users", userService.listAllUser());
         return "/user/user-list";
     }
 
 
     @GetMapping("/create")
-    public String createUserForm( Model model) {
+    public String createUserForm(Model model) {
 //
         model.addAttribute("newUser", new UserDto());
-        model.addAttribute("userRoles", roleService.listAllRoles());
-        model.addAttribute("companies", companyService.getAllCompanies());
+        model.addAttribute("userRoles", roleService.listRolesByLoggedInUser());
+        model.addAttribute("companies", userService.listCompaniesByLoggedInUser());
 
         return "/user/user-create";
     }
 
     @PostMapping("/create")
-    public String saveUser(@ModelAttribute() UserDto userDto,BindingResult result,Model model){
+    public String saveUser(@ModelAttribute() UserDto userDto, BindingResult result, Model model) {
 
 //        if (result.hasErrors()) {
 //            model.addAttribute("roles", roleService.listAllRoles());
@@ -64,6 +65,7 @@ public class UserController {
         userService.save(userDto);
         return "redirect:/users/list";
     }
+
     @PostMapping("/reset")
     public String resetForm() {
         // Redirect to the form page to reset the fields
@@ -77,8 +79,8 @@ public class UserController {
 
         UserDto userDto = userService.findById(id);
         model.addAttribute("user", userDto);
-        model.addAttribute("userRoles", roleService.listAllRoles());
-        model.addAttribute("companies", companyService.getAllCompanies());
+        model.addAttribute("userRoles", roleService.listRolesByLoggedInUser());
+        model.addAttribute("companies", userService.listCompaniesByLoggedInUser());
 
         return "/user/user-update";
 
@@ -86,14 +88,15 @@ public class UserController {
 
 
     @PostMapping("/update/{id}")
-    public String updateUser( @ModelAttribute() UserDto userDto, Model model) {
-        model.addAttribute("userRoles", roleService.listAllRoles());
-        model.addAttribute("companies", companyService.getAllCompanies());
+    public String updateUser(@ModelAttribute() UserDto userDto, Model model) {
+        model.addAttribute("userRoles", roleService.listRolesByLoggedInUser());
+        model.addAttribute("companies", userService.listCompaniesByLoggedInUser());
 
         userService.update(userDto);
 
         return "redirect:/users/list";
     }
+
 
 //    @ModelAttribute
 //    public void commonAttributes(Model model) {

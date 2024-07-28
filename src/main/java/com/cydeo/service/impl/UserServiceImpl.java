@@ -1,7 +1,9 @@
 package com.cydeo.service.impl;
 
+import com.cydeo.dto.CompanyDto;
 import com.cydeo.dto.UserDto;
 import com.cydeo.entity.User;
+import com.cydeo.repository.CompanyRepository;
 import com.cydeo.repository.UserRepository;
 import com.cydeo.service.CompanyService;
 import com.cydeo.service.SecurityService;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -25,7 +28,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final SecurityService securityService;
 
-    public UserServiceImpl(UserRepository userRepository, MapperUtil mapperUtil, @Lazy CompanyService companyService, @Lazy PasswordEncoder passwordEncoder, @Lazy SecurityService securityService) {
+    public UserServiceImpl(UserRepository userRepository, MapperUtil mapperUtil, @Lazy CompanyService companyService, CompanyRepository companyRepository, @Lazy PasswordEncoder passwordEncoder, @Lazy SecurityService securityService) {
         this.userRepository = userRepository;
         this.mapperUtil = mapperUtil;
         this.companyService = companyService;
@@ -94,6 +97,16 @@ public class UserServiceImpl implements UserService {
         user.setId(user1.getId());
 
         userRepository.save(user1);
+    }
+    public List<CompanyDto> listCompaniesByLoggedInUser() {
+        UserDto user = securityService.getLoggedInUser();
+        if (user.getRole().getDescription().equals("Root User")) {
+            return companyService.getAllCompanies().stream()
+                    .filter(c->!c.getTitle().equalsIgnoreCase("CYDEO"))
+                    .collect(Collectors.toList());
+        } else {
+            return List.of(companyService.getCompanyDtoByLoggedInUser());
+        }
     }
 
     @Override
