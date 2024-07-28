@@ -32,9 +32,10 @@ public class CompanyController {
         return "company/company-list";
     }
 
-    @PostMapping("/create")
+    @GetMapping("/create")
     public String createCompany(@Valid @ModelAttribute("company") CompanyDto companyDto, BindingResult bindingResult , Model model) {
         if(bindingResult.hasErrors()) {
+            model.addAttribute("company", new CompanyDto());
             model.addAttribute("company", companyDto);
             model.addAttribute("companies", companyService.getAllCompanies());
 
