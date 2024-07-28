@@ -27,11 +27,10 @@ public class ProductServiceImpl implements ProductService {
     public List<ProductDto> findAllInStock() {
         Long companyId = companyService.getCompanyIdByLoggedInUser();
 
-        List<ProductDto> collect = productRepository.findAllByCompanyId(companyId).stream()
+        return productRepository.findAllByCompanyId(companyId).stream()
                 .filter(product -> product.getQuantityInStock() > 0)
                 .map(product -> mapperUtil.convert(product, new ProductDto()))
                 .collect(Collectors.toList());
-        return collect;
     }
 
     @Override
