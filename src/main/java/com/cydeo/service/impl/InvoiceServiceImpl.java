@@ -10,6 +10,7 @@ import com.cydeo.enums.InvoiceType;
 import com.cydeo.repository.InvoiceRepository;
 import com.cydeo.service.*;
 import com.cydeo.util.MapperUtil;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -18,45 +19,25 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class InvoiceServiceImpl implements InvoiceService {
     private final InvoiceRepository invoiceRepository;
     private final MapperUtil mapperUtil;
-    private final CompanyService companyService;
     private final UserService userService;
+    private final CompanyService companyService;
     private final InvoiceProductService invoiceProductService;
 
-    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, MapperUtil mapperUtil, CompanyService companyService, UserService userService, InvoiceProductService invoiceProductService) {
+    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, MapperUtil mapperUtil, UserService userService, CompanyService companyService,@Lazy InvoiceProductService invoiceProductService) {
         this.invoiceRepository = invoiceRepository;
         this.mapperUtil = mapperUtil;
-        this.companyService = companyService;
         this.userService = userService;
+        this.companyService = companyService;
         this.invoiceProductService = invoiceProductService;
     }
 
-    private void calculateTotalsForInvoice(InvoiceDto invoiceDto) {
-        Long invoiceId = invoiceDto.getId();
-        List<InvoiceProductDto> invoiceProducts = invoiceProductService.findAllByInvoiceId(invoiceId);
-
-        BigDecimal totalPriceWithoutTax = invoiceProducts.stream()
-                .map(invoiceProduct -> invoiceProduct.getPrice().multiply(BigDecimal.valueOf(invoiceProduct.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        BigDecimal totalTax = invoiceProducts.stream()
-                .map(invoiceProduct -> invoiceProduct.getPrice()
-                        .multiply(BigDecimal.valueOf(invoiceProduct.getTax()))
-                        .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP)
-                        .multiply(BigDecimal.valueOf(invoiceProduct.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        BigDecimal totalPriceWithTax = totalPriceWithoutTax.add(totalTax);
-
-        invoiceDto.setPrice(totalPriceWithoutTax);
-        invoiceDto.setTax(totalTax);
-        invoiceDto.setTotal(totalPriceWithTax);
-    }
 
     @Override
     public List<InvoiceDto> listAllInvoicesByType(InvoiceType invoiceType) {
@@ -64,6 +45,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         List<InvoiceDto> invoiceDtos = invoiceRepository.
                 findAllByInvoiceTypeAndCompanyIdOrderByInvoiceNoDesc(invoiceType, companyId).stream()
+                .filter(invoice -> invoice.getIsDeleted().equals(false))
                 .map(invoice -> mapperUtil.convert(invoice, new InvoiceDto()))
                 .collect(Collectors.toList());
 
@@ -145,4 +127,34 @@ public class InvoiceServiceImpl implements InvoiceService {
         }
     }
 
+
+    private void calculateTotalsForInvoice(InvoiceDto invoiceDto) {
+        Long invoiceId = invoiceDto.getId();
+        List<InvoiceProductDto> invoiceProducts = invoiceProductService.findAllByInvoiceId(invoiceId);
+
+        BigDecimal totalPriceWithoutTax = invoiceProducts.stream()
+                .map(invoiceProduct -> invoiceProduct.getPrice().multiply(BigDecimal.valueOf(invoiceProduct.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal totalTax = invoiceProducts.stream()
+                .map(invoiceProduct -> invoiceProduct.getPrice()
+                        .multiply(BigDecimal.valueOf(invoiceProduct.getTax()))
+                        .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP)
+                        .multiply(BigDecimal.valueOf(invoiceProduct.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal totalPriceWithTax = totalPriceWithoutTax.add(totalTax);
+
+        invoiceDto.setPrice(totalPriceWithoutTax);
+        invoiceDto.setTax(totalTax);
+        invoiceDto.setTotal(totalPriceWithTax);
+    }
+
+    @Override
+    public void delete(Long id) {
+        Optional<Invoice> invoice=invoiceRepository.findById(id);
+        invoice.get().setIsDeleted(true);
+        invoiceRepository.save(invoice.get());
+
+    }
 }
