@@ -13,6 +13,7 @@ public interface InvoiceService {
     String getNewPurchaseInvoiceNumberId();
     void save(InvoiceDto invoiceDto, InvoiceType invoiceType);
     String createNewSalesInvoiceNo();
+    void delete(Long id);
 
     List<Invoice> findTop3ApprovedInvoicesByCompanyId(Long companyId, InvoiceStatus invoiceStatus);
 }
