@@ -110,11 +110,17 @@ public class PurchasesInvoiceController {
         return "redirect:/purchaseInvoices/update/{invoiceId}";
     }
 
-
     @GetMapping("/removeInvoiceProduct/{invoiceId}/{invoiceProuductId}")
-    public String deletePurchaseInvoiceProduct(@PathVariable("invoiceProuductId") String invoiceProuductId) {
-        invoiceProductService.delete(Long.valueOf(invoiceProuductId));
+    public String deletePurchaseInvoiceProduct(@PathVariable("invoiceProuductId") Long invoiceProuductId) {
+        invoiceProductService.delete(invoiceProuductId);
 
         return "redirect:/purchaseInvoices/update/{invoiceId}";
+    }
+
+    @GetMapping("/delete/{invoiceId}")
+    public String deletePurchaseInvoiceAndInvoiceProducts(@PathVariable("invoiceId") Long invoiceId) {
+        invoiceService.delete(invoiceId);
+
+        return "redirect:/purchaseInvoices/list";
     }
 }

@@ -9,5 +9,6 @@ public interface InvoiceProductService {
     List<InvoiceProductDto> findAllByInvoiceIdAndIsDeleted(Long id, boolean isDeleted);
     void save(InvoiceProductDto invoiceProductDto, Long invoiceId);
     void delete(Long invoiceProductId);
+    void deleteByInvoiceId(Long invoiceId);
     void removeInvoiceProduct(Long invoiceProductId);
 }

@@ -181,6 +181,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoice.setLastUpdateUserId(userId);
         invoice.setLastUpdateDateTime(LocalDateTime.now());
 
+        invoiceProductService.deleteByInvoiceId(id);
         invoiceRepository.save(invoice);
     }
 }

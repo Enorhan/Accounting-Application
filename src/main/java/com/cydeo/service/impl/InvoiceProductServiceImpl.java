@@ -88,6 +88,15 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
     }
 
     @Override
+    public void deleteByInvoiceId(Long invoiceId) {
+        List<InvoiceProduct> invoiceProducts = invoiceProductRepository.findAllByInvoiceIdAndIsDeleted(invoiceId, false);
+
+        for (InvoiceProduct invoiceProduct : invoiceProducts) {
+            delete(invoiceProduct.getId());
+        }
+    }
+
+    @Override
     public void removeInvoiceProduct(Long invoiceProductId) {
         InvoiceProduct invoiceProduct = invoiceProductRepository.findById(invoiceProductId)
                 .orElseThrow(() -> new NoSuchElementException("Invoice product not found with id: " + invoiceProductId));
