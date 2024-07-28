@@ -49,7 +49,7 @@ public class SalesInvoiceController {
         newInvoiceDto.setDate(LocalDate.now());
 
         model.addAttribute("newSalesInvoice",newInvoiceDto);
-        model.addAttribute("clients",clientVendorService.findAll());
+        model.addAttribute("clients",clientVendorService.listAllClientVendors());
 
         return "invoice/sales-invoice-create";
     }
@@ -61,7 +61,7 @@ public class SalesInvoiceController {
         if (bindingResult.hasErrors()){
 
             model.addAttribute("newSalesInvoice",invoiceDto);
-            model.addAttribute("clients",clientVendorService.findAll());
+            model.addAttribute("clients",clientVendorService.listAllClientVendors());
 
             return "invoice/sales-invoice-create";
         }

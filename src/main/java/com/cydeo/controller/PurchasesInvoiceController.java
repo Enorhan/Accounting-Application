@@ -44,7 +44,7 @@ public class PurchasesInvoiceController {
         newInvoice.setDate(LocalDate.now());
 
         model.addAttribute("newPurchaseInvoice", newInvoice);
-        model.addAttribute("vendors", clientVendorService.findAll());
+        model.addAttribute("vendors", clientVendorService.listAllClientVendors());
 
         return "invoice/purchase-invoice-create";
     }
@@ -54,7 +54,7 @@ public class PurchasesInvoiceController {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("newPurchaseInvoice", invoiceDto);
-            model.addAttribute("vendors", clientVendorService.findAll());
+            model.addAttribute("vendors", clientVendorService.listAllClientVendors());
 
             return "invoice/purchase-invoice-create";
         }
