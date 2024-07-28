@@ -91,7 +91,13 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
     public void removeInvoiceProduct(Long invoiceProductId) {
         InvoiceProduct invoiceProduct = invoiceProductRepository.findById(invoiceProductId)
                 .orElseThrow(() -> new NoSuchElementException("Invoice product not found with id: " + invoiceProductId));
+
+        Long userId = userService.getCurrentUserId();
+
         invoiceProduct.setIsDeleted(true);
+        invoiceProduct.setLastUpdateUserId(userId);
+        invoiceProduct.setLastUpdateDateTime(LocalDateTime.now());
+
         invoiceProductRepository.save(invoiceProduct);
     }
 
