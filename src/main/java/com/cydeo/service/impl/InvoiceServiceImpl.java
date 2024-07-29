@@ -10,7 +10,6 @@ import com.cydeo.enums.InvoiceType;
 import com.cydeo.repository.InvoiceRepository;
 import com.cydeo.service.*;
 import com.cydeo.util.MapperUtil;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -26,17 +25,18 @@ import java.util.stream.Collectors;
 public class InvoiceServiceImpl implements InvoiceService {
     private final InvoiceRepository invoiceRepository;
     private final MapperUtil mapperUtil;
-    private final UserService userService;
     private final CompanyService companyService;
+    private final UserService userService;
     private final InvoiceProductService invoiceProductService;
 
-    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, MapperUtil mapperUtil, UserService userService, CompanyService companyService,@Lazy InvoiceProductService invoiceProductService) {
+    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, MapperUtil mapperUtil, CompanyService companyService, UserService userService, InvoiceProductService invoiceProductService) {
         this.invoiceRepository = invoiceRepository;
         this.mapperUtil = mapperUtil;
-        this.userService = userService;
         this.companyService = companyService;
+        this.userService = userService;
         this.invoiceProductService = invoiceProductService;
     }
+
 
 
     @Override
@@ -155,6 +155,10 @@ public class InvoiceServiceImpl implements InvoiceService {
         Optional<Invoice> invoice=invoiceRepository.findById(id);
         invoice.get().setIsDeleted(true);
         invoiceRepository.save(invoice.get());
+
+    }
+    public List<Invoice> findTop3ApprovedInvoicesByCompanyId(Long companyId,InvoiceStatus invoiceStatus) {
+        return invoiceRepository.findTop3ByCompanyIdAndInvoiceStatusOrderByDateDesc(companyId, InvoiceStatus.APPROVED);
 
     }
 }

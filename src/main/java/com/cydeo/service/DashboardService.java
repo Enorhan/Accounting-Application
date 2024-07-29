@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface DashboardService {
-    Map<String,BigDecimal> getTotalCostAndSalesAndProfit_loss();
 
-    List<InvoiceDto> getLast3ApprovedInvoices();
+
+
 }
