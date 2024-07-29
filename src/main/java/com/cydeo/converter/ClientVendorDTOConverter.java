@@ -11,12 +11,18 @@ public class ClientVendorDTOConverter implements Converter<String, ClientVendorD
     private final ClientVendorService clientVendorService;
 
     public ClientVendorDTOConverter(ClientVendorService clientVendorService) {
+
         this.clientVendorService = clientVendorService;
     }
 
     @Override
-    public ClientVendorDto convert(String id) {
-        Long clientVendorId = Long.parseLong(id);
-        return clientVendorService.findById(clientVendorId);
+    public ClientVendorDto convert(String source) {
+        if (source == null || source.isEmpty()) {
+            return null;
+
+        }
+
+        Long id = Long.parseLong(source);
+        return clientVendorService.findById(id);
     }
 }
