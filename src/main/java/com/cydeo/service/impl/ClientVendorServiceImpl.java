@@ -75,8 +75,9 @@ public class ClientVendorServiceImpl implements ClientVendorService {
     public ClientVendorDto updateClientVendor(Long id, ClientVendorDto clientVendorDTO) {
         ClientVendor clientVendor = clientVendorRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("ClientVendor not found"));
-        clientVendor = mapperUtil.convert(clientVendorDTO, clientVendor);
-        clientVendor = clientVendorRepository.save(clientVendor);
+        ClientVendor updatedClientVendor = mapperUtil.convert(clientVendorDTO, clientVendor);
+        updatedClientVendor.setCompany(clientVendor.getCompany());
+        clientVendor = clientVendorRepository.save(updatedClientVendor);
         return mapperUtil.convert(clientVendor, new ClientVendorDto());
     }
 
