@@ -48,6 +48,7 @@ public class CompanyServiceImpl implements CompanyService {
         return securityService.getLoggedInUser().getCompany().getTitle();
     }
 
+
     @Override
     public CompanyDto save(CompanyDto companyDto) {
         Company company = mapperUtil.convert(companyDto, new Company());

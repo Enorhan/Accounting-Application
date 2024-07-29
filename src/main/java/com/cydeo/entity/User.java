@@ -15,7 +15,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Entity
 @Table(name = "users")
-
+@Where(clause = "is_deleted = false")
 public class User extends BaseEntity {
     private String firstname;
     private String lastname;
@@ -30,9 +30,9 @@ public class User extends BaseEntity {
     private String phone;
 
     @ManyToOne
-    @JoinColumn(name = "role_id")
+    @JoinColumn(name = "role_id",nullable = false)
     private Role role;
     @ManyToOne
-    @JoinColumn(name = "company_id")
+    @JoinColumn(name = "company_id",nullable = false)
     private Company company;
 }
