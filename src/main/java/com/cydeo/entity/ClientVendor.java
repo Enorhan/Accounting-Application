@@ -15,6 +15,10 @@ import javax.persistence.*;
 @Table(name = "clients_vendors")
 public class ClientVendor extends BaseEntity {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @Column(nullable = false)
     private String clientVendorName;
 

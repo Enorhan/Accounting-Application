@@ -1,6 +1,8 @@
 package com.cydeo.service;
 
 import com.cydeo.dto.InvoiceDto;
+import com.cydeo.entity.Invoice;
+import com.cydeo.enums.InvoiceStatus;
 import com.cydeo.enums.InvoiceType;
 
 import java.util.List;
@@ -13,4 +15,5 @@ public interface InvoiceService {
     InvoiceDto update(InvoiceDto invoiceDto, Long invoiceId);
     String createNewSalesInvoiceNo();
     void delete(Long id);
+    List<Invoice> findTop3ApprovedInvoicesByCompanyId(Long companyId, InvoiceStatus invoiceStatus);
 }

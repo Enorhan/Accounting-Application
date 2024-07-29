@@ -1,30 +1,33 @@
 package com.cydeo.controller;
 
-import com.cydeo.dto.InvoiceDto;
 import com.cydeo.service.DashboardService;
+import com.cydeo.service.InvoiceProductService;
+import com.cydeo.service.impl.CurrencyServiceImpl;
 import com.cydeo.service.impl.DashboardServiceImpl;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.util.List;
-
 @Controller
 @RequestMapping("/dashboard")
 public class DashboardController {
 
-    private final DashboardService dashboardService;
+    private final CurrencyServiceImpl currencyService;
 
-    public DashboardController(DashboardServiceImpl dashboardService) {
-        this.dashboardService = dashboardService;
+    private final InvoiceProductService invoiceProductService;
+
+    public DashboardController(DashboardServiceImpl dashboardService, CurrencyServiceImpl currencyService, InvoiceProductService invoiceProductService) {
+        this.currencyService = currencyService;
+        this.invoiceProductService = invoiceProductService;
     }
 
     @GetMapping
-    public String getTotalPurchasedInvoices(Model model) {
+    public String getDashboardSummaryFunctionalities(Model model) {
 
-        model.addAttribute("summaryNumbers", dashboardService.getTotalCostAndSalesAndProfit_loss());
-        model.addAttribute("invoices", dashboardService.getLast3ApprovedInvoices() );
+        model.addAttribute("summaryNumbers", invoiceProductService.getTotalCostAndSalesAndProfit_loss());
+        model.addAttribute("invoices", invoiceProductService.getLast3ApprovedInvoices() );
+        model.addAttribute("exchangeRates", currencyService.getDataFromApi());
 
         return "/dashboard";
     }
