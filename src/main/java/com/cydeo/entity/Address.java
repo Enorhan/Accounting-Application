@@ -5,7 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 @NoArgsConstructor
 @Entity
@@ -13,10 +14,6 @@ import javax.persistence.*;
 @Setter
 @Table(name = "addresses")
 public class Address extends BaseEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     private String addressLine1;
     private String addressLine2;

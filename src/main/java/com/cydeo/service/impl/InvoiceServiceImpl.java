@@ -18,7 +18,6 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,9 +36,28 @@ public class InvoiceServiceImpl implements InvoiceService {
         this.invoiceProductService = invoiceProductService;
     }
 
+    private void calculateTotalsForInvoice(InvoiceDto invoiceDto) {
+        Long invoiceId = invoiceDto.getId();
+        List<InvoiceProductDto> invoiceProducts = invoiceProductService.findAllByInvoiceIdAndIsDeleted(invoiceId, false);
 
+        BigDecimal totalPriceWithoutTax = invoiceProducts.stream()
+                .map(invoiceProduct -> invoiceProduct.getPrice().multiply(BigDecimal.valueOf(invoiceProduct.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-    @Override
+        BigDecimal totalTax = invoiceProducts.stream()
+                .map(invoiceProduct -> invoiceProduct.getPrice()
+                        .multiply(BigDecimal.valueOf(invoiceProduct.getTax()))
+                        .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP)
+                        .multiply(BigDecimal.valueOf(invoiceProduct.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal totalPriceWithTax = totalPriceWithoutTax.add(totalTax);
+
+        invoiceDto.setPrice(totalPriceWithoutTax);
+        invoiceDto.setTax(totalTax);
+        invoiceDto.setTotal(totalPriceWithTax);
+    }
+
     public List<InvoiceDto> listAllInvoicesByType(InvoiceType invoiceType) {
         Long companyId = companyService.getCompanyIdByLoggedInUser();
 
@@ -108,6 +126,29 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoiceRepository.save(invoice);
     }
 
+    @Override
+    public InvoiceDto update(InvoiceDto invoiceDto, Long id) {
+        Invoice oldInvoice = invoiceRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Invoice not found with id: " + id));
+        invoiceDto.setId(id);
+        Invoice invoice = mapperUtil.convert(invoiceDto, new Invoice());
+
+        Long userId = userService.getCurrentUserId();
+
+        invoice.setLastUpdateDateTime(LocalDateTime.now());
+        invoice.setLastUpdateUserId(userId);
+
+        invoice.setInsertDateTime(oldInvoice.getInsertDateTime());
+        invoice.setInsertUserId(oldInvoice.getInsertUserId());
+        invoice.setInvoiceStatus(oldInvoice.getInvoiceStatus());
+        invoice.setInvoiceType(oldInvoice.getInvoiceType());
+        invoice.setCompany(oldInvoice.getCompany());
+
+        invoiceRepository.save(invoice);
+
+        return findById(invoiceDto.getId());
+    }
+
 
     @Override
     @Transactional
@@ -127,35 +168,18 @@ public class InvoiceServiceImpl implements InvoiceService {
         }
     }
 
-
-    private void calculateTotalsForInvoice(InvoiceDto invoiceDto) {
-        Long invoiceId = invoiceDto.getId();
-        List<InvoiceProductDto> invoiceProducts = invoiceProductService.findAllByInvoiceId(invoiceId);
-
-        BigDecimal totalPriceWithoutTax = invoiceProducts.stream()
-                .map(invoiceProduct -> invoiceProduct.getPrice().multiply(BigDecimal.valueOf(invoiceProduct.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        BigDecimal totalTax = invoiceProducts.stream()
-                .map(invoiceProduct -> invoiceProduct.getPrice()
-                        .multiply(BigDecimal.valueOf(invoiceProduct.getTax()))
-                        .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP)
-                        .multiply(BigDecimal.valueOf(invoiceProduct.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        BigDecimal totalPriceWithTax = totalPriceWithoutTax.add(totalTax);
-
-        invoiceDto.setPrice(totalPriceWithoutTax);
-        invoiceDto.setTax(totalTax);
-        invoiceDto.setTotal(totalPriceWithTax);
-    }
-
     @Override
     public void delete(Long id) {
-        Optional<Invoice> invoice=invoiceRepository.findById(id);
-        invoice.get().setIsDeleted(true);
-        invoiceRepository.save(invoice.get());
+        Invoice invoice = invoiceRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Invoice not found with id: " + id));
+        Long userId = userService.getCurrentUserId();
 
+        invoice.setIsDeleted(true);
+        invoice.setLastUpdateUserId(userId);
+        invoice.setLastUpdateDateTime(LocalDateTime.now());
+
+        invoiceProductService.deleteByInvoiceId(id);
+        invoiceRepository.save(invoice);
     }
     public List<Invoice> findTop3ApprovedInvoicesByCompanyId(Long companyId,InvoiceStatus invoiceStatus) {
         return invoiceRepository.findTop3ByCompanyIdAndInvoiceStatusOrderByDateDesc(companyId, InvoiceStatus.APPROVED);

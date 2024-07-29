@@ -7,8 +7,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
-
 @Repository
 public interface ProductRepository extends JpaRepository<Product,Long> {
 
@@ -16,8 +14,4 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
             "JOIN categories c ON p.category_id = c.id " +
             "WHERE c.company_id = :companyId", nativeQuery = true)
     List<Product> findAllByCompanyId(@Param("companyId") Long companyId);
-
-    Optional<Product> findById(Long id);
-
-
 }

@@ -26,16 +26,16 @@ import java.util.stream.Collectors;
 public class InvoiceProductServiceImpl implements InvoiceProductService {
     private final InvoiceProductRepository invoiceProductRepository;
     private final MapperUtil mapperUtil;
-    private final InvoiceService invoiceService;
     private final UserService userService;
     private final CompanyService companyService;
+    private final InvoiceService invoiceService;
 
-    public InvoiceProductServiceImpl(InvoiceProductRepository invoiceProductRepository, MapperUtil mapperUtil, CompanyService companyService, @Lazy InvoiceService invoiceService,UserService userService) {
+    public InvoiceProductServiceImpl(InvoiceProductRepository invoiceProductRepository, MapperUtil mapperUtil, @Lazy InvoiceService invoiceService, UserService userService, CompanyService companyService) {
         this.invoiceProductRepository = invoiceProductRepository;
         this.mapperUtil = mapperUtil;
-        this.companyService = companyService;
         this.invoiceService = invoiceService;
         this.userService = userService;
+        this.companyService = companyService;
     }
 
     @Override
@@ -47,8 +47,8 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
     }
 
     @Override
-    public List<InvoiceProductDto> findAllByInvoiceId(Long id) {
-        List<InvoiceProduct> invoiceProducts = invoiceProductRepository.findAllByInvoiceIdAndIsDeleted(id, false);
+    public List<InvoiceProductDto> findAllByInvoiceIdAndIsDeleted(Long id, boolean isDeleted) {
+        List<InvoiceProduct> invoiceProducts = invoiceProductRepository.findAllByInvoiceIdAndIsDeleted(id, isDeleted);
 
         return invoiceProducts.stream()
                 .map(invoiceProduct -> {
@@ -60,12 +60,6 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
                 .collect(Collectors.toList());
     }
 
-
-
-
-
-
-
     @Override
     public Map<String, BigDecimal> getTotalCostAndSalesAndProfit_loss() {
 
@@ -74,7 +68,7 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
         //to retrieve purchased invoices total cost
         List<InvoiceProduct> purchasedInvoices =invoiceProductRepository.findAll().stream()
                 .filter(p->p.getInvoice().getCompany().getId().equals(loggedInUser))
-                .filter(invoice-> invoice.getInvoice().getInvoiceType()== InvoiceType.PURCHASE && invoice.getInvoice().getInvoiceStatus()== InvoiceStatus.APPROVED)
+                .filter(invoice-> invoice.getInvoice().getInvoiceType()== InvoiceType.PURCHASE && invoice.getInvoice().getInvoiceStatus() == InvoiceStatus.APPROVED)
                 .collect(Collectors.toList());
         BigDecimal totalCost= BigDecimal.valueOf(0);
         for (InvoiceProduct invoice : purchasedInvoices) {
@@ -152,15 +146,6 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
         return invoiceDtos;
     }
 
-
-    @Override
-    public void removeInvoiceProduct(Long invoiceProductId) {
-        InvoiceProduct invoiceProduct = invoiceProductRepository.findById(invoiceProductId)
-                .orElseThrow(() -> new NoSuchElementException("Invoice product not found with id: " + invoiceProductId));
-        invoiceProduct.setIsDeleted(true);
-        invoiceProductRepository.save(invoiceProduct);
-    }
-
     @Override
     public void save(InvoiceProductDto invoiceProductDto, Long invoiceId) {
         InvoiceProduct invoiceProduct = mapperUtil.convert(invoiceProductDto, new InvoiceProduct());
@@ -178,7 +163,43 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
         invoiceProduct.setLastUpdateUserId(userId);
 
         invoiceProductRepository.save(invoiceProduct);
+    }
 
+    @Override
+    public void delete(Long invoiceProductId) {
+        InvoiceProduct invoiceProduct = invoiceProductRepository.findById(invoiceProductId)
+                .orElseThrow(() -> new NoSuchElementException("Invoice product not found with id: " + invoiceProductId));
+
+        Long userId = userService.getCurrentUserId();
+
+        invoiceProduct.setIsDeleted(true);
+        invoiceProduct.setLastUpdateUserId(userId);
+        invoiceProduct.setLastUpdateDateTime(LocalDateTime.now());
+
+        invoiceProductRepository.save(invoiceProduct);
+    }
+
+    @Override
+    public void deleteByInvoiceId(Long invoiceId) {
+        List<InvoiceProduct> invoiceProducts = invoiceProductRepository.findAllByInvoiceIdAndIsDeleted(invoiceId, false);
+
+        for (InvoiceProduct invoiceProduct : invoiceProducts) {
+            delete(invoiceProduct.getId());
+        }
+    }
+
+    @Override
+    public void removeInvoiceProduct(Long invoiceProductId) {
+        InvoiceProduct invoiceProduct = invoiceProductRepository.findById(invoiceProductId)
+                .orElseThrow(() -> new NoSuchElementException("Invoice product not found with id: " + invoiceProductId));
+
+        Long userId = userService.getCurrentUserId();
+
+        invoiceProduct.setIsDeleted(true);
+        invoiceProduct.setLastUpdateUserId(userId);
+        invoiceProduct.setLastUpdateDateTime(LocalDateTime.now());
+
+        invoiceProductRepository.save(invoiceProduct);
     }
 
     private BigDecimal calculateTotalPrice(BigDecimal price, int quantity, int tax) {
