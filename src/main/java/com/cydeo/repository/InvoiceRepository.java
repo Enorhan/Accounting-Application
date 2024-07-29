@@ -22,4 +22,5 @@ public interface InvoiceRepository extends JpaRepository<Invoice,Long> {
 
 
 
+    boolean existsByClientVendorId(Long id);
 }

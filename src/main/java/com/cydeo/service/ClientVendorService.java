@@ -6,6 +6,11 @@ import java.util.List;
 public interface ClientVendorService {
     List<ClientVendorDto> listAllClientVendors();
     List<ClientVendorDto> listAllClientVendorsByCompany();
+
+    ClientVendorDto createClientVendor(ClientVendorDto clientVendorDto);
     ClientVendorDto findById(Long id);
+    void deleteClientVendor(Long id);
+    ClientVendorDto updateClientVendor(Long id, ClientVendorDto clientVendorDTO);
+    List<ClientVendorDto> findAll();
 
 }
