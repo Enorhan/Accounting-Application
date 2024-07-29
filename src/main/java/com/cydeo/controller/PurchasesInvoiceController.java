@@ -73,7 +73,7 @@ public class PurchasesInvoiceController {
         model.addAttribute("invoice", invoiceService.findById(invoiceId));
         model.addAttribute("vendors", clientVendorService.listAllClientVendorsByCompany());
         model.addAttribute("newInvoiceProduct", new InvoiceProductDto());
-        model.addAttribute("products", productService.findAllInStock());
+        model.addAttribute("products", productService.findAllByCurrentCompany());
         model.addAttribute("invoiceProducts", invoiceProductService.findAllByInvoiceIdAndIsDeleted(invoiceId, false));
 
         return "invoice/purchase-invoice-update";
@@ -97,7 +97,7 @@ public class PurchasesInvoiceController {
     public String updatePurchaseInvoice(@PathVariable("invoiceId") Long invoiceId, @Valid @ModelAttribute("newInvoiceProduct") InvoiceProductDto invoiceProductDto, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("vendors", clientVendorService.listAllClientVendorsByCompany());
-            model.addAttribute("products", productService.findAllInStock());
+            model.addAttribute("products", productService.findAllByCurrentCompany());
             model.addAttribute("invoice", invoiceService.findById(invoiceId));
             model.addAttribute("invoiceProducts", invoiceProductService.findAllByInvoiceIdAndIsDeleted(invoiceId, false));
 

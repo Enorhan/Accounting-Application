@@ -36,6 +36,15 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public List<ProductDto> findAllByCurrentCompany() {
+        Long companyId = companyService.getCompanyIdByLoggedInUser();
+
+        return productRepository.findAllByCompanyId(companyId).stream()
+                .map(product -> mapperUtil.convert(product, new ProductDto()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public ProductDto findById(Long productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new NoSuchElementException("Product not found with id: " + productId));
