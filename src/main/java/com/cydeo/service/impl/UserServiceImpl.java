@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,7 +28,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final SecurityService securityService;
 
-    public UserServiceImpl(UserRepository userRepository, MapperUtil mapperUtil, @Lazy CompanyService companyService, CompanyRepository companyRepository, @Lazy PasswordEncoder passwordEncoder, @Lazy SecurityService securityService) {
+    public UserServiceImpl(UserRepository userRepository, MapperUtil mapperUtil, @Lazy CompanyService companyService,@Lazy PasswordEncoder passwordEncoder, @Lazy SecurityService securityService) {
         this.userRepository = userRepository;
         this.mapperUtil = mapperUtil;
         this.companyService = companyService;
@@ -40,7 +39,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto findByUsername(String username) {
         User user = userRepository.findByUsername(username);
-        return mapperUtil.convert(user,new UserDto());
+        return mapperUtil.convert(user, new UserDto());
     }
 
     @Override
@@ -54,29 +53,29 @@ public class UserServiceImpl implements UserService {
         }
 
 //        Users should be sorted by their companies then their roles.
-        return userList.stream().sorted(Comparator.comparing((User user)-> user.getCompany().getTitle())
-                        .thenComparing((User user)-> user.getRole().getDescription()))
+        return userList.stream().sorted(Comparator.comparing((User user) -> user.getCompany().getTitle())
+                        .thenComparing((User user) -> user.getRole().getDescription()))
                 .map(entity -> {
                     UserDto dto = mapperUtil.convert(entity, new UserDto());
-                    dto.setIsOnlyAdmin(dto.getRole().getDescription().equals("Admin") && this.checkIfOnlyAdmin(dto));
+                    dto.setIsOnlyAdmin(this.checkIfOnlyAdmin(dto));
                     return dto;
                 })
                 .toList();
 
     }
+
     @Override
-    public UserDto findById(Long id){
-        User user = userRepository.findById(id).orElseThrow(()->new NoSuchElementException("User not found with id: " + id));
+    public UserDto findById(Long id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new NoSuchElementException("User not found with id: " + id));
         UserDto dto = mapperUtil.convert(user, new UserDto());
-        dto.setIsOnlyAdmin(dto.getRole().getDescription().equals("Admin") && this.checkIfOnlyAdmin(dto));
+        dto.setIsOnlyAdmin(this.checkIfOnlyAdmin(dto));
         return dto;
     }
-    private boolean checkIfOnlyAdmin(UserDto userDto) {
 
-        if (userDto != null && Boolean.TRUE.equals(userDto.getIsOnlyAdmin())) {
-            return true;
-        }
-        return false;
+    @Override
+    public boolean checkIfOnlyAdmin(UserDto userDto) {
+
+        return userDto != null && userDto.getRole().getDescription().equals("Admin") && Boolean.TRUE.equals(userDto.getIsOnlyAdmin());
     }
 
     @Override
@@ -84,13 +83,9 @@ public class UserServiceImpl implements UserService {
     public void save(UserDto userDto) {
         User user = mapperUtil.convert(userDto, new User());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        if (!user.getPassword().equals(userDto.getConfirmPassword())){
-           throw new IllegalArgumentException("Passwords do not match");
-        }
         user.setEnabled(true);
         userRepository.save(user);
     }
-
 
 
     @Override
@@ -102,11 +97,12 @@ public class UserServiceImpl implements UserService {
 
         userRepository.save(user1);
     }
+
     public List<CompanyDto> listCompaniesByLoggedInUser() {
         UserDto user = securityService.getLoggedInUser();
         if (user.getRole().getDescription().equals("Root User")) {
             return companyService.getAllCompanies().stream()
-                    .filter(c->!c.getTitle().equalsIgnoreCase("CYDEO"))
+                    .filter(c -> !c.getTitle().equalsIgnoreCase("CYDEO"))
                     .collect(Collectors.toList());
         } else {
             return List.of(companyService.getCompanyDtoByLoggedInUser());
@@ -115,22 +111,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void delete(Long id) {
-        //go to db and get that user with useName
-        User user = userRepository.findById(id).orElseThrow(()->new NoSuchElementException("User not found with id: " + id));
-        //change the isDeleted field to true
-        user.setIsDeleted(true);
+        UserDto loggedInUserDto= securityService.getLoggedInUser();
+        mapperUtil.convert(loggedInUserDto,new User());
+        User user = userRepository.findById(id).orElseThrow(() -> new NoSuchElementException("User not found with id: " + id));
+            user.setIsDeleted(true);
         //save the object in the db
         userRepository.save(user);
-    }
-
-    @Override
-    public UserDto getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        User user = userRepository.findByUsername(username);
-        return mapperUtil.convert(user,new UserDto());
 
     }
+
+
 
     @Override
     public Long getCurrentUserId() {
@@ -140,8 +130,15 @@ public class UserServiceImpl implements UserService {
         return user.getId();
     }
 
-    public boolean userNameExists(UserDto userDto){
+    public boolean userNameExists(String userName) {
+        UserDto userDto = securityService.getLoggedInUser();
         return userRepository.existsByUsername(userDto.getUsername());
+    }
+
+    @Override
+    public boolean isPasswordNotMatch(String password) {
+        UserDto userDto = securityService.getLoggedInUser();
+        return password.isBlank()&& !password.equals(userDto.getConfirmPassword());
     }
 
 

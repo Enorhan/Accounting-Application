@@ -54,9 +54,12 @@ public class UserController {
     public String saveUser(@Valid @ModelAttribute("newUser") UserDto userDto, BindingResult result, Model model) {
 
         if (result.hasErrors()) {
+            model.addAttribute("userRoles", roleService.listRolesByLoggedInUser());
+            model.addAttribute("companies", userService.listCompaniesByLoggedInUser());
+
             return "/user/user-create";
         }
-        if (userService.userNameExists(userDto)) {
+        if (userService.userNameExists(userDto.getUsername())) {
             result.rejectValue("username",
                     "A user with this email already exists. Please try with different email.");
         }
@@ -97,9 +100,12 @@ public class UserController {
 
             return "/user/user-update";
         }
-        if (userService.userNameExists(userDto)) {
+        if (userService.userNameExists(userDto.getUsername())) {
             result.rejectValue("username",
                     "A user with this email already exists. Please try with different email.");
+        }
+        if (userService.isPasswordNotMatch(userDto.getPassword())){
+            result.rejectValue("password","Passwords should match.");
         }
 
 //        model.addAttribute("users", userService.listAllUser());
@@ -112,21 +118,18 @@ public class UserController {
     }
 
 
-//    @ModelAttribute
-//    public void commonAttributes(Model model) {
-//
-//        model.addAttribute("users", userService.listAllUser());
-//        model.addAttribute("Title","Cydeo Accounting-User");
-//        model.addAttribute("userRoles", roleService.listAllRoles());
-//        model.addAttribute("companies", companyService.getAllCompanies());
-//
-//    }
 
-//    @GetMapping("/delete/{id}")
-//    public String deleteUser(@PathVariable("id") Long id) {
-//        userService.delete(id);
-//
-//        return "redirect:/user/create";
-//    }
+    @GetMapping("/delete/{id}")
+    public String deleteUser(@PathVariable("id") Long id, Model model) {
+        UserDto userDto = userService.findById(id);
+
+        if (userService.checkIfOnlyAdmin(userDto)){
+            model.addAttribute("error", "Cannot delete the only admin of the company.");
+            return "redirect:/users/list";
+        }
+        userService.delete(id);
+
+        return "redirect:/users/list";
+    }
 
 }
