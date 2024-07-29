@@ -10,15 +10,15 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public  class CompanyServiceImpl implements CompanyService {
+public class CompanyServiceImpl implements CompanyService {
 
     private final CompanyRepository companyRepository;
     private final SecurityService securityService;
     private final MapperUtil mapperUtil;
+
 
     public CompanyServiceImpl(CompanyRepository companyRepository, SecurityService securityService, MapperUtil mapperUtil, MapperUtil mapperUtil1) {
         this.companyRepository = companyRepository;
@@ -61,7 +61,5 @@ public  class CompanyServiceImpl implements CompanyService {
                 })
                 .map(company -> mapperUtil.convert(company, new CompanyDto())).collect(Collectors.toList());
     }
-
-
 }
 

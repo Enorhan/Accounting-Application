@@ -19,15 +19,13 @@ public class ClientVendorController {
     private final ClientVendorService clientVendorService;
 
     public ClientVendorController(ClientVendorService clientVendorService) {
-
         this.clientVendorService = clientVendorService;
-
     }
 
     @GetMapping("/list")
     public String getClientVendors(Model model) {
-        model.addAttribute("clientVendors", clientVendorService.findAll());
-        return "/clientVendor/clientVendor-list";
+        model.addAttribute("clientVendors", clientVendorService.listAllClientVendorsByCompany());
+        return "clientVendor/clientVendor-list.html";
     }
 
     @GetMapping("/create")
