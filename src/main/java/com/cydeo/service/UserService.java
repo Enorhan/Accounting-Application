@@ -1,5 +1,6 @@
 package com.cydeo.service;
 
+import com.cydeo.dto.CompanyDto;
 import com.cydeo.dto.UserDto;
 
 import java.util.List;
@@ -14,8 +15,12 @@ public interface UserService {
 
     void save(UserDto user);
 
-    UserDto update(UserDto user);
-
+    void update(UserDto user);
+    void delete(Long id);
     Long getCurrentUserId();
+    List<CompanyDto> listCompaniesByLoggedInUser();
+    boolean userNameExists(String userName);
+    boolean isPasswordNotMatch(String password);
+   boolean checkIfOnlyAdmin(UserDto userDto);
 
 }
