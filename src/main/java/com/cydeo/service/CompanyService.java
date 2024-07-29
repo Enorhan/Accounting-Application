@@ -15,4 +15,11 @@ public interface CompanyService {
      CompanyDto getCompanyDtoByLoggedInUser();
 
      String getCurrentCompanyTitle();
+
+     CompanyDto save(CompanyDto companyDto);
+
+     CompanyDto activateCompany(Long Id);
+     CompanyDto deactivateCompany(Long Id);
+     void updateCompany(CompanyDto companyDto);
+
 }
