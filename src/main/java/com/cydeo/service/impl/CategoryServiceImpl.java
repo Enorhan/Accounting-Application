@@ -32,4 +32,8 @@ public class CategoryServiceImpl implements CategoryService {
 
         return mapperUtil.convert(category, new CategoryDto());
     }
+
+    public CategoryDto saveCategory(Category category){
+        return mapperUtil.convert(categoryRepository.save(category), new CategoryDto());
+    }
 }
