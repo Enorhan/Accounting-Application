@@ -2,6 +2,8 @@ package com.cydeo.service.impl;
 
 import com.cydeo.dto.CompanyDto;
 import com.cydeo.entity.Company;
+import com.cydeo.entity.User;
+import com.cydeo.entity.common.UserPrincipal;
 import com.cydeo.enums.CompanyStatus;
 import com.cydeo.repository.CompanyRepository;
 import com.cydeo.repository.UserRepository;
@@ -66,6 +68,7 @@ public class CompanyServiceImpl implements CompanyService {
         Company company = companyRepository.findById(Id).orElseThrow(() -> new IllegalArgumentException("Company not found"));
          company.setCompanyStatus(CompanyStatus.ACTIVE);
          companyRepository.save(company);
+        updateUsersStatus(Id,true);
 
         return mapperUtil.convert(company,new CompanyDto());
 
@@ -78,6 +81,8 @@ public class CompanyServiceImpl implements CompanyService {
         Company company = companyRepository.findById(Id).orElseThrow(() -> new IllegalArgumentException("Company not found"));
         company.setCompanyStatus(CompanyStatus.PASSIVE);
         companyRepository.save(company);
+        updateUsersStatus(Id,false);
+
 
      return mapperUtil.convert(company, new CompanyDto());
 
@@ -89,6 +94,13 @@ public class CompanyServiceImpl implements CompanyService {
         Company company = mapperUtil.convert(companyDto, existingCompany);
         company.setCompanyStatus(existingCompany.getCompanyStatus());
         companyRepository.save(company);
+    }
+    private void updateUsersStatus(Long companyId, boolean lock) {
+        List<User> users = userRepository.findByCompanyId(companyId);
+        for (User user : users) {
+            user.setAccountNonLocked(!lock);
+            userRepository.save(user);
+        }
     }
 
     @Override

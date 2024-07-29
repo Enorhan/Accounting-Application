@@ -15,6 +15,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Entity
 @Table(name = "users")
+
 public class User extends BaseEntity {
     private String firstname;
     private String lastname;
@@ -34,4 +35,6 @@ public class User extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "company_id")
     private Company company;
+    @Column(name = "account_non_locked", nullable = false)
+    private boolean isAccountNonLocked;
 }
