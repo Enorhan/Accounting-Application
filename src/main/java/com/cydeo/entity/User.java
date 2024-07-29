@@ -35,6 +35,4 @@ public class User extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "company_id")
     private Company company;
-    @Column(name = "account_non_locked", nullable = false)
-    private boolean isAccountNonLocked;
 }
