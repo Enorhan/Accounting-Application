@@ -60,7 +60,6 @@ public class SalesInvoiceController {
     public String saveCreatedSalesInvoice(@Valid @ModelAttribute("newSalesInvoice") InvoiceDto invoiceDto, BindingResult bindingResult, Model model){
 
         if (bindingResult.hasErrors()){
-
             model.addAttribute("newSalesInvoice",invoiceDto);
             model.addAttribute("clients",clientVendorService.listAllClientVendors());
 
@@ -81,7 +80,7 @@ public class SalesInvoiceController {
         model.addAttribute("invoice",invoiceService.findById(invoiceId));
         model.addAttribute("clients",clientVendorService.listAllClientVendorsByCompany());
         model.addAttribute("products",productService.findAllInStock());
-        model.addAttribute("invoiceProducts",invoiceProductService.findAllByInvoiceId(invoiceId));
+        model.addAttribute("invoiceProducts",invoiceProductService.findAllByInvoiceIdAndIsDeleted(invoiceId, false));
         model.addAttribute("newInvoiceProduct", new InvoiceProductDto());
 
 
@@ -108,7 +107,7 @@ public class SalesInvoiceController {
             model.addAttribute("invoice", invoiceService.findById(invoiceId));
             model.addAttribute("clients", clientVendorService.listAllClientVendorsByCompany());
             model.addAttribute("products", productService.findAllInStock());
-            model.addAttribute("invoiceProducts", invoiceProductService.findAllByInvoiceId(invoiceId));
+            model.addAttribute("invoiceProducts", invoiceProductService.findAllByInvoiceIdAndIsDeleted(invoiceId, false));
             return "invoice/sales-invoice-update";
         }
 

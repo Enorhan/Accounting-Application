@@ -89,7 +89,7 @@
                                                                 <div class="controls">
                                                                     <label>Product Name</label>
                                                                     <select id="product" class="form-control" th:field="*{product}">
-                                                                        <option th:if="${products != null && products.size() > 1}}"
+                                                                        <option th:if="${products != null && products.size() > 1}"
                                                                                 th:value="''" th:text="'Select'" selected></option>
                                                                         <option th:each= "product:${products}"
                                                                                 th:value="${product.id}"
