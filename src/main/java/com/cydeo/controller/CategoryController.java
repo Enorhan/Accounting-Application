@@ -1,13 +1,8 @@
 package com.cydeo.controller;
 
 import com.cydeo.dto.CategoryDto;
-import com.cydeo.dto.CompanyDto;
-import com.cydeo.dto.UserDto;
 import com.cydeo.entity.Category;
-import com.cydeo.entity.Company;
 import com.cydeo.service.CategoryService;
-import com.cydeo.service.SecurityService;
-import com.cydeo.util.MapperUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -17,13 +12,9 @@ import org.springframework.web.bind.annotation.*;
 public class CategoryController {
 
     private final CategoryService categoryService;
-    private final SecurityService securityService;
-    private final MapperUtil mapperUtil;
 
-    public CategoryController(CategoryService categoryService, SecurityService securityService, MapperUtil mapperUtil){
+    public CategoryController(CategoryService categoryService){
         this.categoryService = categoryService;
-        this.securityService = securityService;
-        this.mapperUtil = mapperUtil;
     }
 
     @GetMapping("/list")
@@ -42,12 +33,6 @@ public class CategoryController {
     @PostMapping("/create")
     public String submitForm(@ModelAttribute("newCategory") Category category, Model model) {
         model.addAttribute("newCategory", new Category());
-
-        UserDto loggedUser = this.securityService.getLoggedInUser();
-
-        CompanyDto userCompany = loggedUser.getCompany();
-
-        category.setCompany(mapperUtil.convert(userCompany, new Company()));
 
         categoryService.saveCategory(category);
 
@@ -68,7 +53,7 @@ public class CategoryController {
     }
 
     @PostMapping("/update/{id}")
-    public String updateCategory(Model model, @PathVariable Long id, @ModelAttribute("newCategory") Category category){
+    public String updateCategory(Model model, @ModelAttribute("newCategory") Category category){
         try{
             CategoryDto updatedCategory = this.categoryService.saveCategory(category);
             model.addAttribute("category", updatedCategory);
