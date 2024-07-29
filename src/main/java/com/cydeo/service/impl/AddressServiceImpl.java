@@ -2,10 +2,11 @@ package com.cydeo.service.impl;
 
 import com.cydeo.entity.Address;
 import com.cydeo.repository.AddressRepository;
+import com.cydeo.service.AddressService;
 
 import java.time.LocalDateTime;
 
-public class AddressServiceImpl implements com.cydeo.service.AddressService {
+public class AddressServiceImpl implements AddressService {
 
     AddressRepository addressRepository;
 

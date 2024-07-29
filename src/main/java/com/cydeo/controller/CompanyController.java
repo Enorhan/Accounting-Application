@@ -5,10 +5,7 @@ import com.cydeo.service.CompanyService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -50,4 +47,36 @@ public class CompanyController {
 
         return "redirect:/companies/list";
     }
+    @GetMapping("/update/{id}")
+    public String getEditCompany(@PathVariable Long id, Model model) {
+        CompanyDto companyDto = companyService.findById(id);
+        model.addAttribute("company", companyDto);
+        return "company/company-update";
+    }
+
+    @PostMapping("/update/{id}")
+    public String updateCompany( @ModelAttribute("company") CompanyDto companyDto, BindingResult bindingResult, Model model) {
+//        if (bindingResult.hasErrors()) {
+//            model.addAttribute("company", companyDto);
+//            return "company/company-update";
+//        }
+        companyService.updateCompany(companyDto);
+        return "redirect:/companies/list";
+    }
+
+   @GetMapping("/activate/{id}")
+   public String activateCompany(@PathVariable Long id , Model model) {
+       model.addAttribute("company",companyService.activateCompany(id));
+
+       return "redirect:/companies/list";
+   }
+
+   @GetMapping("/deactivate/{id}")
+   public String deactivateCompany(@PathVariable Long id , Model model) {
+       model.addAttribute("company",companyService.deactivateCompany(id));
+
+       return "redirect:/companies/list";
+   }
+
+
 }
