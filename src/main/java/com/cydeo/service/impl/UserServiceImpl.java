@@ -129,14 +129,12 @@ public class UserServiceImpl implements UserService {
     }
 
     public boolean userNameExists(String userName) {
-        UserDto userDto = securityService.getLoggedInUser();
-        return userRepository.existsByUsername(userDto.getUsername());
+        return userRepository.existsByUsername(userName);
     }
 
     @Override
-    public boolean isPasswordNotMatch(String password) {
-        UserDto userDto = securityService.getLoggedInUser();
-        return password.isBlank()&& !password.equals(userDto.getConfirmPassword());
+    public boolean isPasswordMatch(String password,String confirmPassword) {
+        return password!=null && password.equals(confirmPassword);
     }
 
 

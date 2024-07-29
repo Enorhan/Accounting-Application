@@ -20,7 +20,7 @@ public interface UserService {
     Long getCurrentUserId();
     List<CompanyDto> listCompaniesByLoggedInUser();
     boolean userNameExists(String userName);
-    boolean isPasswordNotMatch(String password);
+    boolean isPasswordMatch(String password,String confirmPassword);
    boolean checkIfOnlyAdmin(UserDto userDto);
 
 }

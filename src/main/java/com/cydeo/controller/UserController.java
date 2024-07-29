@@ -47,16 +47,20 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public String saveUser(@ModelAttribute("newUser") UserDto userDto, BindingResult result, Model model) {
+    public String saveUser(@Valid @ModelAttribute("newUser") UserDto userDto, BindingResult result, Model model) {
+        boolean passwordMatch = userService.isPasswordMatch(userDto.getPassword(), userDto.getConfirmPassword());
+        if (!passwordMatch) {
+            result.rejectValue("password", " ", "Passwords should match.");
+        }
+        if (userService.userNameExists(userDto.getUsername())) {
+            result.rejectValue("username", " ", "A user with this email already exists. Please try with different email.");
+        }
+
         if (result.hasErrors()) {
             model.addAttribute("userRoles", roleService.listRolesByLoggedInUser());
             model.addAttribute("companies", userService.listCompaniesByLoggedInUser());
 
             return "/user/user-create";
-        }
-        if (userService.userNameExists(userDto.getUsername())) {
-            result.rejectValue("username",
-                    "A user with this email already exists. Please try with different email.");
         }
 
         userService.save(userDto);
@@ -86,45 +90,28 @@ public class UserController {
 
 
     @PostMapping("/update/{id}")
-    public String updateUser(@Valid @ModelAttribute("user") UserDto userDto,BindingResult result, Model model) {
+    public String updateUser(@Valid @ModelAttribute("user") UserDto userDto, BindingResult result, Model model) {
 
+        if (userService.userNameExists(userDto.getUsername())) {
+            result.rejectValue("username", " ",
+                    "A user with this email already exists. Please try with different email.");
+        }
+
+        boolean passwordMatch = userService.isPasswordMatch(userDto.getPassword(), userDto.getConfirmPassword());
+        if (!passwordMatch) {
+            result.rejectValue("password", " ", "Passwords should match.");
+        }
         if (result.hasErrors()) {
-            model.addAttribute("users", userService.listAllUser());
             model.addAttribute("userRoles", roleService.listRolesByLoggedInUser());
             model.addAttribute("companies", userService.listCompaniesByLoggedInUser());
 
             return "/user/user-update";
         }
-        if (userService.userNameExists(userDto.getUsername())) {
-            result.rejectValue("username",
-                    "A user with this email already exists. Please try with different email.");
-        }
-        if (userService.isPasswordNotMatch(userDto.getPassword())){
-            result.rejectValue("password","Passwords should match.");
-        }
-
-//        model.addAttribute("users", userService.listAllUser());
-//        model.addAttribute("userRoles", roleService.listRolesByLoggedInUser());
-//        model.addAttribute("companies", userService.listCompaniesByLoggedInUser());
 
         userService.update(userDto);
 
         return "redirect:/users/list";
     }
 
-
-
-    @GetMapping("/delete/{id}")
-    public String deleteUser(@PathVariable("id") Long id, Model model) {
-        UserDto userDto = userService.findById(id);
-
-        if (userService.checkIfOnlyAdmin(userDto)){
-            model.addAttribute("error", "Cannot delete the only admin of the company.");
-            return "redirect:/users/list";
-        }
-        userService.delete(id);
-
-        return "redirect:/users/list";
-    }
 
 }
