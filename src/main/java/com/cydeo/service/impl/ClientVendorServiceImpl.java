@@ -3,12 +3,15 @@ package com.cydeo.service.impl;
 import com.cydeo.dto.ClientVendorDto;
 import com.cydeo.dto.UserDto;
 import com.cydeo.entity.ClientVendor;
+import com.cydeo.enums.ClientVendorType;
 import com.cydeo.repository.ClientVendorRepository;
 import com.cydeo.service.ClientVendorService;
 import com.cydeo.service.CompanyService;
 import com.cydeo.service.SecurityService;
 import com.cydeo.util.MapperUtil;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,5 +51,9 @@ public class ClientVendorServiceImpl implements ClientVendorService {
         return mapperUtil.convert(clientVendor, new ClientVendorDto());
     }
 
-
+    @Override
+    public List<ClientVendorDto> findAllByClientVendorTypeAndIsDeleted(ClientVendorType clientVendorType, Boolean isDeleted) {
+        Long companyId = companyService.getCompanyIdByLoggedInUser();
+        return mapperUtil.convert(clientVendorRepository.findAllByCompanyIdAndClientVendorTypeAndIsDeleted(companyId,clientVendorType,isDeleted),new ArrayList<>());
+    }
 }

@@ -2,6 +2,7 @@ package com.cydeo.controller;
 
 import com.cydeo.dto.InvoiceDto;
 import com.cydeo.dto.InvoiceProductDto;
+import com.cydeo.enums.ClientVendorType;
 import com.cydeo.enums.InvoiceType;
 import com.cydeo.service.ClientVendorService;
 import com.cydeo.service.InvoiceProductService;
@@ -61,7 +62,7 @@ public class SalesInvoiceController {
 
         if (bindingResult.hasErrors()){
             model.addAttribute("newSalesInvoice",invoiceDto);
-            model.addAttribute("clients",clientVendorService.listAllClientVendors());
+            model.addAttribute("clients",clientVendorService.findAllByClientVendorTypeAndIsDeleted(ClientVendorType.CLIENT,false));
 
             return "invoice/sales-invoice-create";
         }
@@ -75,10 +76,8 @@ public class SalesInvoiceController {
     @GetMapping("/update/{invoiceId}")
     public String editSalesInvoice(@PathVariable("invoiceId") Long invoiceId,Model model){
 
-        //Long invoiceCompanyId=invoiceService.findById(invoiceId).getCompany().getId();
-
         model.addAttribute("invoice",invoiceService.findById(invoiceId));
-        model.addAttribute("clients",clientVendorService.listAllClientVendorsByCompany());
+        model.addAttribute("clients",clientVendorService.findAllByClientVendorTypeAndIsDeleted(ClientVendorType.CLIENT,false));
         model.addAttribute("products",productService.findAllInStock());
         model.addAttribute("invoiceProducts",invoiceProductService.findAllByInvoiceIdAndIsDeleted(invoiceId, false));
         model.addAttribute("newInvoiceProduct", new InvoiceProductDto());
@@ -105,7 +104,7 @@ public class SalesInvoiceController {
         if (bindingResult.hasErrors()) {
 
             model.addAttribute("invoice", invoiceService.findById(invoiceId));
-            model.addAttribute("clients", clientVendorService.listAllClientVendorsByCompany());
+            model.addAttribute("clients", clientVendorService.findAllByClientVendorTypeAndIsDeleted(ClientVendorType.CLIENT,false));
             model.addAttribute("products", productService.findAllInStock());
             model.addAttribute("invoiceProducts", invoiceProductService.findAllByInvoiceIdAndIsDeleted(invoiceId, false));
             return "invoice/sales-invoice-update";
@@ -125,6 +124,27 @@ public class SalesInvoiceController {
 
         return "redirect:/salesInvoices/list";
 
+    }
+
+
+
+    @PostMapping("/update/{invoiceId}")
+    public String insertSalesInvoice(@PathVariable("invoiceId") Long invoiceId,
+                                     @Valid @ModelAttribute("invoice") InvoiceDto invoiceDto,
+                                     BindingResult bindingResult,Model model){
+
+        if (bindingResult.hasErrors()) {
+
+            model.addAttribute("invoice", invoiceService.findById(invoiceId));
+            model.addAttribute("clients", clientVendorService.findAllByClientVendorTypeAndIsDeleted(ClientVendorType.CLIENT,false));
+            model.addAttribute("products", productService.findAllInStock());
+            model.addAttribute("invoiceProducts", invoiceProductService.findAllByInvoiceIdAndIsDeleted(invoiceId, false));
+            return "invoice/sales-invoice-update";
+        }
+
+        invoiceService.update(invoiceDto, invoiceId);
+
+        return "redirect:/salesInvoices/update/"+invoiceId;
     }
 
 }
