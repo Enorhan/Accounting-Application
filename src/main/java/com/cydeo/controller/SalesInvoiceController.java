@@ -62,7 +62,7 @@ public class SalesInvoiceController {
 
         if (bindingResult.hasErrors()){
             model.addAttribute("newSalesInvoice",invoiceDto);
-            model.addAttribute("clients",clientVendorService.findAllByClientVendorTypeAndIsDeleted(ClientVendorType.CLIENT,false));
+            model.addAttribute("clients",clientVendorService.findAllByCurrentCompanyClientVendorTypeAndIsDeleted(ClientVendorType.CLIENT,false));
 
             return "invoice/sales-invoice-create";
         }
@@ -77,7 +77,7 @@ public class SalesInvoiceController {
     public String editSalesInvoice(@PathVariable("invoiceId") Long invoiceId,Model model){
 
         model.addAttribute("invoice",invoiceService.findById(invoiceId));
-        model.addAttribute("clients",clientVendorService.findAllByClientVendorTypeAndIsDeleted(ClientVendorType.CLIENT,false));
+        model.addAttribute("clients",clientVendorService.findAllByCurrentCompanyClientVendorTypeAndIsDeleted(ClientVendorType.CLIENT,false));
         model.addAttribute("products",productService.findAllInStock());
         model.addAttribute("invoiceProducts",invoiceProductService.findAllByInvoiceIdAndIsDeleted(invoiceId, false));
         model.addAttribute("newInvoiceProduct", new InvoiceProductDto());
@@ -104,7 +104,7 @@ public class SalesInvoiceController {
         if (bindingResult.hasErrors()) {
 
             model.addAttribute("invoice", invoiceService.findById(invoiceId));
-            model.addAttribute("clients", clientVendorService.findAllByClientVendorTypeAndIsDeleted(ClientVendorType.CLIENT,false));
+            model.addAttribute("clients", clientVendorService.findAllByCurrentCompanyClientVendorTypeAndIsDeleted(ClientVendorType.CLIENT,false));
             model.addAttribute("products", productService.findAllInStock());
             model.addAttribute("invoiceProducts", invoiceProductService.findAllByInvoiceIdAndIsDeleted(invoiceId, false));
             return "invoice/sales-invoice-update";
@@ -116,7 +116,6 @@ public class SalesInvoiceController {
         return "redirect:/salesInvoices/update/" + invoiceId;
     }
 
-
     @GetMapping("/delete/{invoiceId}")
     public String deleteSaleInvoices(@PathVariable("invoiceId") String invoiceId){
 
@@ -127,7 +126,6 @@ public class SalesInvoiceController {
     }
 
 
-
     @PostMapping("/update/{invoiceId}")
     public String insertSalesInvoice(@PathVariable("invoiceId") Long invoiceId,
                                      @Valid @ModelAttribute("invoice") InvoiceDto invoiceDto,
@@ -136,7 +134,8 @@ public class SalesInvoiceController {
         if (bindingResult.hasErrors()) {
 
             model.addAttribute("invoice", invoiceService.findById(invoiceId));
-            model.addAttribute("clients", clientVendorService.findAllByClientVendorTypeAndIsDeleted(ClientVendorType.CLIENT,false));
+            model.addAttribute("clients",
+                    clientVendorService.findAllByCurrentCompanyClientVendorTypeAndIsDeleted(ClientVendorType.CLIENT,false));
             model.addAttribute("products", productService.findAllInStock());
             model.addAttribute("invoiceProducts", invoiceProductService.findAllByInvoiceIdAndIsDeleted(invoiceId, false));
             return "invoice/sales-invoice-update";
@@ -147,4 +146,15 @@ public class SalesInvoiceController {
         return "redirect:/salesInvoices/update/"+invoiceId;
     }
 
+
+    @GetMapping("/approve/{invoiceId}")
+    public String approveInvoice(@PathVariable("invoiceId") Long invoiceId){
+
+     invoiceService.approveSalesInvoice(invoiceId);
+
+      return "redirect:/salesInvoices/list";
+    }
+
+
 }
+

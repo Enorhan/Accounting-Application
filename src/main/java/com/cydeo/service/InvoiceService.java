@@ -13,4 +13,5 @@ public interface InvoiceService {
     InvoiceDto update(InvoiceDto invoiceDto, Long invoiceId);
     String createNewSalesInvoiceNo();
     void delete(Long id);
+    void approveSalesInvoice(Long id);
 }

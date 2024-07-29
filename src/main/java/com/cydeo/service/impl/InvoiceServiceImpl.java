@@ -16,24 +16,20 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class InvoiceServiceImpl implements InvoiceService {
     private final InvoiceRepository invoiceRepository;
     private final MapperUtil mapperUtil;
-    private final UserService userService;
     private final CompanyService companyService;
     private final InvoiceProductService invoiceProductService;
 
-    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, MapperUtil mapperUtil, UserService userService, CompanyService companyService, @Lazy InvoiceProductService invoiceProductService) {
+    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, MapperUtil mapperUtil, CompanyService companyService, @Lazy InvoiceProductService invoiceProductService) {
         this.invoiceRepository = invoiceRepository;
         this.mapperUtil = mapperUtil;
-        this.userService = userService;
         this.companyService = companyService;
         this.invoiceProductService = invoiceProductService;
     }
@@ -114,15 +110,10 @@ public class InvoiceServiceImpl implements InvoiceService {
     public void save(InvoiceDto invoiceDto, InvoiceType invoiceType) {
         Invoice invoice = mapperUtil.convert(invoiceDto, new Invoice());
 
-        Long userId = userService.getCurrentUserId();
         CompanyDto companyDto = companyService.getCompanyDtoByLoggedInUser();
         Company company = mapperUtil.convert(companyDto, new Company());
 
         invoice.setInvoiceType(invoiceType);
-        invoice.setInsertDateTime(LocalDateTime.now());
-        invoice.setLastUpdateDateTime(LocalDateTime.now());
-        invoice.setInsertUserId(userId);
-        invoice.setLastUpdateUserId(userId);
         invoice.setCompany(company);
         invoice.setInvoiceStatus(InvoiceStatus.AWAITING_APPROVAL);
 
@@ -136,13 +127,6 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoiceDto.setId(id);
         Invoice invoice = mapperUtil.convert(invoiceDto, new Invoice());
 
-        Long userId = userService.getCurrentUserId();
-
-        invoice.setLastUpdateDateTime(LocalDateTime.now());
-        invoice.setLastUpdateUserId(userId);
-
-        invoice.setInsertDateTime(oldInvoice.getInsertDateTime());
-        invoice.setInsertUserId(oldInvoice.getInsertUserId());
         invoice.setInvoiceStatus(oldInvoice.getInvoiceStatus());
         invoice.setInvoiceType(oldInvoice.getInvoiceType());
         invoice.setCompany(oldInvoice.getCompany());
@@ -175,13 +159,18 @@ public class InvoiceServiceImpl implements InvoiceService {
     public void delete(Long id) {
         Invoice invoice = invoiceRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Invoice not found with id: " + id));
-        Long userId = userService.getCurrentUserId();
 
         invoice.setIsDeleted(true);
-        invoice.setLastUpdateUserId(userId);
-        invoice.setLastUpdateDateTime(LocalDateTime.now());
 
         invoiceProductService.deleteByInvoiceId(id);
         invoiceRepository.save(invoice);
+    }
+
+    @Override
+    public void approveSalesInvoice(Long id) {
+       Invoice invoice = invoiceRepository.findById(id)
+               .orElseThrow(()->new NoSuchElementException("Invoice not found with id: " + id));
+       invoice.setInvoiceStatus(InvoiceStatus.APPROVED);
+       invoiceRepository.save(invoice);
     }
 }
