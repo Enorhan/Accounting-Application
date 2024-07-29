@@ -23,14 +23,10 @@ public class UserController {
 
     private final UserService userService;
     private final RoleService roleService;
-    private final CompanyService companyService;
-    private final SecurityService securityService;
 
-    public UserController(UserService userService, RoleService roleService, @Lazy CompanyService companyService, @Lazy SecurityService securityService) {
+    public UserController(UserService userService, RoleService roleService) {
         this.userService = userService;
         this.roleService = roleService;
-        this.companyService = companyService;
-        this.securityService = securityService;
     }
 
     @GetMapping("/list")
@@ -51,8 +47,7 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public String saveUser(@Valid @ModelAttribute("newUser") UserDto userDto, BindingResult result, Model model) {
-
+    public String saveUser(@ModelAttribute("newUser") UserDto userDto, BindingResult result, Model model) {
         if (result.hasErrors()) {
             model.addAttribute("userRoles", roleService.listRolesByLoggedInUser());
             model.addAttribute("companies", userService.listCompaniesByLoggedInUser());

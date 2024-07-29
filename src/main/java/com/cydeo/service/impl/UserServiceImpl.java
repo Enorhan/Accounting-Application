@@ -2,6 +2,7 @@ package com.cydeo.service.impl;
 
 import com.cydeo.dto.CompanyDto;
 import com.cydeo.dto.UserDto;
+import com.cydeo.entity.Company;
 import com.cydeo.entity.User;
 import com.cydeo.repository.CompanyRepository;
 import com.cydeo.repository.UserRepository;
@@ -28,7 +29,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final SecurityService securityService;
 
-    public UserServiceImpl(UserRepository userRepository, MapperUtil mapperUtil, @Lazy CompanyService companyService,@Lazy PasswordEncoder passwordEncoder, @Lazy SecurityService securityService) {
+    public UserServiceImpl( UserRepository userRepository, MapperUtil mapperUtil, @Lazy CompanyService companyService,@Lazy PasswordEncoder passwordEncoder, @Lazy SecurityService securityService) {
         this.userRepository = userRepository;
         this.mapperUtil = mapperUtil;
         this.companyService = companyService;
@@ -81,21 +82,18 @@ public class UserServiceImpl implements UserService {
     @Override
 
     public void save(UserDto userDto) {
-        User user = mapperUtil.convert(userDto, new User());
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setEnabled(true);
-        userRepository.save(user);
+            User user = mapperUtil.convert(userDto, new User());
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            user.setEnabled(true);
+            userRepository.save(user);
     }
 
 
     @Override
     public void update(UserDto userDto) {
         User user = mapperUtil.convert(userDto, new User());
-        UserDto loggedInUserDto = securityService.getLoggedInUser();
-        User user1 = mapperUtil.convert(loggedInUserDto, new User());
-        user.setId(user1.getId());
 
-        userRepository.save(user1);
+        userRepository.save(user);
     }
 
     public List<CompanyDto> listCompaniesByLoggedInUser() {
