@@ -17,7 +17,6 @@ public class ClientVendorDTOConverter implements Converter<String, ClientVendorD
 
     @Override
     public ClientVendorDto convert(String source) {
-
         if (source == null || source.isEmpty()) {
             return null;
 

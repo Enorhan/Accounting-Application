@@ -1,5 +1,6 @@
 package com.cydeo.dto;
 
+import com.cydeo.entity.Address;
 import com.cydeo.enums.CompanyStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,6 +20,6 @@ public class CompanyDto {
     private String title;
     private String phone;
     private String website;
-    private AddressDto addressDto;
+    private AddressDto address;
     private CompanyStatus companyStatus;
 }
