@@ -52,7 +52,7 @@ public class UserController {
         if (!passwordMatch) {
             result.rejectValue("password", " ", "Passwords should match.");
         }
-        if (userService.userNameExists(userDto.getUsername())) {
+        if (userService.userNameExists(userDto)) {
             result.rejectValue("username", " ", "A user with this email already exists. Please try with different email.");
         }
 
@@ -92,14 +92,13 @@ public class UserController {
     @PostMapping("/update/{id}")
     public String updateUser(@Valid @ModelAttribute("user") UserDto userDto, BindingResult result, Model model) {
 
-        if (userService.userNameExists(userDto.getUsername())) {
-            result.rejectValue("username", " ",
-                    "A user with this email already exists. Please try with different email.");
-        }
 
         boolean passwordMatch = userService.isPasswordMatch(userDto.getPassword(), userDto.getConfirmPassword());
         if (!passwordMatch) {
             result.rejectValue("password", " ", "Passwords should match.");
+        }
+        if (userService.userNameExists(userDto)) {
+            result.rejectValue("username", " ", "A user with this email already exists. Please try with different email.");
         }
         if (result.hasErrors()) {
             model.addAttribute("userRoles", roleService.listRolesByLoggedInUser());
