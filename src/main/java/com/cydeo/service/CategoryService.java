@@ -9,5 +9,7 @@ public interface CategoryService {
 
     CategoryDto findById(Long id);
 
-    CategoryDto saveCategory(Category category);
+    CategoryDto saveCategory(CategoryDto category);
+
+    boolean existsByDescription(String description);
 }

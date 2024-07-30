@@ -37,10 +37,16 @@ public class CategoryServiceImpl implements CategoryService {
         return mapperUtil.convert(category, new CategoryDto());
     }
 
-    public CategoryDto saveCategory(Category category){
+    public CategoryDto saveCategory(CategoryDto category){
         Long id = companyService.getCompanyIdByLoggedInUser();
-        category.setCompany(mapperUtil.convert(companyService.findById(id), new Company()));
+        category.setCompany(companyService.findById(id));
 
-        return mapperUtil.convert(categoryRepository.save(category), new CategoryDto());
+        return mapperUtil.convert(categoryRepository.save(mapperUtil.convert(category, new Category())), new CategoryDto());
+    }
+
+    public boolean existsByDescription(String description){
+        Category category = categoryRepository.findByDescription(description);
+
+        return category != null;
     }
 }
