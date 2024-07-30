@@ -15,10 +15,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.time.format.TextStyle;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -108,6 +106,24 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
         map.put("profitLoss",totalProfitLoss);
 
         return map;
+    }
+
+    @Override
+    public Map<String, BigDecimal> getMonthlyProfitLoss() {
+
+            Long companyId = companyService.getCompanyIdByLoggedInUser();
+
+            List<InvoiceProduct> salesInvoices = invoiceProductRepository.findAll().stream()
+                    .filter(p -> p.getInvoice().getCompany().getId().equals(companyId))
+                    .filter(invoice -> invoice.getInvoice().getInvoiceType() == InvoiceType.SALES && invoice.getInvoice().getInvoiceStatus() == InvoiceStatus.APPROVED)
+                    .collect(Collectors.toList());
+
+            return salesInvoices.stream()
+                    .collect(Collectors.groupingBy(
+                            invoiceProduct -> invoiceProduct.getInvoice().getDate().getMonth()
+                                    .getDisplayName(TextStyle.FULL, Locale.ENGLISH),
+                            Collectors.reducing(BigDecimal.ZERO, InvoiceProduct::getProfitLoss, BigDecimal::add)
+                    ));
     }
 
     @Override
