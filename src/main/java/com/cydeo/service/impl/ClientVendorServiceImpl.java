@@ -1,7 +1,6 @@
 package com.cydeo.service.impl;
 
 import com.cydeo.dto.ClientVendorDto;
-import com.cydeo.dto.UserDto;
 import com.cydeo.entity.ClientVendor;
 import com.cydeo.repository.ClientVendorRepository;
 import com.cydeo.repository.InvoiceRepository;
