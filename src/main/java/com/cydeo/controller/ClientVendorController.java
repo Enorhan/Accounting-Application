@@ -39,10 +39,13 @@ public class ClientVendorController {
     @PostMapping("/create")
     public String createClientVendor(@Valid @ModelAttribute("newClientVendor") ClientVendorDto clientVendorDto, BindingResult result, Model model) {
 
+        if (clientVendorService.existsByName(clientVendorDto.getClientVendorName())){
+            result.rejectValue("clientVendorName", "", "Client vendor already exists");
+        }
+
+
         if (result.hasErrors()) {
-            for (ObjectError error : result.getAllErrors()) {
-                System.out.println("Error: " + error.getDefaultMessage());
-            }
+
             model.addAttribute("clientVendorTypes", Arrays.asList(ClientVendorType.values()));
             return "clientVendor/clientVendor-create";
         }

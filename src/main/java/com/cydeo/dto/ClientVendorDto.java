@@ -25,7 +25,7 @@ public class ClientVendorDto {
     @Pattern(regexp = "^\\+\\d{1,3} \\(\\d{3}\\) \\d{3}-\\d{4}$", message = "Phone Number may be in any valid phone number format(+1 (123) 4567890.")
     private String phone;
 
-    @Pattern(regexp = "^https://www\\.[a-zA-Z0-9-]+\\.[a-zA-Z]{2,}$",
+    @Pattern(regexp = "^https?://[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}(/.*)?$",
             message = "Website should have a valid format.")
     private String website;
 
