@@ -7,6 +7,7 @@ import com.cydeo.entity.common.UserPrincipal;
 import com.cydeo.enums.CompanyStatus;
 import com.cydeo.repository.CompanyRepository;
 import com.cydeo.repository.UserRepository;
+import com.cydeo.service.CategoryService;
 import com.cydeo.service.CompanyService;
 import com.cydeo.service.SecurityService;
 import com.cydeo.util.MapperUtil;
@@ -24,13 +25,17 @@ public class CompanyServiceImpl implements CompanyService {
     private final SecurityService securityService;
     private final MapperUtil mapperUtil;
     private final UserRepository userRepository;
+    private final CompanyService companyService;
 
 
-    public CompanyServiceImpl(CompanyRepository companyRepository, SecurityService securityService, MapperUtil mapperUtil, MapperUtil mapperUtil1, UserRepository userRepository) {
+
+    public CompanyServiceImpl(CompanyRepository companyRepository, SecurityService securityService, MapperUtil mapperUtil, MapperUtil mapperUtil1, UserRepository userRepository, CompanyService companyService) {
         this.companyRepository = companyRepository;
         this.securityService = securityService;
         this.mapperUtil = mapperUtil1;
         this.userRepository = userRepository;
+        this.companyService = companyService;
+
     }
 
     @Override
@@ -93,6 +98,13 @@ public class CompanyServiceImpl implements CompanyService {
         Company company = mapperUtil.convert(companyDto, existingCompany);
         company.setCompanyStatus(existingCompany.getCompanyStatus());
         companyRepository.save(company);
+    }
+
+    @Override
+    public boolean existsByTitle(String title) {
+        String currentCompanyTitle = companyService.getCurrentCompanyTitle();
+        return companyRepository.existsByTitle(currentCompanyTitle);
+
     }
 
     @Override
