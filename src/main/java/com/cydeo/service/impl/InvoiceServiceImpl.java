@@ -3,22 +3,19 @@ package com.cydeo.service.impl;
 import com.cydeo.dto.CompanyDto;
 import com.cydeo.dto.InvoiceDto;
 import com.cydeo.dto.InvoiceProductDto;
+import com.cydeo.dto.ProductDto;
 import com.cydeo.entity.Company;
 import com.cydeo.entity.Invoice;
 import com.cydeo.enums.InvoiceStatus;
 import com.cydeo.enums.InvoiceType;
 import com.cydeo.repository.InvoiceRepository;
-import com.cydeo.service.CompanyService;
-import com.cydeo.service.InvoiceProductService;
-import com.cydeo.service.InvoiceService;
-import com.cydeo.service.UserService;
+import com.cydeo.service.*;
 import com.cydeo.util.MapperUtil;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -28,14 +25,14 @@ public class InvoiceServiceImpl implements InvoiceService {
     private final InvoiceRepository invoiceRepository;
     private final MapperUtil mapperUtil;
     private final CompanyService companyService;
-    private final UserService userService;
+    private final ProductService productService;
     private final InvoiceProductService invoiceProductService;
 
-    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, MapperUtil mapperUtil, CompanyService companyService, UserService userService, InvoiceProductService invoiceProductService) {
+    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, MapperUtil mapperUtil, CompanyService companyService, ProductService productService, InvoiceProductService invoiceProductService) {
         this.invoiceRepository = invoiceRepository;
         this.mapperUtil = mapperUtil;
         this.companyService = companyService;
-        this.userService = userService;
+        this.productService = productService;
         this.invoiceProductService = invoiceProductService;
     }
 
@@ -171,14 +168,17 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
-    public void approvePurchaseInvoice(Long id) {
-        Invoice invoice = invoiceRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Invoice not found with id: " + id));
-        List<InvoiceProductDto> invoiceProducts = invoiceProductService.findAllByInvoiceIdAndIsDeleted(id, false);
+    public void approvePurchaseInvoice(Long invoiceId) {
+        Invoice invoice = invoiceRepository.findById(invoiceId)
+                .orElseThrow(() -> new NoSuchElementException("Invoice not found with invoiceId: " + invoiceId));
+        List<InvoiceProductDto> invoiceProductsDto = invoiceProductService.findAllByInvoiceIdAndIsDeleted(invoiceId, false);
 
-//        for (InvoiceProductDto invoiceProduct : invoiceProducts) {
-//            invoiceProduct.setQuantity(invoiceProduct.getQuantity() + invoice);
-//        }
+        for (InvoiceProductDto invoiceProduct : invoiceProductsDto) {
+            ProductDto productDto = productService.findById(invoiceProduct.getProduct().getId());
+            productDto.setQuantityInStock(productDto.getQuantityInStock() + invoiceProduct.getQuantity());
+
+            productService.save(productDto);
+        }
 
         invoice.setInvoiceStatus(InvoiceStatus.APPROVED);
 
@@ -187,6 +187,5 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     public List<Invoice> findTop3ApprovedInvoicesByCompanyId(Long companyId, InvoiceStatus invoiceStatus) {
         return invoiceRepository.findTop3ByCompanyIdAndInvoiceStatusOrderByDateDesc(companyId, InvoiceStatus.APPROVED);
-
     }
 }

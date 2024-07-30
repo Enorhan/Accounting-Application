@@ -150,8 +150,6 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
         Invoice invoice = mapperUtil.convert(invoiceDto, new Invoice());
 
         invoiceProduct.setInvoice(invoice);
-        invoiceProduct.setProfitLoss(BigDecimal.ZERO);
-        invoiceProduct.setRemainingQuantity(10);
 
         invoiceProductRepository.save(invoiceProduct);
     }
