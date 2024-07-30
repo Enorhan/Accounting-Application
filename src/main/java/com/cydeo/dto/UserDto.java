@@ -18,7 +18,7 @@ public class UserDto {
 
     private Long id;
     @NotBlank(message = "Email is required field.")
-    @Email(message = "Email is required field.")
+    @Email(message = "A user with this email already exists. Please try with different email.")
     private String username;
 
     @NotBlank(message = "password is required field")
@@ -43,6 +43,7 @@ public class UserDto {
     @NotNull(message = "Please select a Company.")
     private CompanyDto company;
     private Boolean isOnlyAdmin;
+
 
     public Boolean getIsOnlyAdmin() {
         return role.getDescription().equals("Admin");

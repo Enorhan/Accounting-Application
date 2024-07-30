@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -91,6 +92,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void update(UserDto userDto) {
+
         User user = mapperUtil.convert(userDto, new User());
 
         userRepository.save(user);
@@ -105,6 +107,15 @@ public class UserServiceImpl implements UserService {
         } else {
             return List.of(companyService.getCompanyDtoByLoggedInUser());
         }
+    }
+
+    @Override
+    public boolean userNameExists(UserDto userDto) {
+        User user = userRepository.findByUsername(userDto.getUsername());
+        if (user==null){
+            return false;
+        }
+        return !Objects.equals(userDto.getId(), user.getId());
     }
 
     @Override
@@ -128,15 +139,10 @@ public class UserServiceImpl implements UserService {
         return user.getId();
     }
 
-    public boolean userNameExists(String userName) {
-        UserDto userDto = securityService.getLoggedInUser();
-        return userRepository.existsByUsername(userDto.getUsername());
-    }
 
     @Override
-    public boolean isPasswordNotMatch(String password) {
-        UserDto userDto = securityService.getLoggedInUser();
-        return password.isBlank()&& !password.equals(userDto.getConfirmPassword());
+    public boolean isPasswordMatch(String password,String confirmPassword) {
+        return password!=null && password.equals(confirmPassword);
     }
 
 
