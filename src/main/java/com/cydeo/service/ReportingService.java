@@ -13,4 +13,5 @@ public interface ReportingService {
 
     List<InvoiceProductDto> getStockData();
 
+
 }

@@ -25,7 +25,7 @@ public class ReportingController {
     public String stockReport(Model model){
 
         List<InvoiceProductDto> invoiceProducts = reportingService.getStockData();
-        model.addAttribute("InvoiceProducts", invoiceProducts);
+        model.addAttribute("invoiceProducts", invoiceProducts);
 
         return "/report/stock-report";
     }

@@ -34,4 +34,5 @@ public class ReportingServiceImpl implements ReportingService {
                 .collect(Collectors.toList());
     }
 
+
 }

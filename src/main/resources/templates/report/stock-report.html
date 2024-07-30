@@ -31,14 +31,13 @@
                                                             </tr>
                                                             </thead>
                                                             <tbody>
-                                                            <tr th:each="invoiceProduct, comStat : *{InvoiceProducts}">
+                                                            <tr th:each="invoiceProduct, comStat : ${invoiceProducts}">
                                                                 <td th:text="${comStat.count}"></td>
-<!--                                                                <td th:text="${comStat.count}"></td>-->
                                                                 <td th:text="${invoiceProduct.invoice.invoiceNo}"></td>
                                                                 <td th:text="${#temporals.format(invoiceProduct.invoice.date, 'MM/dd/yyyy')}"></td>
                                                                 <td th:text="${invoiceProduct.quantity}"></td>
                                                                 <td th:text="${invoiceProduct.product.name}"></td>
-                                                                <td th:text="${invoiceProduct.product.category.getDescription()}"></td>
+                                                                <td th:text="${invoiceProduct.product.category.description}"></td>
                                                             </tr>
                                                             </tbody>
                                                         </table>
