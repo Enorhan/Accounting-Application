@@ -15,5 +15,6 @@ public interface InvoiceService {
     InvoiceDto update(InvoiceDto invoiceDto, Long invoiceId);
     String createNewSalesInvoiceNo();
     void delete(Long id);
+    void approvePurchaseInvoice(Long id);
     List<Invoice> findTop3ApprovedInvoicesByCompanyId(Long companyId, InvoiceStatus invoiceStatus);
 }

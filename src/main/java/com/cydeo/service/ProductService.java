@@ -8,4 +8,5 @@ public interface ProductService {
     List<ProductDto> findAllInStock();
     List<ProductDto> findAllByCurrentCompany();
     ProductDto findById(Long id);
+    void save(ProductDto productDto);
 }
