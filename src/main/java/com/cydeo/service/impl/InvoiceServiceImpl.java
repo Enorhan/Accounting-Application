@@ -62,8 +62,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         Long companyId = companyService.getCompanyIdByLoggedInUser();
 
         List<InvoiceDto> invoiceDtos = invoiceRepository.
-                findAllByInvoiceTypeAndCompanyIdOrderByInvoiceNoDesc(invoiceType, companyId).stream()
-                .filter(invoice -> invoice.getIsDeleted().equals(false))
+                findAllByInvoiceTypeAndCompanyIdAndIsDeletedOrderByInvoiceNoDesc(invoiceType, companyId, false).stream()
                 .map(invoice -> mapperUtil.convert(invoice, new InvoiceDto()))
                 .collect(Collectors.toList());
 
@@ -79,7 +78,11 @@ public class InvoiceServiceImpl implements InvoiceService {
         Invoice invoice = invoiceRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Invoice not found with id: " + id));
 
-        return mapperUtil.convert(invoice, new InvoiceDto());
+        InvoiceDto invoiceDto = mapperUtil.convert(invoice, new InvoiceDto());
+
+        calculateTotalsForInvoice(invoiceDto);
+
+        return invoiceDto;
     }
 
     @Override
