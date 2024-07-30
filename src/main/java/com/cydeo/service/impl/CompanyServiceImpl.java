@@ -2,6 +2,8 @@ package com.cydeo.service.impl;
 
 import com.cydeo.dto.CompanyDto;
 import com.cydeo.entity.Company;
+import com.cydeo.entity.User;
+import com.cydeo.entity.common.UserPrincipal;
 import com.cydeo.enums.CompanyStatus;
 import com.cydeo.repository.CompanyRepository;
 import com.cydeo.repository.UserRepository;
@@ -67,6 +69,7 @@ public class CompanyServiceImpl implements CompanyService {
         Company company = companyRepository.findById(Id).orElseThrow(() -> new IllegalArgumentException("Company not found"));
          company.setCompanyStatus(CompanyStatus.ACTIVE);
          companyRepository.save(company);
+
 
         return mapperUtil.convert(company,new CompanyDto());
 
