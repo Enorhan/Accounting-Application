@@ -3,6 +3,7 @@ package com.cydeo.service.impl;
 import com.cydeo.dto.CompanyDto;
 import com.cydeo.dto.InvoiceDto;
 import com.cydeo.dto.InvoiceProductDto;
+import com.cydeo.dto.ProductDto;
 import com.cydeo.entity.Company;
 import com.cydeo.entity.Invoice;
 import com.cydeo.enums.InvoiceStatus;
@@ -15,7 +16,6 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -25,14 +25,14 @@ public class InvoiceServiceImpl implements InvoiceService {
     private final InvoiceRepository invoiceRepository;
     private final MapperUtil mapperUtil;
     private final CompanyService companyService;
-    private final UserService userService;
+    private final ProductService productService;
     private final InvoiceProductService invoiceProductService;
 
-    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, MapperUtil mapperUtil, CompanyService companyService, UserService userService, InvoiceProductService invoiceProductService) {
+    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, MapperUtil mapperUtil, CompanyService companyService, ProductService productService, InvoiceProductService invoiceProductService) {
         this.invoiceRepository = invoiceRepository;
         this.mapperUtil = mapperUtil;
         this.companyService = companyService;
-        this.userService = userService;
+        this.productService = productService;
         this.invoiceProductService = invoiceProductService;
     }
 
@@ -111,15 +111,10 @@ public class InvoiceServiceImpl implements InvoiceService {
     public void save(InvoiceDto invoiceDto, InvoiceType invoiceType) {
         Invoice invoice = mapperUtil.convert(invoiceDto, new Invoice());
 
-        Long userId = userService.getCurrentUserId();
         CompanyDto companyDto = companyService.getCompanyDtoByLoggedInUser();
         Company company = mapperUtil.convert(companyDto, new Company());
 
         invoice.setInvoiceType(invoiceType);
-        invoice.setInsertDateTime(LocalDateTime.now());
-        invoice.setLastUpdateDateTime(LocalDateTime.now());
-        invoice.setInsertUserId(userId);
-        invoice.setLastUpdateUserId(userId);
         invoice.setCompany(company);
         invoice.setInvoiceStatus(InvoiceStatus.AWAITING_APPROVAL);
 
@@ -133,13 +128,6 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoiceDto.setId(id);
         Invoice invoice = mapperUtil.convert(invoiceDto, new Invoice());
 
-        Long userId = userService.getCurrentUserId();
-
-        invoice.setLastUpdateDateTime(LocalDateTime.now());
-        invoice.setLastUpdateUserId(userId);
-
-        invoice.setInsertDateTime(oldInvoice.getInsertDateTime());
-        invoice.setInsertUserId(oldInvoice.getInsertUserId());
         invoice.setInvoiceStatus(oldInvoice.getInvoiceStatus());
         invoice.setInvoiceType(oldInvoice.getInvoiceType());
         invoice.setCompany(oldInvoice.getCompany());
@@ -172,17 +160,32 @@ public class InvoiceServiceImpl implements InvoiceService {
     public void delete(Long id) {
         Invoice invoice = invoiceRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Invoice not found with id: " + id));
-        Long userId = userService.getCurrentUserId();
 
         invoice.setIsDeleted(true);
-        invoice.setLastUpdateUserId(userId);
-        invoice.setLastUpdateDateTime(LocalDateTime.now());
 
         invoiceProductService.deleteByInvoiceId(id);
         invoiceRepository.save(invoice);
     }
-    public List<Invoice> findTop3ApprovedInvoicesByCompanyId(Long companyId,InvoiceStatus invoiceStatus) {
-        return invoiceRepository.findTop3ByCompanyIdAndInvoiceStatusOrderByDateDesc(companyId, InvoiceStatus.APPROVED);
 
+    @Override
+    public void approvePurchaseInvoice(Long invoiceId) {
+        Invoice invoice = invoiceRepository.findById(invoiceId)
+                .orElseThrow(() -> new NoSuchElementException("Invoice not found with invoiceId: " + invoiceId));
+        List<InvoiceProductDto> invoiceProductsDto = invoiceProductService.findAllByInvoiceIdAndIsDeleted(invoiceId, false);
+
+        for (InvoiceProductDto invoiceProduct : invoiceProductsDto) {
+            ProductDto productDto = productService.findById(invoiceProduct.getProduct().getId());
+            productDto.setQuantityInStock(productDto.getQuantityInStock() + invoiceProduct.getQuantity());
+
+            productService.save(productDto);
+        }
+
+        invoice.setInvoiceStatus(InvoiceStatus.APPROVED);
+
+        invoiceRepository.save(invoice);
+    }
+
+    public List<Invoice> findTop3ApprovedInvoicesByCompanyId(Long companyId, InvoiceStatus invoiceStatus) {
+        return invoiceRepository.findTop3ByCompanyIdAndInvoiceStatusOrderByDateDesc(companyId, InvoiceStatus.APPROVED);
     }
 }
