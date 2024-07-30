@@ -38,7 +38,7 @@
                                                                 <td th:text="${#temporals.format(invoiceProduct.invoice.date, 'MM/dd/yyyy')}"></td>
                                                                 <td th:text="${invoiceProduct.quantity}"></td>
                                                                 <td th:text="${invoiceProduct.product.name}"></td>
-                                                                <td th:text="${invoiceProduct.product.category}"></td>
+                                                                <td th:text="${invoiceProduct.product.category.getDescription()}"></td>
                                                             </tr>
                                                             </tbody>
                                                         </table>
