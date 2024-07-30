@@ -17,4 +17,5 @@ public interface InvoiceProductService {
     void removeInvoiceProduct(Long invoiceProductId);
     List<InvoiceDto> getLast3ApprovedInvoices();
     Map<String, BigDecimal> getTotalCostAndSalesAndProfit_loss();
+    Map<String, BigDecimal> getMonthlyProfitLoss();
 }
