@@ -6,7 +6,6 @@ import com.cydeo.dto.InvoiceProductDto;
 import com.cydeo.dto.ProductDto;
 import com.cydeo.entity.Company;
 import com.cydeo.entity.Invoice;
-import com.cydeo.entity.InvoiceProduct;
 import com.cydeo.enums.InvoiceStatus;
 import com.cydeo.enums.InvoiceType;
 import com.cydeo.repository.InvoiceRepository;
