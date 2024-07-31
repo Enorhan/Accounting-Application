@@ -51,7 +51,7 @@ public class SalesInvoiceController {
         newInvoiceDto.setDate(LocalDate.now());
 
         model.addAttribute("newSalesInvoice",newInvoiceDto);
-        model.addAttribute("clients",clientVendorService.listAllClientVendors());
+        model.addAttribute("clients",clientVendorService.findAllByCurrentCompanyClientVendorTypeAndIsDeleted(ClientVendorType.CLIENT,false));
 
         return "invoice/sales-invoice-create";
     }

@@ -57,7 +57,7 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
 
         invoiceProduct.setInvoice(invoice);
         invoiceProduct.setProfitLoss(BigDecimal.ZERO);
-        invoiceProduct.setRemainingQuantity(10);
+        //invoiceProduct.setRemainingQuantity(10);
 
         invoiceProductRepository.save(invoiceProduct);
     }
@@ -95,5 +95,20 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
         BigDecimal totalPrice = price.multiply(BigDecimal.valueOf(quantity));
         BigDecimal taxAmount = totalPrice.multiply(BigDecimal.valueOf(tax)).divide(BigDecimal.valueOf(100));
         return totalPrice.add(taxAmount);
+    }
+
+
+    @Override
+    public void saveSalesInvoice(InvoiceProductDto invoiceProductDto) {
+        InvoiceProduct invoiceProduct = mapperUtil.convert(invoiceProductDto, new InvoiceProduct());
+        invoiceProductRepository.save(invoiceProduct);
+    }
+
+    @Override
+    public List<InvoiceProductDto> findAll() {
+        List<InvoiceProduct> invoiceProducts = invoiceProductRepository.findAll();
+        return invoiceProducts.stream()
+                .map(invoiceProduct -> mapperUtil.convert(invoiceProduct, new InvoiceProductDto()))
+                .collect(Collectors.toList());
     }
 }

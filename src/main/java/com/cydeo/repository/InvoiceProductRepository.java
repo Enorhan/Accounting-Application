@@ -15,4 +15,5 @@ public interface InvoiceProductRepository  extends JpaRepository<InvoiceProduct,
 
     @Query(value = "select a.* from invoice_products a join invoices b on a.invoice_id=b.id where b.invoice_status='APPROVED' and b.company_id= :companyId order by b.date desc limit 3", nativeQuery = true)
     List<InvoiceProduct> find3LastApprovedTransactionDesc(@Param("companyId") Long companyId);
+
 }
