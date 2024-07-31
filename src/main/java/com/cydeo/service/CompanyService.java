@@ -22,4 +22,6 @@ public interface CompanyService {
      CompanyDto deactivateCompany(Long Id);
      void updateCompany(CompanyDto companyDto);
 
+     boolean existsByTitle(CompanyDto companyDto);
+
 }
