@@ -7,6 +7,7 @@ import com.cydeo.service.ClientVendorService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -25,7 +26,7 @@ public class ClientVendorController {
     @GetMapping("/list")
     public String getClientVendors(Model model) {
         model.addAttribute("clientVendors", clientVendorService.listAllClientVendorsByCompany());
-        return "clientVendor/clientVendor-list.html";
+        return "clientVendor/clientVendor-list";
     }
 
     @GetMapping("/create")
@@ -37,6 +38,18 @@ public class ClientVendorController {
 
     @PostMapping("/create")
     public String createClientVendor(@Valid @ModelAttribute("newClientVendor") ClientVendorDto clientVendorDto, BindingResult result, Model model) {
+
+        if (clientVendorService.existsByName(clientVendorDto.getClientVendorName())){
+            result.rejectValue("clientVendorName", "", "Client vendor already exists");
+        }
+
+
+        if (result.hasErrors()) {
+
+            model.addAttribute("clientVendorTypes", Arrays.asList(ClientVendorType.values()));
+            return "clientVendor/clientVendor-create";
+        }
+
         clientVendorService.createClientVendor(clientVendorDto);
         return "redirect:/clientVendors/list";
     }
@@ -51,6 +64,15 @@ public class ClientVendorController {
 
     @PostMapping("/update/{id}")
     public String updateClientVendor(@PathVariable Long id, @ModelAttribute("clientVendor") @Valid ClientVendorDto clientVendorDto, BindingResult result, Model model) {
+
+        if (result.hasErrors()) {
+            for (ObjectError error : result.getAllErrors()) {
+                System.out.println("Error: " + error.getDefaultMessage());
+            }
+            model.addAttribute("clientVendorTypes", Arrays.asList(ClientVendorType.values()));
+            return "clientVendor/clientVendor-update";
+        }
+
         clientVendorService.updateClientVendor(id, clientVendorDto);
         return "redirect:/clientVendors/list";
     }
