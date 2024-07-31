@@ -10,13 +10,16 @@ import com.cydeo.repository.InvoiceProductRepository;
 import com.cydeo.service.CompanyService;
 import com.cydeo.service.InvoiceProductService;
 import com.cydeo.service.InvoiceService;
+import org.springframework.stereotype.Service;
 import com.cydeo.util.MapperUtil;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
+
 
 import java.math.BigDecimal;
 import java.time.format.TextStyle;
 import java.util.*;
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -203,5 +206,20 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
         BigDecimal totalPrice = price.multiply(BigDecimal.valueOf(quantity));
         BigDecimal taxAmount = totalPrice.multiply(BigDecimal.valueOf(tax)).divide(BigDecimal.valueOf(100));
         return totalPrice.add(taxAmount);
+    }
+
+
+    @Override
+    public void saveSalesInvoice(InvoiceProductDto invoiceProductDto) {
+        InvoiceProduct invoiceProduct = mapperUtil.convert(invoiceProductDto, new InvoiceProduct());
+        invoiceProductRepository.save(invoiceProduct);
+    }
+
+    @Override
+    public List<InvoiceProductDto> findAll() {
+        List<InvoiceProduct> invoiceProducts = invoiceProductRepository.findAll();
+        return invoiceProducts.stream()
+                .map(invoiceProduct -> mapperUtil.convert(invoiceProduct, new InvoiceProductDto()))
+                .collect(Collectors.toList());
     }
 }

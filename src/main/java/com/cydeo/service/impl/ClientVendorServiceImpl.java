@@ -2,12 +2,15 @@ package com.cydeo.service.impl;
 
 import com.cydeo.dto.ClientVendorDto;
 import com.cydeo.entity.ClientVendor;
+import com.cydeo.enums.ClientVendorType;
 import com.cydeo.repository.ClientVendorRepository;
 import com.cydeo.repository.InvoiceRepository;
 import com.cydeo.service.ClientVendorService;
 import com.cydeo.service.CompanyService;
 import com.cydeo.util.MapperUtil;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -62,14 +65,6 @@ public class ClientVendorServiceImpl implements ClientVendorService {
         return mapperUtil.convert(clientVendor, new ClientVendorDto());
     }
 
-//    @Override
-//    public List<ClientVendorDto> findAll() {
-//        List<ClientVendor> clientVendorList = clientVendorRepository.findAll();
-//        return clientVendorList.stream()
-//        .map(clientVendor -> mapperUtil.convert(clientVendor, new ClientVendorDto()))
-//        .collect(Collectors.toList());
-//    }
-
     @Override
     public ClientVendorDto updateClientVendor(Long id, ClientVendorDto clientVendorDTO) {
         ClientVendor clientVendor = clientVendorRepository.findById(id)
@@ -80,6 +75,11 @@ public class ClientVendorServiceImpl implements ClientVendorService {
         return mapperUtil.convert(clientVendor, new ClientVendorDto());
     }
 
+    @Override
+    public List<ClientVendorDto> findAllByCurrentCompanyClientVendorTypeAndIsDeleted(ClientVendorType clientVendorType, Boolean isDeleted) {
+        Long companyId = companyService.getCompanyIdByLoggedInUser();
+        return mapperUtil.convert(clientVendorRepository.findAllByCompanyIdAndClientVendorTypeAndIsDeleted(companyId,clientVendorType,isDeleted),new ArrayList<>());
+    }
     @Override
     public void deleteClientVendor(Long id) {
         boolean hasInvoices = invoiceRepository.existsByClientVendorId(id);
