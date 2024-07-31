@@ -70,7 +70,7 @@ public class UserServiceImpl implements UserService {
     public UserDto findById(Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new NoSuchElementException("User not found with id: " + id));
         UserDto dto = mapperUtil.convert(user, new UserDto());
-        dto.setIsOnlyAdmin(dto.getRole().getDescription().equals("Admin") && this.checkIfOnlyAdmin(dto));
+        dto.setIsOnlyAdmin(this.isOnlyAdmin(dto) && this.checkIfOnlyAdmin(dto));
         return dto;
     }
 
@@ -129,8 +129,11 @@ public class UserServiceImpl implements UserService {
     public void delete(Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new NoSuchElementException("User not found with id: " + id));
         UserDto convertedDto = mapperUtil.convert(user, new UserDto());
+
+        if (!isOnlyAdmin(convertedDto)){
         user.setIsDeleted(true);
         //save the object in the db
+        }
         userRepository.save(user);
 
     }

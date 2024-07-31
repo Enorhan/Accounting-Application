@@ -113,8 +113,9 @@ public class UserController {
     public String deleteUser(@PathVariable("id") Long id, Model model) {
         UserDto userDto = userService.findById(id);
 
-            if (userDto.getIsOnlyAdmin()) {
-                model.addAttribute("error", "Can not be deleted! This user is only admin for this company or logged in admin.");
+            if (userService.isOnlyAdmin(userDto)) {
+
+                model.addAttribute("error",userService.isOnlyAdmin(userDto));
                 return "redirect:/users/list";
             }
 
