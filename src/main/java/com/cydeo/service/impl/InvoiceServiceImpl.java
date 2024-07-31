@@ -231,7 +231,8 @@ public class InvoiceServiceImpl implements InvoiceService {
                     int quantityToUse = Math.min(quantityToSell, availableQuantity);
                     BigDecimal costPrice = purchaseProduct.getPrice();
 
-                    BigDecimal cost = costPrice.multiply(BigDecimal.valueOf(quantityToUse));
+                    BigDecimal taxToBeAdded=costPrice.multiply(BigDecimal.valueOf(0.01).multiply(BigDecimal.valueOf(purchaseProduct.getTax())));
+                    BigDecimal cost = (costPrice.multiply(BigDecimal.valueOf(quantityToUse)).add(taxToBeAdded));
                     totalCost = totalCost.add(cost);
 
                     purchaseProduct.setRemainingQuantity(availableQuantity - quantityToUse);
@@ -244,7 +245,8 @@ public class InvoiceServiceImpl implements InvoiceService {
                 }
             }
 
-            BigDecimal totalSale = salePrice.multiply(BigDecimal.valueOf(invoiceProductDto.getQuantity()));
+            BigDecimal taxToBeAdded=salePrice.multiply(BigDecimal.valueOf(0.01).multiply(BigDecimal.valueOf(invoiceProductDto.getTax())));
+            BigDecimal totalSale = (salePrice.multiply(BigDecimal.valueOf(invoiceProductDto.getQuantity()))).add(taxToBeAdded);
             BigDecimal profitLoss = totalSale.subtract(totalCost);
             invoiceProductDto.setProfitLoss(profitLoss);
 
