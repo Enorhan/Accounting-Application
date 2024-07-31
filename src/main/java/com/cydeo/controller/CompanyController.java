@@ -38,14 +38,12 @@ public class CompanyController {
 
     @PostMapping("/create")
     public String saveCompany(@Valid @ModelAttribute("newCompany") CompanyDto companyDto, BindingResult bindingResult , Model model) {
-        if(bindingResult.hasErrors()) {
-          //  model.addAttribute("newCompany", companyDto);
-            model.addAttribute("companies", companyService.getAllCompanies());
-            return "company/company-create";
-        }
         if (companyService.existsByTitle(companyDto)) {
             bindingResult.rejectValue("title","",
                     "A company with this title already exists. Please try with different title.");
+        }
+        if(bindingResult.hasErrors()) {
+            return "company/company-create";
         }
         companyService.save(companyDto);
 
@@ -65,9 +63,7 @@ public class CompanyController {
                     "A company with this title already exists. Please try with different title.");
         }
         if (bindingResult.hasErrors()) {
-            model.addAttribute("company", companyDto);
             return "company/company-update";
-
         }
 
         companyService.updateCompany(companyDto);
