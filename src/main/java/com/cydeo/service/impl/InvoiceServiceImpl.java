@@ -28,15 +28,15 @@ public class InvoiceServiceImpl implements InvoiceService {
     private final InvoiceRepository invoiceRepository;
     private final MapperUtil mapperUtil;
     private final CompanyService companyService;
-    private final InvoiceProductService invoiceProductService;
     private final ProductService productService;
+    private final InvoiceProductService invoiceProductService;
 
-    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, MapperUtil mapperUtil, CompanyService companyService, @Lazy InvoiceProductService invoiceProductService, ProductService productService) {
+      public InvoiceServiceImpl(InvoiceRepository invoiceRepository, MapperUtil mapperUtil, CompanyService companyService, @Lazy InvoiceProductService invoiceProductService, ProductService productService) {
         this.invoiceRepository = invoiceRepository;
         this.mapperUtil = mapperUtil;
         this.companyService = companyService;
-        this.invoiceProductService = invoiceProductService;
         this.productService = productService;
+        this.invoiceProductService = invoiceProductService;
     }
 
     private void calculateTotalsForInvoice(InvoiceDto invoiceDto) {
@@ -61,13 +61,11 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoiceDto.setTotal(totalPriceWithTax);
     }
 
-    @Override
     public List<InvoiceDto> listAllInvoicesByType(InvoiceType invoiceType) {
         Long companyId = companyService.getCompanyIdByLoggedInUser();
 
         List<InvoiceDto> invoiceDtos = invoiceRepository.
-                findAllByInvoiceTypeAndCompanyIdOrderByInvoiceNoDesc(invoiceType, companyId).stream()
-                .filter(invoice -> invoice.getIsDeleted().equals(false))
+                findAllByInvoiceTypeAndCompanyIdAndIsDeletedOrderByInvoiceNoDesc(invoiceType, companyId, false).stream()
                 .map(invoice -> mapperUtil.convert(invoice, new InvoiceDto()))
                 .collect(Collectors.toList());
 
@@ -83,7 +81,11 @@ public class InvoiceServiceImpl implements InvoiceService {
         Invoice invoice = invoiceRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Invoice not found with id: " + id));
 
-        return mapperUtil.convert(invoice, new InvoiceDto());
+        InvoiceDto invoiceDto = mapperUtil.convert(invoice, new InvoiceDto());
+
+        calculateTotalsForInvoice(invoiceDto);
+
+        return invoiceDto;
     }
 
     @Override
@@ -172,6 +174,28 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
+    public void approvePurchaseInvoice(Long invoiceId) {
+        Invoice invoice = invoiceRepository.findById(invoiceId)
+                .orElseThrow(() -> new NoSuchElementException("Invoice not found with invoiceId: " + invoiceId));
+        List<InvoiceProductDto> invoiceProductsDto = invoiceProductService.findAllByInvoiceIdAndIsDeleted(invoiceId, false);
+
+        for (InvoiceProductDto invoiceProduct : invoiceProductsDto) {
+            ProductDto productDto = productService.findById(invoiceProduct.getProduct().getId());
+            productDto.setQuantityInStock(productDto.getQuantityInStock() + invoiceProduct.getQuantity());
+
+            productService.save(productDto);
+        }
+
+        invoice.setInvoiceStatus(InvoiceStatus.APPROVED);
+
+        invoiceRepository.save(invoice);
+    }
+
+    public List<Invoice> findTop3ApprovedInvoicesByCompanyId(Long companyId, InvoiceStatus invoiceStatus) {
+        return invoiceRepository.findTop3ByCompanyIdAndInvoiceStatusOrderByDateDesc(companyId, InvoiceStatus.APPROVED);
+    }
+
+    @Override
     public void approveSalesInvoice(Long id) {
         Invoice invoice = invoiceRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Invoice not found with id: " + id));
@@ -237,8 +261,4 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoice.setDate(LocalDate.now());
         invoiceRepository.save(invoice);
     }
-
-
 }
-
-

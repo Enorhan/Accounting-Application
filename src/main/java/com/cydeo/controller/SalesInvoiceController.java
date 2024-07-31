@@ -1,13 +1,11 @@
 package com.cydeo.controller;
 
+import com.cydeo.dto.CompanyDto;
 import com.cydeo.dto.InvoiceDto;
 import com.cydeo.dto.InvoiceProductDto;
 import com.cydeo.enums.ClientVendorType;
 import com.cydeo.enums.InvoiceType;
-import com.cydeo.service.ClientVendorService;
-import com.cydeo.service.InvoiceProductService;
-import com.cydeo.service.InvoiceService;
-import com.cydeo.service.ProductService;
+import com.cydeo.service.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -20,17 +18,18 @@ import java.util.List;
 @Controller
 @RequestMapping("/salesInvoices")
 public class SalesInvoiceController {
-
     private final InvoiceService invoiceService;
     private final ClientVendorService clientVendorService;
     private final InvoiceProductService invoiceProductService;
     private final ProductService productService;
+    private final CompanyService companyService;
 
-    public SalesInvoiceController(InvoiceService invoiceService, ClientVendorService clientVendorService, InvoiceProductService invoiceProductService, ProductService productService) {
+    public SalesInvoiceController(InvoiceService invoiceService, ClientVendorService clientVendorService, InvoiceProductService invoiceProductService, ProductService productService, CompanyService companyService) {
         this.invoiceService = invoiceService;
         this.clientVendorService = clientVendorService;
         this.invoiceProductService = invoiceProductService;
         this.productService = productService;
+        this.companyService = companyService;
     }
 
     @GetMapping("/list")
@@ -123,6 +122,19 @@ public class SalesInvoiceController {
 
         return "redirect:/salesInvoices/list";
 
+    }
+
+    @GetMapping("/print/{invoiceId}")
+    public String printInvoice(@PathVariable("invoiceId") Long invoiceId, Model model) {
+        CompanyDto companyDto = companyService.getCompanyDtoByLoggedInUser();
+        InvoiceDto invoiceDto = invoiceService.findById(invoiceId);
+        List<InvoiceProductDto> invoiceProductDtos = invoiceProductService.findAllByInvoiceIdAndIsDeleted(invoiceId, false);
+
+        model.addAttribute("company", companyDto);
+        model.addAttribute("invoice", invoiceDto);
+        model.addAttribute("invoiceProducts", invoiceProductDtos);
+
+        return "invoice/invoice_print";
     }
 
 
