@@ -1,7 +1,6 @@
 package com.cydeo.service.impl;
 
 import com.cydeo.dto.ClientVendorDto;
-import com.cydeo.dto.UserDto;
 import com.cydeo.entity.ClientVendor;
 import com.cydeo.repository.ClientVendorRepository;
 import com.cydeo.repository.InvoiceRepository;
@@ -46,6 +45,10 @@ public class ClientVendorServiceImpl implements ClientVendorService {
 
     @Override
     public ClientVendorDto createClientVendor(ClientVendorDto clientVendorDTO) {
+
+        if (existsByName(clientVendorDTO.getClientVendorName())){
+            throw new IllegalArgumentException("Client/Vendor with this name already exists");
+        }
         clientVendorDTO.setCompany(companyService.getCompanyDtoByLoggedInUser());
         ClientVendor clientVendor = mapperUtil.convert(clientVendorDTO, new ClientVendor());
         clientVendor = clientVendorRepository.save(clientVendor);
@@ -59,13 +62,13 @@ public class ClientVendorServiceImpl implements ClientVendorService {
         return mapperUtil.convert(clientVendor, new ClientVendorDto());
     }
 
-    @Override
-    public List<ClientVendorDto> findAll() {
-        List<ClientVendor> clientVendorList = clientVendorRepository.findAll();
-        return clientVendorList.stream()
-        .map(clientVendor -> mapperUtil.convert(clientVendor, new ClientVendorDto()))
-        .collect(Collectors.toList());
-    }
+//    @Override
+//    public List<ClientVendorDto> findAll() {
+//        List<ClientVendor> clientVendorList = clientVendorRepository.findAll();
+//        return clientVendorList.stream()
+//        .map(clientVendor -> mapperUtil.convert(clientVendor, new ClientVendorDto()))
+//        .collect(Collectors.toList());
+//    }
 
     @Override
     public ClientVendorDto updateClientVendor(Long id, ClientVendorDto clientVendorDTO) {
@@ -86,5 +89,10 @@ public class ClientVendorServiceImpl implements ClientVendorService {
         }
 
         clientVendorRepository.deleteById(id);
+    }
+
+    @Override
+    public boolean existsByName(String clientVendorName) {
+        return clientVendorRepository.existsByClientVendorName(clientVendorName);
     }
 }
