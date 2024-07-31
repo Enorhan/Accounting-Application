@@ -43,8 +43,8 @@ public class CompanyController {
             model.addAttribute("companies", companyService.getAllCompanies());
             return "company/company-create";
         }
-        if (companyService.getCurrentCompanyTitle().equals(companyDto.getTitle())) {
-            bindingResult.rejectValue("Title",
+        if (companyService.existsByTitle(companyDto)) {
+            bindingResult.rejectValue("title","",
                     "A company with this title already exists. Please try with different title.");
         }
         companyService.save(companyDto);
@@ -60,14 +60,16 @@ public class CompanyController {
 
     @PostMapping("/update/{id}")
     public String updateCompany(@Valid @ModelAttribute("company") CompanyDto companyDto, BindingResult bindingResult, Model model) {
+        if (companyService.existsByTitle(companyDto)) {
+            bindingResult.rejectValue("title","",
+                    "A company with this title already exists. Please try with different title.");
+        }
         if (bindingResult.hasErrors()) {
             model.addAttribute("company", companyDto);
             return "company/company-update";
+
         }
-        if (companyService.getCurrentCompanyTitle().equals(companyDto.getTitle())) {
-            bindingResult.rejectValue("Title",
-                    "A company with this title already exists. Please try with different title.");
-        }
+
         companyService.updateCompany(companyDto);
         return "redirect:/companies/list";
     }

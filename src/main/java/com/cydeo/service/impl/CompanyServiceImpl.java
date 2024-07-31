@@ -25,16 +25,16 @@ public class CompanyServiceImpl implements CompanyService {
     private final SecurityService securityService;
     private final MapperUtil mapperUtil;
     private final UserRepository userRepository;
-    private final CompanyService companyService;
 
 
 
-    public CompanyServiceImpl(CompanyRepository companyRepository, SecurityService securityService, MapperUtil mapperUtil, MapperUtil mapperUtil1, UserRepository userRepository, CompanyService companyService) {
+
+    public CompanyServiceImpl(CompanyRepository companyRepository, SecurityService securityService, MapperUtil mapperUtil, MapperUtil mapperUtil1, UserRepository userRepository) {
         this.companyRepository = companyRepository;
         this.securityService = securityService;
         this.mapperUtil = mapperUtil1;
         this.userRepository = userRepository;
-        this.companyService = companyService;
+
 
     }
 
@@ -101,9 +101,12 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
-    public boolean existsByTitle(String title) {
-        String currentCompanyTitle = companyService.getCurrentCompanyTitle();
-        return companyRepository.existsByTitle(currentCompanyTitle);
+    public boolean existsByTitle(CompanyDto companyDto) {
+        Company companyByTitle = companyRepository.findCompanyByTitle(companyDto.getTitle());
+        if(companyByTitle == null){
+            return false;
+        }
+        return !companyByTitle.getId().equals(companyDto.getId());
 
     }
 
