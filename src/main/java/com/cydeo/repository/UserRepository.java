@@ -15,12 +15,8 @@ public interface UserRepository extends JpaRepository<User,Long> {
 
     //Root User can list only admins of all companies.
     //Admin can only see his/her company's users.
-    List<User> findAllByRoleDescriptionAndIsDeleted(String roleDescription,boolean isDeleted);
-    List<User> findByCompanyIdAndIsDeleted(Long companyId,boolean isDeleted);
-
-    @Query("SELECT CASE WHEN COUNT(u) = 1 THEN TRUE ELSE FALSE END FROM User u WHERE u.role.description = 'Admin' AND u.company.id = :companyId")
-    boolean isOnlyAdmin(@Param("companyId") Long companyId);
-//    boolean isOnlyAdminInCompany(Long id);
-
+    List<User> findAllByRoleDescription(String roleDescription);
+    List<User> findByCompanyId(Long companyId);
+    Integer countAllByCompany_IdAndRole_Description(Long companyId,String roleDescription);
 
 }

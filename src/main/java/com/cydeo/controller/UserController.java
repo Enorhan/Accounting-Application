@@ -77,7 +77,6 @@ public class UserController {
 
         UserDto userDto = userService.findById(id);
         model.addAttribute("user", userDto);
-        model.addAttribute("users", userService.listAllUser());
         model.addAttribute("userRoles", roleService.listRolesByLoggedInUser());
         model.addAttribute("companies", userService.listCompaniesByLoggedInUser());
 
@@ -110,15 +109,13 @@ public class UserController {
     }
 
     @GetMapping("/delete/{id}")
-    public String deleteUser(@PathVariable("id") Long id, Model model) {
+    public String deleteUser(@PathVariable("id") Long id) {
         UserDto userDto = userService.findById(id);
 
-            if (userService.isOnlyAdmin(userDto)) {
+            if (userService.checkIfOnlyAdmin(userDto)) {
 
-                model.addAttribute("error",userService.isOnlyAdmin(userDto));
                 return "redirect:/users/list";
             }
-
         userService.delete(id);
         return "redirect:/users/list";
     }

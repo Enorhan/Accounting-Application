@@ -49,9 +49,9 @@ public class UserServiceImpl implements UserService {
         User currentUser = mapperUtil.convert(securityService.getLoggedInUser(), new User());
         List<User> userList;
         if (currentUser.getRole().getDescription().equals("Root User")) {//Root User can list only admins of all companies.
-            userList = userRepository.findAllByRoleDescriptionAndIsDeleted("Admin",false);
+            userList = userRepository.findAllByRoleDescription("Admin");
         } else {
-            userList = userRepository.findByCompanyIdAndIsDeleted(currentUser.getCompany().getId(),false);//Admin can only see his/her company's users.
+            userList = userRepository.findByCompanyId(currentUser.getCompany().getId());//Admin can only see his/her company's users.
         }
 
 //        Users should be sorted by their companies then their roles.
@@ -70,21 +70,13 @@ public class UserServiceImpl implements UserService {
     public UserDto findById(Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new NoSuchElementException("User not found with id: " + id));
         UserDto dto = mapperUtil.convert(user, new UserDto());
-        dto.setIsOnlyAdmin(this.isOnlyAdmin(dto) && this.checkIfOnlyAdmin(dto));
+        dto.setIsOnlyAdmin(dto.getRole().getDescription().equals("Admin")&&this.checkIfOnlyAdmin(dto));
         return dto;
     }
 
     @Override
     public boolean checkIfOnlyAdmin(UserDto userDto) {
-
-        return userDto != null && Boolean.TRUE.equals(userDto.getIsOnlyAdmin());
-    }
-
-    @Override
-    public boolean isOnlyAdmin(UserDto userDto) {
-//        SELECT CASE WHEN COUNT(u) = 1 THEN TRUE ELSE FALSE END FROM User u WHERE u.role.description = 'Admin' AND u.company.id = :companyId")
-        return userRepository.isOnlyAdmin(userDto.getCompany().getId());
-
+        return userRepository.countAllByCompany_IdAndRole_Description(userDto.getCompany().getId(),"Admin")==1;
     }
 
     @Override
@@ -128,23 +120,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public void delete(Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new NoSuchElementException("User not found with id: " + id));
-        UserDto convertedDto = mapperUtil.convert(user, new UserDto());
-
-        if (!isOnlyAdmin(convertedDto)){
         user.setIsDeleted(true);
-        //save the object in the db
-        }
         userRepository.save(user);
-
-    }
-
-
-    @Override
-    public Long getCurrentUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        User user = userRepository.findByUsername(username);
-        return user.getId();
     }
 
 
@@ -152,6 +129,4 @@ public class UserServiceImpl implements UserService {
     public boolean isPasswordMatch(String password, String confirmPassword) {
         return password != null && password.equals(confirmPassword);
     }
-
-
 }
