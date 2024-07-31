@@ -17,6 +17,6 @@ public interface UserRepository extends JpaRepository<User,Long> {
     //Admin can only see his/her company's users.
     List<User> findAllByRoleDescription(String roleDescription);
     List<User> findByCompanyId(Long companyId);
-    boolean existsByUsername(String userName);
+    Integer countAllByCompany_IdAndRole_Description(Long companyId,String roleDescription);
 
 }
