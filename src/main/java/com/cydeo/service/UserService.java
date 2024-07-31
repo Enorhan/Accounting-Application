@@ -23,4 +23,6 @@ public interface UserService {
     boolean isPasswordMatch(String password,String confirmPassword);
    boolean checkIfOnlyAdmin(UserDto userDto);
 
+   boolean  isOnlyAdmin(UserDto userDto);
+
 }

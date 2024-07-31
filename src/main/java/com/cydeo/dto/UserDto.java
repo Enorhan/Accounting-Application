@@ -13,6 +13,8 @@ import javax.validation.constraints.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@EqualsAndHashCode
 
 public class UserDto {
 
@@ -42,10 +44,9 @@ public class UserDto {
     private RoleDto role;
     @NotNull(message = "Please select a Company.")
     private CompanyDto company;
+
+    @NotNull(message =  "Can not be deleted! This user is only admin for this company or logged in admin.")
     private Boolean isOnlyAdmin;
 
 
-    public Boolean getIsOnlyAdmin() {
-        return role.getDescription().equals("Admin");
-    }
 }

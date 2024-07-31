@@ -1,9 +1,6 @@
 package com.cydeo.controller;
 
-import com.cydeo.dto.CompanyDto;
-import com.cydeo.dto.RoleDto;
 import com.cydeo.dto.UserDto;
-import com.cydeo.service.CompanyService;
 import com.cydeo.service.RoleService;
 import com.cydeo.service.SecurityService;
 import com.cydeo.service.UserService;
@@ -14,8 +11,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
-import java.util.stream.Collectors;
+
 
 @Controller
 @RequestMapping("/users")
@@ -23,6 +19,7 @@ public class UserController {
 
     private final UserService userService;
     private final RoleService roleService;
+
 
     public UserController(UserService userService, RoleService roleService) {
         this.userService = userService;
@@ -116,12 +113,12 @@ public class UserController {
     public String deleteUser(@PathVariable("id") Long id, Model model) {
         UserDto userDto = userService.findById(id);
 
-        if (userService.checkIfOnlyAdmin(userDto)){
-            model.addAttribute("error", "Cannot delete the only admin of the company.");
-            return "redirect:/users/list";
-        }
-        userService.delete(id);
+            if (userDto.getIsOnlyAdmin()) {
+                model.addAttribute("error", "Can not be deleted! This user is only admin for this company or logged in admin.");
+                return "redirect:/users/list";
+            }
 
+        userService.delete(id);
         return "redirect:/users/list";
     }
 

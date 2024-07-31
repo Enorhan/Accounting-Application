@@ -30,7 +30,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final SecurityService securityService;
 
-    public UserServiceImpl( UserRepository userRepository, MapperUtil mapperUtil, @Lazy CompanyService companyService,@Lazy PasswordEncoder passwordEncoder, @Lazy SecurityService securityService) {
+    public UserServiceImpl(UserRepository userRepository, MapperUtil mapperUtil, @Lazy CompanyService companyService, @Lazy PasswordEncoder passwordEncoder, @Lazy SecurityService securityService) {
         this.userRepository = userRepository;
         this.mapperUtil = mapperUtil;
         this.companyService = companyService;
@@ -49,9 +49,9 @@ public class UserServiceImpl implements UserService {
         User currentUser = mapperUtil.convert(securityService.getLoggedInUser(), new User());
         List<User> userList;
         if (currentUser.getRole().getDescription().equals("Root User")) {//Root User can list only admins of all companies.
-            userList = userRepository.findAllByRoleDescription("Admin");
+            userList = userRepository.findAllByRoleDescriptionAndIsDeleted("Admin",false);
         } else {
-            userList = userRepository.findByCompanyId(currentUser.getCompany().getId());//Admin can only see his/her company's users.
+            userList = userRepository.findByCompanyIdAndIsDeleted(currentUser.getCompany().getId(),false);//Admin can only see his/her company's users.
         }
 
 //        Users should be sorted by their companies then their roles.
@@ -59,7 +59,7 @@ public class UserServiceImpl implements UserService {
                         .thenComparing((User user) -> user.getRole().getDescription()))
                 .map(entity -> {
                     UserDto dto = mapperUtil.convert(entity, new UserDto());
-                    dto.setIsOnlyAdmin(this.checkIfOnlyAdmin(dto));
+                    dto.setIsOnlyAdmin(dto.getRole().getDescription().equals("Admin") &&this.checkIfOnlyAdmin(dto));
                     return dto;
                 })
                 .toList();
@@ -70,23 +70,30 @@ public class UserServiceImpl implements UserService {
     public UserDto findById(Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new NoSuchElementException("User not found with id: " + id));
         UserDto dto = mapperUtil.convert(user, new UserDto());
-        dto.setIsOnlyAdmin(this.checkIfOnlyAdmin(dto));
+        dto.setIsOnlyAdmin(dto.getRole().getDescription().equals("Admin") && this.checkIfOnlyAdmin(dto));
         return dto;
     }
 
     @Override
     public boolean checkIfOnlyAdmin(UserDto userDto) {
 
-        return userDto != null && userDto.getRole().getDescription().equals("Admin") && Boolean.TRUE.equals(userDto.getIsOnlyAdmin());
+        return userDto != null && Boolean.TRUE.equals(userDto.getIsOnlyAdmin());
+    }
+
+    @Override
+    public boolean isOnlyAdmin(UserDto userDto) {
+//        SELECT CASE WHEN COUNT(u) = 1 THEN TRUE ELSE FALSE END FROM User u WHERE u.role.description = 'Admin' AND u.company.id = :companyId")
+        return userRepository.isOnlyAdmin(userDto.getCompany().getId());
+
     }
 
     @Override
 
     public void save(UserDto userDto) {
-            User user = mapperUtil.convert(userDto, new User());
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-            user.setEnabled(true);
-            userRepository.save(user);
+        User user = mapperUtil.convert(userDto, new User());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setEnabled(true);
+        userRepository.save(user);
     }
 
 
@@ -112,7 +119,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean userNameExists(UserDto userDto) {
         User user = userRepository.findByUsername(userDto.getUsername());
-        if (user==null){
+        if (user == null) {
             return false;
         }
         return !Objects.equals(userDto.getId(), user.getId());
@@ -120,15 +127,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void delete(Long id) {
-        UserDto loggedInUserDto= securityService.getLoggedInUser();
-        mapperUtil.convert(loggedInUserDto,new User());
         User user = userRepository.findById(id).orElseThrow(() -> new NoSuchElementException("User not found with id: " + id));
-            user.setIsDeleted(true);
+        UserDto convertedDto = mapperUtil.convert(user, new UserDto());
+        user.setIsDeleted(true);
         //save the object in the db
         userRepository.save(user);
 
     }
-
 
 
     @Override
@@ -141,8 +146,8 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public boolean isPasswordMatch(String password,String confirmPassword) {
-        return password!=null && password.equals(confirmPassword);
+    public boolean isPasswordMatch(String password, String confirmPassword) {
+        return password != null && password.equals(confirmPassword);
     }
 
 
