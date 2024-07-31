@@ -183,6 +183,15 @@ public class InvoiceServiceImpl implements InvoiceService {
             ProductDto productDto = productService.findById(invoiceProduct.getProduct().getId());
             productDto.setQuantityInStock(productDto.getQuantityInStock() + invoiceProduct.getQuantity());
 
+            invoiceProduct.setRemainingQuantity(invoiceProduct.getQuantity());
+            invoiceProduct.setProfitLoss(BigDecimal.ZERO);
+
+            //added part
+            invoiceProduct.setRemainingQuantity(invoiceProduct.getQuantity());
+            invoiceProduct.setProfitLoss(BigDecimal.ZERO);
+            invoiceProductService.save(invoiceProduct,invoiceId);
+
+
             productService.save(productDto);
         }
 
