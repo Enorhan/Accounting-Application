@@ -1,9 +1,6 @@
 package com.cydeo.controller;
 
-import com.cydeo.dto.CompanyDto;
-import com.cydeo.dto.RoleDto;
 import com.cydeo.dto.UserDto;
-import com.cydeo.service.CompanyService;
 import com.cydeo.service.RoleService;
 import com.cydeo.service.SecurityService;
 import com.cydeo.service.UserService;
@@ -14,8 +11,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
-import java.util.stream.Collectors;
+
 
 @Controller
 @RequestMapping("/users")
@@ -23,6 +19,7 @@ public class UserController {
 
     private final UserService userService;
     private final RoleService roleService;
+
 
     public UserController(UserService userService, RoleService roleService) {
         this.userService = userService;
@@ -47,16 +44,20 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public String saveUser(@ModelAttribute("newUser") UserDto userDto, BindingResult result, Model model) {
+    public String saveUser(@Valid @ModelAttribute("newUser") UserDto userDto, BindingResult result, Model model) {
+        boolean passwordMatch = userService.isPasswordMatch(userDto.getPassword(), userDto.getConfirmPassword());
+        if (!passwordMatch) {
+            result.rejectValue("password", " ", "Passwords should match.");
+        }
+        if (userService.userNameExists(userDto)) {
+            result.rejectValue("username", " ", "A user with this email already exists. Please try with different email.");
+        }
+
         if (result.hasErrors()) {
             model.addAttribute("userRoles", roleService.listRolesByLoggedInUser());
             model.addAttribute("companies", userService.listCompaniesByLoggedInUser());
 
             return "/user/user-create";
-        }
-        if (userService.userNameExists(userDto.getUsername())) {
-            result.rejectValue("username",
-                    "A user with this email already exists. Please try with different email.");
         }
 
         userService.save(userDto);
@@ -76,7 +77,6 @@ public class UserController {
 
         UserDto userDto = userService.findById(id);
         model.addAttribute("user", userDto);
-        model.addAttribute("users", userService.listAllUser());
         model.addAttribute("userRoles", roleService.listRolesByLoggedInUser());
         model.addAttribute("companies", userService.listCompaniesByLoggedInUser());
 
@@ -86,45 +86,39 @@ public class UserController {
 
 
     @PostMapping("/update/{id}")
-    public String updateUser(@Valid @ModelAttribute("user") UserDto userDto,BindingResult result, Model model) {
+    public String updateUser(@Valid @ModelAttribute("user") UserDto userDto, BindingResult result, Model model) {
 
+
+        boolean passwordMatch = userService.isPasswordMatch(userDto.getPassword(), userDto.getConfirmPassword());
+        if (!passwordMatch) {
+            result.rejectValue("password", " ", "Passwords should match.");
+        }
+        if (userService.userNameExists(userDto)) {
+            result.rejectValue("username", " ", "A user with this email already exists. Please try with different email.");
+        }
         if (result.hasErrors()) {
-            model.addAttribute("users", userService.listAllUser());
             model.addAttribute("userRoles", roleService.listRolesByLoggedInUser());
             model.addAttribute("companies", userService.listCompaniesByLoggedInUser());
 
             return "/user/user-update";
         }
-        if (userService.userNameExists(userDto.getUsername())) {
-            result.rejectValue("username",
-                    "A user with this email already exists. Please try with different email.");
-        }
-        if (userService.isPasswordNotMatch(userDto.getPassword())){
-            result.rejectValue("password","Passwords should match.");
-        }
-
-//        model.addAttribute("users", userService.listAllUser());
-//        model.addAttribute("userRoles", roleService.listRolesByLoggedInUser());
-//        model.addAttribute("companies", userService.listCompaniesByLoggedInUser());
 
         userService.update(userDto);
 
         return "redirect:/users/list";
     }
 
-
-
     @GetMapping("/delete/{id}")
-    public String deleteUser(@PathVariable("id") Long id, Model model) {
+    public String deleteUser(@PathVariable("id") Long id) {
         UserDto userDto = userService.findById(id);
 
-        if (userService.checkIfOnlyAdmin(userDto)){
-            model.addAttribute("error", "Cannot delete the only admin of the company.");
-            return "redirect:/users/list";
-        }
-        userService.delete(id);
+            if (userService.checkIfOnlyAdmin(userDto)) {
 
+                return "redirect:/users/list";
+            }
+        userService.delete(id);
         return "redirect:/users/list";
     }
+
 
 }
