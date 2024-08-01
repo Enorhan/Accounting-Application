@@ -11,7 +11,6 @@ import com.cydeo.service.SecurityService;
 import com.cydeo.util.MapperUtil;
 import org.springframework.stereotype.Service;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,7 +24,7 @@ public class ClientVendorServiceImpl implements ClientVendorService {
     private final InvoiceRepository invoiceRepository;
     private final SecurityService securityService;
 
-    public ClientVendorServiceImpl(ClientVendorRepository clientVendorRepository, MapperUtil mapperUtil, CompanyService companyService, InvoiceRepository invoiceRepository,SecurityService securityService) {
+    public ClientVendorServiceImpl(ClientVendorRepository clientVendorRepository, MapperUtil mapperUtil, CompanyService companyService, InvoiceRepository invoiceRepository, SecurityService securityService) {
         this.clientVendorRepository = clientVendorRepository;
         this.mapperUtil = mapperUtil;
         this.companyService = companyService;
@@ -41,7 +40,7 @@ public class ClientVendorServiceImpl implements ClientVendorService {
                 .collect(Collectors.toList());
     }
 
-     @Override
+    @Override
     public List<ClientVendorDto> listAllClientVendorsByCompany() {
         Long companyId = companyService.getCompanyIdByLoggedInUser();
         List<ClientVendor> clientVendors = clientVendorRepository.findAllByCompanyIdOrderByTypeAndName(companyId);
@@ -69,7 +68,7 @@ public class ClientVendorServiceImpl implements ClientVendorService {
     @Override
     public ClientVendorDto createClientVendor(ClientVendorDto clientVendorDTO) {
 
-        if (existsByName(clientVendorDTO.getClientVendorName())){
+        if (existsByName(clientVendorDTO.getClientVendorName())) {
             throw new IllegalArgumentException("Client/Vendor with this name already exists");
         }
         clientVendorDTO.setCompany(companyService.getCompanyDtoByLoggedInUser());
@@ -118,15 +117,17 @@ public class ClientVendorServiceImpl implements ClientVendorService {
 
     public List<ClientVendorDto> findAllByCurrentCompanyClientVendorTypeAndIsDeleted(ClientVendorType clientVendorType, Boolean isDeleted) {
         Long companyId = companyService.getCompanyIdByLoggedInUser();
-        return mapperUtil.convert(clientVendorRepository.findAllByCompanyIdAndClientVendorTypeAndIsDeleted(companyId,clientVendorType,isDeleted),new ArrayList<>());
+        return mapperUtil.convert(clientVendorRepository.findAllByCompanyIdAndClientVendorTypeAndIsDeleted(companyId, clientVendorType, isDeleted), new ArrayList<>());
     }
-    @Override
-    public void deleteClientVendor(Long id) {
-        boolean hasInvoices = invoiceRepository.existsByClientVendorId(id);
 
-        if (hasInvoices) {
-            throw new IllegalStateException("Can not be deleted! This client/vendor has invoice(s).");
-        }
+//    @Override
+//    public void deleteClientVendor(Long id) {
+//        boolean hasInvoices = invoiceRepository.existsByClientVendorId(id);
+//
+//        if (hasInvoices) {
+//            throw new IllegalStateException("Can not be deleted! This client/vendor has invoice(s).");
+//        }
+//    }
 
     @Override
     public void deleteClientVendor(Long id) {
@@ -134,7 +135,7 @@ public class ClientVendorServiceImpl implements ClientVendorService {
     }
 
     @Override
-    public boolean existsByName(String clientVendorName) {
+    public boolean existsByName(String clientVendorName){
         return clientVendorRepository.existsByClientVendorName(clientVendorName);
     }
 }
