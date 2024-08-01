@@ -10,14 +10,15 @@ import com.cydeo.repository.InvoiceProductRepository;
 import com.cydeo.service.CompanyService;
 import com.cydeo.service.InvoiceProductService;
 import com.cydeo.service.InvoiceService;
+import org.springframework.stereotype.Service;
 import com.cydeo.util.MapperUtil;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
+
 
 import java.math.BigDecimal;
-import java.util.HashMap;
+import java.time.format.TextStyle;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
@@ -111,6 +112,24 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
     }
 
     @Override
+    public Map<String, BigDecimal> getMonthlyProfitLoss() {
+
+            Long companyId = companyService.getCompanyIdByLoggedInUser();
+
+            List<InvoiceProduct> salesInvoices = invoiceProductRepository.findAll().stream()
+                    .filter(p -> p.getInvoice().getCompany().getId().equals(companyId))
+                    .filter(invoice -> invoice.getInvoice().getInvoiceType() == InvoiceType.SALES && invoice.getInvoice().getInvoiceStatus() == InvoiceStatus.APPROVED)
+                    .collect(Collectors.toList());
+
+            return salesInvoices.stream()
+                    .collect(Collectors.groupingBy(
+                            invoiceProduct -> invoiceProduct.getInvoice().getDate().getMonth()
+                                    .getDisplayName(TextStyle.FULL, Locale.ENGLISH),
+                            Collectors.reducing(BigDecimal.ZERO, InvoiceProduct::getProfitLoss, BigDecimal::add)
+                    ));
+    }
+
+    @Override
     public List<InvoiceDto> getLast3ApprovedInvoices() {
         Long companyId = companyService.getCompanyIdByLoggedInUser();
 
@@ -187,5 +206,20 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
         BigDecimal totalPrice = price.multiply(BigDecimal.valueOf(quantity));
         BigDecimal taxAmount = totalPrice.multiply(BigDecimal.valueOf(tax)).divide(BigDecimal.valueOf(100));
         return totalPrice.add(taxAmount);
+    }
+
+
+    @Override
+    public void saveSalesInvoice(InvoiceProductDto invoiceProductDto) {
+        InvoiceProduct invoiceProduct = mapperUtil.convert(invoiceProductDto, new InvoiceProduct());
+        invoiceProductRepository.save(invoiceProduct);
+    }
+
+    @Override
+    public List<InvoiceProductDto> findAll() {
+        List<InvoiceProduct> invoiceProducts = invoiceProductRepository.findAll();
+        return invoiceProducts.stream()
+                .map(invoiceProduct -> mapperUtil.convert(invoiceProduct, new InvoiceProductDto()))
+                .collect(Collectors.toList());
     }
 }

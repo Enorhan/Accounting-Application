@@ -9,13 +9,13 @@ import java.util.List;
 
 public interface InvoiceService {
     List<InvoiceDto> listAllInvoicesByType(InvoiceType invoiceType);
-
     InvoiceDto findById(Long id);
     String getNewPurchaseInvoiceNumberId();
     void save(InvoiceDto invoiceDto, InvoiceType invoiceType);
     InvoiceDto update(InvoiceDto invoiceDto, Long invoiceId);
     String createNewSalesInvoiceNo();
     void delete(Long id);
+    void approveSalesInvoice(Long id);
     void approvePurchaseInvoice(Long id);
     List<Invoice> findTop3ApprovedInvoicesByCompanyId(Long companyId, InvoiceStatus invoiceStatus);
 }
