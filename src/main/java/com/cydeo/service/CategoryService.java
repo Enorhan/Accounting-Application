@@ -10,4 +10,6 @@ public interface CategoryService {
     CategoryDto findById(Long id);
 
     CategoryDto saveCategory(Category category);
+
+    List<CategoryDto>listAllCategoriesByCompany();
 }

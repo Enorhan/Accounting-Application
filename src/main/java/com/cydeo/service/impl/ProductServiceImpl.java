@@ -1,7 +1,9 @@
 package com.cydeo.service.impl;
 
 import com.cydeo.dto.ProductDto;
+import com.cydeo.entity.Category;
 import com.cydeo.entity.Product;
+import com.cydeo.repository.InvoiceProductRepository;
 import com.cydeo.repository.ProductRepository;
 import com.cydeo.service.CompanyService;
 import com.cydeo.service.ProductService;
@@ -18,18 +20,20 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final MapperUtil mapperUtil;
     private final CompanyService companyService;
+    private final InvoiceProductRepository invoiceProductRepository;
 
-    public ProductServiceImpl(ProductRepository productRepository, MapperUtil mapperUtil, CompanyService companyService) {
+    public ProductServiceImpl(ProductRepository productRepository, MapperUtil mapperUtil, CompanyService companyService, InvoiceProductRepository invoiceProductRepository) {
         this.productRepository = productRepository;
         this.mapperUtil = mapperUtil;
         this.companyService = companyService;
+        this.invoiceProductRepository = invoiceProductRepository;
     }
 
     @Override
     public List<ProductDto> findAllInStock() {
         Long companyId = companyService.getCompanyIdByLoggedInUser();
 
-        return productRepository.findAllByCompanyId(companyId).stream()
+        return productRepository.findAllByCompanyIdAndIsDeleted(companyId,false).stream()
                 .filter(product -> product.getQuantityInStock() > 0)
                 .map(product -> mapperUtil.convert(product, new ProductDto()))
                 .collect(Collectors.toList());
@@ -39,8 +43,12 @@ public class ProductServiceImpl implements ProductService {
     public List<ProductDto> findAllByCurrentCompany() {
         Long companyId = companyService.getCompanyIdByLoggedInUser();
 
-        return productRepository.findAllByCompanyId(companyId).stream()
-                .map(product -> mapperUtil.convert(product, new ProductDto()))
+        return productRepository.findAllByCompanyIdAndIsDeleted(companyId, false).stream()
+                .map(product -> {
+                    ProductDto productDto = mapperUtil.convert(product, new ProductDto());
+                    productDto.setHasInvoiceProduct(isHasInvoice(product.getId()));
+                    return productDto;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -56,5 +64,34 @@ public class ProductServiceImpl implements ProductService {
     public void save(ProductDto productDto) {
         Product product=mapperUtil.convert(productDto,new Product());
         productRepository.save(product);
+    }
+
+    @Override
+    public void update(ProductDto productDto,Long productId) {
+
+        Product product=productRepository.findProductById(productId);
+        product.setLowLimitAlert(productDto.getLowLimitAlert());
+        product.setCategory(mapperUtil.convert(productDto.getCategory(),new Category()));
+        product.setName(productDto.getName());
+        product.setProductUnit(productDto.getProductUnit());
+
+        productRepository.save(product);
+    }
+
+    @Override
+    public void delete(Long productId) {
+        Product product=productRepository.findProductById(productId);
+        product.setIsDeleted(true);
+        productRepository.save(product);
+    }
+
+    @Override
+    public Boolean isHasInvoice(Long productId) {
+        return invoiceProductRepository.existsByProductId(productId);
+    }
+
+    @Override
+    public Boolean isInStock(Long productId) {
+        return productRepository.findProductById(productId).getQuantityInStock()>0;
     }
 }
