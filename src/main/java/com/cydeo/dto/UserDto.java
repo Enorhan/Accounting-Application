@@ -14,6 +14,7 @@ import javax.validation.constraints.*;
 @NoArgsConstructor
 @AllArgsConstructor
 
+
 public class UserDto {
 
     private Long id;
@@ -42,10 +43,6 @@ public class UserDto {
     private RoleDto role;
     @NotNull(message = "Please select a Company.")
     private CompanyDto company;
+
     private Boolean isOnlyAdmin;
-
-
-    public Boolean getIsOnlyAdmin() {
-        return role.getDescription().equals("Admin");
-    }
 }

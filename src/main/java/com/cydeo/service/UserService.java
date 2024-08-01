@@ -17,10 +17,12 @@ public interface UserService {
 
     void update(UserDto user);
     void delete(Long id);
-    Long getCurrentUserId();
     List<CompanyDto> listCompaniesByLoggedInUser();
     boolean userNameExists(UserDto userDto);
     boolean isPasswordMatch(String password,String confirmPassword);
    boolean checkIfOnlyAdmin(UserDto userDto);
+
+
+
 
 }
