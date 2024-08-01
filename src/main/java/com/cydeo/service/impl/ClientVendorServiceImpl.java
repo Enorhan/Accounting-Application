@@ -9,6 +9,7 @@ import com.cydeo.service.CompanyService;
 import com.cydeo.service.SecurityService;
 import com.cydeo.util.MapperUtil;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,8 +22,7 @@ public class ClientVendorServiceImpl implements ClientVendorService {
     private final InvoiceRepository invoiceRepository;
     private final SecurityService securityService;
 
-    public ClientVendorServiceImpl(ClientVendorRepository clientVendorRepository, MapperUtil mapperUtil, CompanyService companyService, InvoiceRepository invoiceRepository) {
-    public ClientVendorServiceImpl(ClientVendorRepository clientVendorRepository, MapperUtil mapperUtil, SecurityService securityService) {
+    public ClientVendorServiceImpl(ClientVendorRepository clientVendorRepository, MapperUtil mapperUtil, CompanyService companyService, InvoiceRepository invoiceRepository,SecurityService securityService) {
         this.clientVendorRepository = clientVendorRepository;
         this.mapperUtil = mapperUtil;
         this.companyService = companyService;
@@ -38,12 +38,28 @@ public class ClientVendorServiceImpl implements ClientVendorService {
                 .collect(Collectors.toList());
     }
 
-    @Override
+     @Override
     public List<ClientVendorDto> listAllClientVendorsByCompany() {
         Long companyId = companyService.getCompanyIdByLoggedInUser();
         List<ClientVendor> clientVendors = clientVendorRepository.findAllByCompanyIdOrderByTypeAndName(companyId);
         return clientVendors.stream()
                 .map(clientVendor -> mapperUtil.convert(clientVendor, new ClientVendorDto()))
+                .collect(Collectors.toList());
+    }
+
+
+    @Override
+    public List<ClientVendorDto> listAllClientVendorsWithInvoiceStatusByCompany() {
+        Long companyId = companyService.getCompanyIdByLoggedInUser();
+        List<ClientVendor> clientVendors = clientVendorRepository.findAllByCompanyIdOrderByTypeAndName(companyId);
+
+        return clientVendors.stream()
+                .map(clientVendor -> {
+                    ClientVendorDto dto = mapperUtil.convert(clientVendor, new ClientVendorDto());
+                    boolean hasInvoice = invoiceRepository.existsByClientVendorId(clientVendor.getId());
+                    dto.setHasInvoice(hasInvoice);
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -62,10 +78,17 @@ public class ClientVendorServiceImpl implements ClientVendorService {
     @Override
     public ClientVendorDto findById(Long id) {
         ClientVendor clientVendor = clientVendorRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("ClientVendor not found"));
+                .orElseThrow(() -> new RuntimeException("ClientVendor not found"));
         return mapperUtil.convert(clientVendor, new ClientVendorDto());
     }
 
+    @Override
+    public List<ClientVendorDto> findAll() {
+        List<ClientVendor> clientVendorList = clientVendorRepository.findAll();
+        return clientVendorList.stream()
+                .map(clientVendor -> mapperUtil.convert(clientVendor, new ClientVendorDto()))
+                .collect(Collectors.toList());
+    }
 //    @Override
 //    public List<ClientVendorDto> findAll() {
 //        List<ClientVendor> clientVendorList = clientVendorRepository.findAll();
@@ -85,13 +108,12 @@ public class ClientVendorServiceImpl implements ClientVendorService {
     }
 
     @Override
+    public boolean isHasInvoices(Long id) {
+        return invoiceRepository.existsByClientVendorId(id);
+    }
+
+    @Override
     public void deleteClientVendor(Long id) {
-        boolean hasInvoices = invoiceRepository.existsByClientVendorId(id);
-
-        if (hasInvoices) {
-            throw new IllegalStateException("Can not be deleted! This client/vendor has invoice(s).");
-        }
-
         clientVendorRepository.deleteById(id);
     }
 

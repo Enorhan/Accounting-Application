@@ -39,6 +39,6 @@ public class ClientVendorDto {
     @Valid
     private CompanyDto company;
 
-    private boolean hasInvoice;
+    private boolean isHasInvoice;
 }
 
