@@ -11,7 +11,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 public class Category extends BaseEntity {
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String description;
 
     @ManyToOne
