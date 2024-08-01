@@ -24,7 +24,9 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     public List<CategoryDto> listAllCategories(){
-        return categoryRepository.findAll().stream()
+        Long companyId = companyService.getCompanyIdByLoggedInUser();
+
+        return categoryRepository.findAllByCompanyId(companyId).stream()
                 .map(category -> {
                     CategoryDto categoryDto =  mapperUtil.convert(category, new CategoryDto());
                     if(!category.getProductList().stream().toList().isEmpty()){
