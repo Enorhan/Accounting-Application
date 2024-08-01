@@ -2,7 +2,6 @@ package com.cydeo.service.impl;
 
 import com.cydeo.dto.CategoryDto;
 import com.cydeo.entity.Category;
-import com.cydeo.entity.Company;
 import com.cydeo.repository.CategoryRepository;
 import com.cydeo.service.CategoryService;
 import com.cydeo.service.CompanyService;
@@ -10,6 +9,7 @@ import com.cydeo.util.MapperUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,9 +44,17 @@ public class CategoryServiceImpl implements CategoryService {
         return mapperUtil.convert(categoryRepository.save(mapperUtil.convert(category, new Category())), new CategoryDto());
     }
 
-    public boolean existsByDescription(String description){
+    public boolean existsByDescription(String description) {
         Category category = categoryRepository.findByDescription(description);
 
         return category != null;
+    }
+    public void deleteCategory(Long id){
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Category not found with id: " + id));
+
+        category.setIsDeleted(true);
+
+        categoryRepository.save(category);
     }
 }
