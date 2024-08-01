@@ -36,14 +36,20 @@ public class CategoryController {
         return "/category/category-create";
     }
     @PostMapping("/create")
-    public String submitForm(@Valid @ModelAttribute("newCategory") CategoryDto category, BindingResult bindingResult, Model model) {
+    public String submitForm(@Valid @ModelAttribute("newCategory") CategoryDto newCategory, BindingResult bindingResult, Model model) {
         if(bindingResult.hasErrors()){
             return "/category/category-create";
         }
 
-        model.addAttribute("newCategory", new Category());
-
-        categoryService.saveCategory(category);
+        try{
+            categoryService.saveCategory(newCategory);
+        }catch(Exception e){
+            if(e instanceof IllegalArgumentException){
+                bindingResult.rejectValue("description", "", e.getMessage());
+                model.addAttribute("newCategory", newCategory);
+                return "/category/category-create";
+            }
+        }
 
         return "redirect:/categories/list";
 
@@ -69,18 +75,13 @@ public class CategoryController {
             return "/category/category-update";
         }
 
-        boolean isCategoryExisting = this.categoryService.existsByDescription(category.getDescription());
-
-        if(isCategoryExisting){
-            model.addAttribute("category", foundCategory);
-            bindingResult.rejectValue("description", "An account already exists for this email.");
-            return "/category/category-update";
-        }
-
         try{
             CategoryDto updatedCategory = this.categoryService.saveCategory(category);
             model.addAttribute("category", updatedCategory);
         }catch(Exception e){
+            if(e instanceof IllegalArgumentException){
+                bindingResult.rejectValue("description", "", e.getMessage());
+            }
             model.addAttribute("category", category);
             return "/category/category-update";
         }

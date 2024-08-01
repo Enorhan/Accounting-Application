@@ -14,7 +14,14 @@ public interface ClientVendorService {
     boolean existsByName(String clientVendorName);
 
     ClientVendorDto createClientVendor(ClientVendorDto clientVendorDto);
+
+    boolean isHasInvoices(Long id);
+
     void deleteClientVendor(Long id);
+
+    List<ClientVendorDto> findAll();
+
     ClientVendorDto updateClientVendor(Long id, ClientVendorDto clientVendorDTO);
 
+    List<ClientVendorDto> listAllClientVendorsWithInvoiceStatusByCompany();
 }
