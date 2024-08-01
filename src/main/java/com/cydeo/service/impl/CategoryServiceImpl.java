@@ -2,7 +2,6 @@ package com.cydeo.service.impl;
 
 import com.cydeo.dto.CategoryDto;
 import com.cydeo.entity.Category;
-import com.cydeo.entity.Company;
 import com.cydeo.repository.CategoryRepository;
 import com.cydeo.service.CategoryService;
 import com.cydeo.service.CompanyService;
@@ -38,15 +37,19 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     public CategoryDto saveCategory(CategoryDto category){
-        Long id = companyService.getCompanyIdByLoggedInUser();
-        category.setCompany(companyService.findById(id));
+        Long companyId = companyService.getCompanyIdByLoggedInUser();
+
+        Category existingCategory = categoryRepository.findByDescriptionAndCompanyId(category.getDescription(), companyId);
+
+        if(existingCategory != null){
+            throw new IllegalArgumentException("Category already exists in Company.");
+        }
+
+        category.setCompany(companyService.findById(companyId));
 
         return mapperUtil.convert(categoryRepository.save(mapperUtil.convert(category, new Category())), new CategoryDto());
     }
-
-    public boolean existsByDescription(String description){
-        Category category = categoryRepository.findByDescription(description);
-
-        return category != null;
-    }
 }
+
+
+
