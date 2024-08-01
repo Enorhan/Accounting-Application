@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -26,8 +25,14 @@ public class CategoryServiceImpl implements CategoryService {
 
     public List<CategoryDto> listAllCategories(){
         return categoryRepository.findAll().stream()
-                .map(category -> mapperUtil.convert(category, new CategoryDto()))
-                .collect(Collectors.toList());
+                .map(category -> {
+                    CategoryDto categoryDto =  mapperUtil.convert(category, new CategoryDto());
+                    if(!category.getProductList().stream().toList().isEmpty()){
+                        categoryDto.setHasProduct(true);
+                    }
+                    return categoryDto;
+                })
+                .toList();
     }
 
     public CategoryDto findById(Long id){
