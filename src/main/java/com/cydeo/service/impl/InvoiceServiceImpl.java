@@ -11,11 +11,14 @@ import com.cydeo.enums.InvoiceType;
 import com.cydeo.repository.InvoiceRepository;
 import com.cydeo.service.*;
 import com.cydeo.util.MapperUtil;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -28,7 +31,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     private final ProductService productService;
     private final InvoiceProductService invoiceProductService;
 
-    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, MapperUtil mapperUtil, CompanyService companyService, ProductService productService, InvoiceProductService invoiceProductService) {
+      public InvoiceServiceImpl(InvoiceRepository invoiceRepository, MapperUtil mapperUtil, CompanyService companyService, @Lazy InvoiceProductService invoiceProductService, ProductService productService) {
         this.invoiceRepository = invoiceRepository;
         this.mapperUtil = mapperUtil;
         this.companyService = companyService;
@@ -180,6 +183,15 @@ public class InvoiceServiceImpl implements InvoiceService {
             ProductDto productDto = productService.findById(invoiceProduct.getProduct().getId());
             productDto.setQuantityInStock(productDto.getQuantityInStock() + invoiceProduct.getQuantity());
 
+            invoiceProduct.setRemainingQuantity(invoiceProduct.getQuantity());
+            invoiceProduct.setProfitLoss(BigDecimal.ZERO);
+
+            //added part
+            invoiceProduct.setRemainingQuantity(invoiceProduct.getQuantity());
+            invoiceProduct.setProfitLoss(BigDecimal.ZERO);
+            invoiceProductService.save(invoiceProduct,invoiceId);
+
+
             productService.save(productDto);
         }
 
@@ -190,5 +202,74 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     public List<Invoice> findTop3ApprovedInvoicesByCompanyId(Long companyId, InvoiceStatus invoiceStatus) {
         return invoiceRepository.findTop3ByCompanyIdAndInvoiceStatusOrderByDateDesc(companyId, InvoiceStatus.APPROVED);
+    }
+
+    @Override
+    public void approveSalesInvoice(Long id) {
+        Invoice invoice = invoiceRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Invoice not found with id: " + id));
+
+        List<InvoiceProductDto> invoiceProducts = invoiceProductService.findAllByInvoiceIdAndIsDeleted(id, false);
+
+        for (InvoiceProductDto invoiceProductDto : invoiceProducts) {
+            ProductDto productDto = productService.findById(invoiceProductDto.getProduct().getId());
+            int totalAvailableStock = productDto.getQuantityInStock();
+            int quantityToSell = invoiceProductDto.getQuantity();
+
+            if (quantityToSell > totalAvailableStock) {
+                throw new IllegalArgumentException("Not enough stock to fulfill the order for product: " + invoiceProductDto.getProduct().getName());
+            }
+        }
+        for (InvoiceProductDto invoiceProductDto : invoiceProducts) {
+            int quantityToSell = invoiceProductDto.getQuantity();
+            BigDecimal totalCost = BigDecimal.ZERO;
+            BigDecimal salePrice = invoiceProductDto.getPrice();
+
+            List<InvoiceProductDto> purchaseProducts = invoiceProductService.findAll().stream()
+                    .filter(p -> p.getInvoice().getCompany().getId().equals(companyService.getCompanyIdByLoggedInUser()))
+                    .filter(p -> p.getInvoice().getInvoiceType().equals(InvoiceType.PURCHASE))
+                    .filter(p -> p.getInvoice().getInvoiceStatus().equals(InvoiceStatus.APPROVED))
+                    .filter(p -> p.getProduct().getId().equals(invoiceProductDto.getProduct().getId()))
+                    .sorted(Comparator.comparing(p -> p.getInvoice().getDate()))
+                    .toList();
+
+
+            for (InvoiceProductDto purchaseProduct : purchaseProducts) {
+                int availableQuantity = purchaseProduct.getRemainingQuantity();
+                if (availableQuantity > 0) {
+                    int quantityToUse = Math.min(quantityToSell, availableQuantity);
+                    BigDecimal costPrice = purchaseProduct.getPrice();
+
+                    BigDecimal taxToBeAdded=costPrice.multiply(BigDecimal.valueOf(0.01).multiply(BigDecimal.valueOf(purchaseProduct.getTax())));
+                    BigDecimal cost = (costPrice.multiply(BigDecimal.valueOf(quantityToUse)).add(taxToBeAdded));
+                    totalCost = totalCost.add(cost);
+
+                    purchaseProduct.setRemainingQuantity(availableQuantity - quantityToUse);
+                    invoiceProductService.saveSalesInvoice(purchaseProduct);
+
+                    quantityToSell -= quantityToUse;
+                    if (quantityToSell == 0) {
+                        break;
+                    }
+                }
+            }
+
+            BigDecimal taxToBeAdded=salePrice.multiply(BigDecimal.valueOf(0.01).multiply(BigDecimal.valueOf(invoiceProductDto.getTax())));
+            BigDecimal totalSale = (salePrice.multiply(BigDecimal.valueOf(invoiceProductDto.getQuantity()))).add(taxToBeAdded);
+            BigDecimal profitLoss = totalSale.subtract(totalCost);
+            invoiceProductDto.setProfitLoss(profitLoss);
+
+            invoiceProductService.saveSalesInvoice(invoiceProductDto);
+
+
+            ProductDto productDto = productService.findById(invoiceProductDto.getProduct().getId());
+            int newQuantityInStock = productDto.getQuantityInStock() - invoiceProductDto.getQuantity();
+            productDto.setQuantityInStock(newQuantityInStock);
+            productService.save(productDto);
+        }
+
+        invoice.setInvoiceStatus(InvoiceStatus.APPROVED);
+        invoice.setDate(LocalDate.now());
+        invoiceRepository.save(invoice);
     }
 }
