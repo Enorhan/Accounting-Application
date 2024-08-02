@@ -1,5 +1,6 @@
 package com.cydeo.controller;
 
+import com.cydeo.annotation.ExecutionTime;
 import com.cydeo.dto.CompanyDto;
 import com.cydeo.dto.InvoiceDto;
 import com.cydeo.dto.InvoiceProductDto;
@@ -32,6 +33,7 @@ public class PurchasesInvoiceController {
         this.companyService = companyService;
     }
 
+    @ExecutionTime
     @GetMapping("/list")
     public String listPurchaseInvoices(Model model) {
         List<InvoiceDto> invoices = invoiceService.listAllInvoicesByType(InvoiceType.PURCHASE);
