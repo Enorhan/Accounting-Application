@@ -48,7 +48,7 @@ public class PurchasesInvoiceController {
         newInvoice.setDate(LocalDate.now());
 
         model.addAttribute("newPurchaseInvoice", newInvoice);
-        model.addAttribute("vendors", clientVendorService.listAllClientVendorsByCompany());
+        model.addAttribute("vendors", clientVendorService.listAllVendorsByCompany());
 
         return "invoice/purchase-invoice-create";
     }
@@ -57,7 +57,7 @@ public class PurchasesInvoiceController {
     public String createPurchaseInvoice(@Valid @ModelAttribute("newPurchaseInvoice") InvoiceDto invoiceDto, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("newPurchaseInvoice", invoiceDto);
-            model.addAttribute("vendors", clientVendorService.listAllClientVendorsByCompany());
+            model.addAttribute("vendors", clientVendorService.listAllVendorsByCompany());
 
             return "invoice/purchase-invoice-create";
         }
@@ -71,7 +71,7 @@ public class PurchasesInvoiceController {
     public String getUpdatePurchaseInvoice(@PathVariable("invoiceId") Long invoiceId, Model model) {
 
         model.addAttribute("invoice", invoiceService.findById(invoiceId));
-        model.addAttribute("vendors", clientVendorService.listAllClientVendorsByCompany());
+        model.addAttribute("vendors", clientVendorService.listAllVendorsByCompany());
         model.addAttribute("newInvoiceProduct", new InvoiceProductDto());
         model.addAttribute("products", productService.findAllByCurrentCompany());
         model.addAttribute("invoiceProducts", invoiceProductService.findAllByInvoiceIdAndIsDeleted(invoiceId, false));
@@ -82,7 +82,7 @@ public class PurchasesInvoiceController {
     @PostMapping("/update/{invoiceId}")
     public String updatePurchaseInvoice(@Valid @ModelAttribute("invoice") InvoiceDto invoiceDto, @PathVariable("invoiceId") Long invoiceId, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("vendors", clientVendorService.listAllClientVendorsByCompany());
+            model.addAttribute("vendors", clientVendorService.listAllVendorsByCompany());
 
             return "invoice/purchase-invoice-update";
         }
