@@ -7,7 +7,6 @@ import com.cydeo.repository.ClientVendorRepository;
 import com.cydeo.repository.InvoiceRepository;
 import com.cydeo.service.ClientVendorService;
 import com.cydeo.service.CompanyService;
-import com.cydeo.service.SecurityService;
 import com.cydeo.util.MapperUtil;
 import org.springframework.stereotype.Service;
 
@@ -17,25 +16,24 @@ import java.util.stream.Collectors;
 
 @Service
 public class ClientVendorServiceImpl implements ClientVendorService {
-
     private final ClientVendorRepository clientVendorRepository;
     private final MapperUtil mapperUtil;
     private final CompanyService companyService;
     private final InvoiceRepository invoiceRepository;
-    private final SecurityService securityService;
 
-    public ClientVendorServiceImpl(ClientVendorRepository clientVendorRepository, MapperUtil mapperUtil, CompanyService companyService, InvoiceRepository invoiceRepository, SecurityService securityService) {
+    public ClientVendorServiceImpl(ClientVendorRepository clientVendorRepository, MapperUtil mapperUtil, CompanyService companyService, InvoiceRepository invoiceRepository) {
         this.clientVendorRepository = clientVendorRepository;
         this.mapperUtil = mapperUtil;
         this.companyService = companyService;
         this.invoiceRepository = invoiceRepository;
-        this.securityService = securityService;
     }
 
     @Override
-    public List<ClientVendorDto> listAllClientVendors() {
-        List<ClientVendor> clientVendorList = clientVendorRepository.findAll();
-        return clientVendorList.stream()
+    public List<ClientVendorDto> listAllVendorsByCompany() {
+        Long companyId = companyService.getCompanyIdByLoggedInUser();
+        List<ClientVendor> clientVendors = clientVendorRepository
+                .findAllByCompanyIdAndClientVendorType(companyId, ClientVendorType.VENDOR);
+        return clientVendors.stream()
                 .map(clientVendor -> mapperUtil.convert(clientVendor, new ClientVendorDto()))
                 .collect(Collectors.toList());
     }
@@ -43,12 +41,12 @@ public class ClientVendorServiceImpl implements ClientVendorService {
     @Override
     public List<ClientVendorDto> listAllClientVendorsByCompany() {
         Long companyId = companyService.getCompanyIdByLoggedInUser();
+
         List<ClientVendor> clientVendors = clientVendorRepository.findAllByCompanyIdOrderByTypeAndName(companyId);
         return clientVendors.stream()
                 .map(clientVendor -> mapperUtil.convert(clientVendor, new ClientVendorDto()))
                 .collect(Collectors.toList());
     }
-
 
     @Override
     public List<ClientVendorDto> listAllClientVendorsWithInvoiceStatusByCompany() {
