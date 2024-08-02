@@ -11,6 +11,6 @@ public interface ProductService {
     void save(ProductDto productDto);
     void update(ProductDto productDto,Long productId);
     void delete(Long productId);
-    Boolean isHasInvoice(Long productId);
+    Boolean hasInvoice(Long productId);
     Boolean isInStock(Long productId);
 }

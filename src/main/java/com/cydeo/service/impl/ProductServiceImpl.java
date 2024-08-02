@@ -46,7 +46,7 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findAllByCompanyIdAndIsDeleted(companyId, false).stream()
                 .map(product -> {
                     ProductDto productDto = mapperUtil.convert(product, new ProductDto());
-                    productDto.setHasInvoiceProduct(isHasInvoice(product.getId()));
+                    productDto.setHasInvoiceProduct(hasInvoice(product.getId()));
                     return productDto;
                 })
                 .collect(Collectors.toList());
@@ -86,7 +86,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Boolean isHasInvoice(Long productId) {
+    public Boolean hasInvoice(Long productId) {
         return invoiceProductRepository.existsByProductId(productId);
     }
 

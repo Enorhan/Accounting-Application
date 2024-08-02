@@ -84,7 +84,7 @@ public class ProductController {
 
     @GetMapping("/delete/{productId}")
     public String deleteProduct(@PathVariable("productId")Long productId){
-        if (!(productService.isHasInvoice(productId) | productService.isInStock(productId))){
+        if (!(productService.hasInvoice(productId) | productService.isInStock(productId))){
             productService.delete(productId);
         }
         return "redirect:/products/list";
