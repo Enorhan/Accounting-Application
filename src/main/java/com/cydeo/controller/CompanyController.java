@@ -1,8 +1,6 @@
 package com.cydeo.controller;
 
 import com.cydeo.dto.CompanyDto;
-import com.cydeo.dto.Response.CountryResponse;
-import com.cydeo.dto.ResponseWrapper;
 import com.cydeo.service.CompanyService;
 import com.cydeo.service.CountryService;
 import org.springframework.stereotype.Controller;
@@ -12,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/companies")
