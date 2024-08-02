@@ -1,6 +1,5 @@
 package com.cydeo.service;
 import com.cydeo.dto.CategoryDto;
-import com.cydeo.entity.Category;
 
 import java.util.List;
 
