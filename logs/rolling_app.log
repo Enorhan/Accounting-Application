@@ -1,0 +1,38 @@
+[INFO ] 2024-08-02 11:08:10.431 [http-nio-8001-exec-10] PerformanceAspect - Execution starts:
+[INFO ] 2024-08-02 11:08:10.485 [http-nio-8001-exec-10] PerformanceAspect - Time taken to execute: 53 ms - Method: PurchasesInvoiceController.listPurchaseInvoices(..)
+[INFO ] 2024-08-02 11:08:30.925 [http-nio-8001-exec-6] PerformanceAspect - Execution starts:
+[INFO ] 2024-08-02 11:08:30.942 [http-nio-8001-exec-6] PerformanceAspect - Time taken to execute: 17 ms - Method: PurchasesInvoiceController.listPurchaseInvoices(..)
+[INFO ] 2024-08-02 11:08:46.514 [http-nio-8001-exec-1] PerformanceAspect - Execution starts:
+[INFO ] 2024-08-02 11:08:46.649 [http-nio-8001-exec-1] PerformanceAspect - Time taken to execute: 134 ms - Method: PurchasesInvoiceController.listPurchaseInvoices(..)
+[INFO ] 2024-08-02 11:08:50.275 [http-nio-8001-exec-1] PerformanceAspect - Execution starts:
+[INFO ] 2024-08-02 11:08:50.295 [http-nio-8001-exec-1] PerformanceAspect - Time taken to execute: 20 ms - Method: PurchasesInvoiceController.listPurchaseInvoices(..)
+[INFO ] 2024-08-02 11:14:02.201 [http-nio-8001-exec-1] PerformanceAspect - Execution starts:
+[INFO ] 2024-08-02 11:14:02.318 [http-nio-8001-exec-1] PerformanceAspect - Time taken to execute: 117 ms - Method: PurchasesInvoiceController.listPurchaseInvoices(..)
+[INFO ] 2024-08-02 11:14:05.322 [http-nio-8001-exec-10] PerformanceAspect - Execution starts:
+[INFO ] 2024-08-02 11:14:05.347 [http-nio-8001-exec-10] PerformanceAspect - Time taken to execute: 25 ms - Method: PurchasesInvoiceController.listPurchaseInvoices(..)
+[INFO ] 2024-08-02 11:14:22.440 [http-nio-8001-exec-2] PerformanceAspect - Execution starts:
+[INFO ] 2024-08-02 11:14:22.560 [http-nio-8001-exec-2] PerformanceAspect - Time taken to execute: 120 ms - Method: PurchasesInvoiceController.listPurchaseInvoices(..)
+[INFO ] 2024-08-02 11:14:25.994 [http-nio-8001-exec-9] PerformanceAspect - Execution starts:
+[INFO ] 2024-08-02 11:14:26.017 [http-nio-8001-exec-9] PerformanceAspect - Time taken to execute: 23 ms - Method: PurchasesInvoiceController.listPurchaseInvoices(..)
+[INFO ] 2024-08-02 11:15:35.941 [http-nio-8001-exec-3] PerformanceAspect - Execution starts:
+[INFO ] 2024-08-02 11:15:36.062 [http-nio-8001-exec-3] PerformanceAspect - Time taken to execute: 120 ms - Method: PurchasesInvoiceController.listPurchaseInvoices(..)
+[INFO ] 2024-08-02 11:15:40.784 [http-nio-8001-exec-5] PerformanceAspect - Execution starts:
+[INFO ] 2024-08-02 11:15:40.807 [http-nio-8001-exec-5] PerformanceAspect - Time taken to execute: 24 ms - Method: PurchasesInvoiceController.listPurchaseInvoices(..)
+[INFO ] 2024-08-02 11:15:48.939 [http-nio-8001-exec-8] PerformanceAspect - Execution starts:
+[INFO ] 2024-08-02 11:15:48.952 [http-nio-8001-exec-8] PerformanceAspect - Time taken to execute: 13 ms - Method: PurchasesInvoiceController.listPurchaseInvoices(..)
+[INFO ] 2024-08-02 11:16:04.746 [http-nio-8001-exec-1] PerformanceAspect - Execution starts:
+[INFO ] 2024-08-02 11:16:04.814 [http-nio-8001-exec-1] PerformanceAspect - Time taken to execute: 68 ms - Method: PurchasesInvoiceController.listPurchaseInvoices(..)
+[INFO ] 2024-08-02 11:17:45.763 [http-nio-8001-exec-1] PerformanceAspect - Execution starts:
+[INFO ] 2024-08-02 11:17:45.928 [http-nio-8001-exec-1] PerformanceAspect - Time taken to execute: 164 ms - Method: PurchasesInvoiceController.listPurchaseInvoices(..)
+[INFO ] 2024-08-02 11:19:53.700 [http-nio-8001-exec-10] PerformanceAspect - Execution starts:
+[INFO ] 2024-08-02 11:19:53.724 [http-nio-8001-exec-10] PerformanceAspect - Time taken to execute: 24 ms - Method: PurchasesInvoiceController.listPurchaseInvoices(..)
+[INFO ] 2024-08-02 11:24:40.674 [http-nio-8001-exec-1] PerformanceAspect - Execution starts:
+[INFO ] 2024-08-02 11:24:40.802 [http-nio-8001-exec-1] PerformanceAspect - Time taken to execute: 127 ms - Method: PurchasesInvoiceController.listPurchaseInvoices(..)
+[INFO ] 2024-08-02 11:24:47.456 [http-nio-8001-exec-10] PerformanceAspect - Execution starts:
+[INFO ] 2024-08-02 11:24:47.482 [http-nio-8001-exec-10] PerformanceAspect - Time taken to execute: 26 ms - Method: PurchasesInvoiceController.listPurchaseInvoices(..)
+[INFO ] 2024-08-02 11:25:38.071 [http-nio-8001-exec-1] PerformanceAspect - Execution starts:
+[INFO ] 2024-08-02 11:25:38.119 [http-nio-8001-exec-1] PerformanceAspect - Time taken to execute: 48 ms - Method: PurchasesInvoiceController.listPurchaseInvoices(..)
+[INFO ] 2024-08-02 13:17:36.556 [http-nio-8001-exec-6] PerformanceAspect - Execution starts:
+[INFO ] 2024-08-02 13:17:36.605 [http-nio-8001-exec-6] PerformanceAspect - Time taken to execute: 48 ms - Method: PurchasesInvoiceController.listPurchaseInvoices(..)
+[INFO ] 2024-08-02 14:14:43.682 [http-nio-8001-exec-5] PerformanceAspect - Execution starts:
+[INFO ] 2024-08-02 14:14:44.119 [http-nio-8001-exec-5] PerformanceAspect - Time taken to execute: 436 ms - Method: CurrencyServiceImpl.getDataFromApi()
