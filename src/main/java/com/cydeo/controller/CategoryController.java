@@ -31,7 +31,7 @@ public class CategoryController {
         return "/category/category-create";
     }
     @PostMapping("/create")
-    public String submitForm(@ModelAttribute("newCategory") Category category, Model model) {
+    public String submitForm(@ModelAttribute("newCategory") CategoryDto category, Model model) {
         model.addAttribute("newCategory", new Category());
 
         categoryService.saveCategory(category);
@@ -53,7 +53,7 @@ public class CategoryController {
     }
 
     @PostMapping("/update/{id}")
-    public String updateCategory(Model model, @ModelAttribute("newCategory") Category category){
+    public String updateCategory(Model model, @ModelAttribute("newCategory") CategoryDto category){
         try{
             CategoryDto updatedCategory = this.categoryService.saveCategory(category);
             model.addAttribute("category", updatedCategory);
