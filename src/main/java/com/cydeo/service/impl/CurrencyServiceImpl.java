@@ -1,5 +1,6 @@
 package com.cydeo.service.impl;
 
+import com.cydeo.annotation.ExecutionTime;
 import com.cydeo.client.ClientCurrency;
 import com.cydeo.dto.Response.CurrencyResponse;
 import com.cydeo.dto.Response.Usd;
@@ -14,11 +15,10 @@ public class CurrencyServiceImpl {
         this.clientCurrency = clientCurrency;
     }
 
+    @ExecutionTime
+    public Usd getDataFromApi() {
+        CurrencyResponse allCurrencies = clientCurrency.getCurrencies();
 
-    public Usd getDataFromApi(){
-        CurrencyResponse allCurrencies=clientCurrency.getCurrencies();
-
-
-        return  allCurrencies.getUsd();
+        return allCurrencies.getUsd();
     }
 }

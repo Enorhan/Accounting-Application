@@ -4,6 +4,7 @@ import com.cydeo.dto.CompanyDto;
 import com.cydeo.dto.UserDto;
 import com.cydeo.entity.Company;
 import com.cydeo.entity.User;
+import com.cydeo.exception.UserNotFoundException;
 import com.cydeo.repository.CompanyRepository;
 import com.cydeo.repository.UserRepository;
 import com.cydeo.service.CompanyService;
@@ -39,9 +40,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto findByUsername(String username) {
-        User user = userRepository.findByUsername(username);
-        return mapperUtil.convert(user, new UserDto());
+    public UserDto findByUsername(String username){
+        try {
+            User user = userRepository.findByUsername(username);
+            return mapperUtil.convert(user, new UserDto());
+        }catch (UserNotFoundException u){
+            throw new UserNotFoundException("User Not Found With userName: "+username);
+        }
+
+
     }
 
     @Override
@@ -68,7 +75,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto findById(Long id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new NoSuchElementException("User not found with id: " + id));
+        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
         UserDto dto = mapperUtil.convert(user, new UserDto());
         dto.setIsOnlyAdmin(dto.getRole().getDescription().equals("Admin")&&this.checkIfOnlyAdmin(dto));
         return dto;
