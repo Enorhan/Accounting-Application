@@ -13,6 +13,10 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 
+import java.util.NoSuchElementException;
+
+
+
 import java.util.stream.Collectors;
 import java.util.ArrayList;
 
@@ -28,9 +32,13 @@ public class CategoryServiceImpl implements CategoryService {
         this.mapperUtil = mapperUtil;
     }
     public List<CategoryDto> listAllCategories(){
+
+        return categoryRepository.findAll().stream()
+
         Long companyId = companyService.getCompanyIdByLoggedInUser();
 
         return categoryRepository.findAllByCompanyId(companyId).stream()
+
                 .map(category -> {
                     CategoryDto categoryDto =  mapperUtil.convert(category, new CategoryDto());
                     if(!category.getProductList().stream().toList().isEmpty()){
@@ -59,6 +67,8 @@ public class CategoryServiceImpl implements CategoryService {
 
         return mapperUtil.convert(categoryRepository.save(mapperUtil.convert(category, new Category())), new CategoryDto());
     }
+    public boolean existsByDescription(String description) {
+        Category category = categoryRepository.findByDescription(description);
 
     public boolean existsByDescription(String description) {
         Category category = categoryRepository.findByDescription(description);
@@ -70,6 +80,17 @@ public class CategoryServiceImpl implements CategoryService {
         return mapperUtil.convert(categories,new ArrayList<>());
     }
 
+        return category != null;
+    }
+    public void deleteCategory(Long id){
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Category not found with id: " + id));
+
+
+        category.setIsDeleted(true);
+
+        categoryRepository.save(category);
+    }
 
         return category != null;
     }
@@ -82,6 +103,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         categoryRepository.save(category);
     }
+
 
 
 }
