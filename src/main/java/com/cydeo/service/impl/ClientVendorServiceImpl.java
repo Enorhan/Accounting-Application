@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class ClientVendorServiceImpl implements ClientVendorService {
-
     private final ClientVendorRepository clientVendorRepository;
     private final MapperUtil mapperUtil;
     private final CompanyService companyService;
@@ -30,9 +29,11 @@ public class ClientVendorServiceImpl implements ClientVendorService {
     }
 
     @Override
-    public List<ClientVendorDto> listAllClientVendors() {
-        List<ClientVendor> clientVendorList = clientVendorRepository.findAll();
-        return clientVendorList.stream()
+    public List<ClientVendorDto> listAllVendorsByCompany() {
+        Long companyId = companyService.getCompanyIdByLoggedInUser();
+        List<ClientVendor> clientVendors = clientVendorRepository
+                .findAllByCompanyIdAndClientVendorType(companyId, ClientVendorType.VENDOR);
+        return clientVendors.stream()
                 .map(clientVendor -> mapperUtil.convert(clientVendor, new ClientVendorDto()))
                 .collect(Collectors.toList());
     }
@@ -40,6 +41,7 @@ public class ClientVendorServiceImpl implements ClientVendorService {
     @Override
     public List<ClientVendorDto> listAllClientVendorsByCompany() {
         Long companyId = companyService.getCompanyIdByLoggedInUser();
+
         List<ClientVendor> clientVendors = clientVendorRepository.findAllByCompanyIdOrderByTypeAndName(companyId);
         return clientVendors.stream()
                 .map(clientVendor -> mapperUtil.convert(clientVendor, new ClientVendorDto()))
@@ -47,9 +49,24 @@ public class ClientVendorServiceImpl implements ClientVendorService {
     }
 
     @Override
+    public List<ClientVendorDto> listAllClientVendorsWithInvoiceStatusByCompany() {
+        Long companyId = companyService.getCompanyIdByLoggedInUser();
+        List<ClientVendor> clientVendors = clientVendorRepository.findAllByCompanyIdOrderByTypeAndName(companyId);
+
+        return clientVendors.stream()
+                .map(clientVendor -> {
+                    ClientVendorDto dto = mapperUtil.convert(clientVendor, new ClientVendorDto());
+                    boolean hasInvoice = invoiceRepository.existsByClientVendorId(clientVendor.getId());
+                    dto.setHasInvoice(hasInvoice);
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public ClientVendorDto createClientVendor(ClientVendorDto clientVendorDTO) {
 
-        if (existsByName(clientVendorDTO.getClientVendorName())){
+        if (existsByName(clientVendorDTO.getClientVendorName())) {
             throw new IllegalArgumentException("Client/Vendor with this name already exists");
         }
         clientVendorDTO.setCompany(companyService.getCompanyDtoByLoggedInUser());
@@ -61,9 +78,25 @@ public class ClientVendorServiceImpl implements ClientVendorService {
     @Override
     public ClientVendorDto findById(Long id) {
         ClientVendor clientVendor = clientVendorRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("ClientVendor not found"));
+                .orElseThrow(() -> new RuntimeException("ClientVendor not found"));
         return mapperUtil.convert(clientVendor, new ClientVendorDto());
     }
+
+    @Override
+    public List<ClientVendorDto> findAll() {
+        List<ClientVendor> clientVendorList = clientVendorRepository.findAll();
+        return clientVendorList.stream()
+                .map(clientVendor -> mapperUtil.convert(clientVendor, new ClientVendorDto()))
+                .collect(Collectors.toList());
+    }
+//    @Override
+//    public List<ClientVendorDto> findAll() {
+//        List<ClientVendor> clientVendorList = clientVendorRepository.findAll();
+//        return clientVendorList.stream()
+//        .map(clientVendor -> mapperUtil.convert(clientVendor, new ClientVendorDto()))
+//        .collect(Collectors.toList());
+//    }
+
 
     @Override
     public ClientVendorDto updateClientVendor(Long id, ClientVendorDto clientVendorDTO) {
@@ -76,23 +109,31 @@ public class ClientVendorServiceImpl implements ClientVendorService {
     }
 
     @Override
+    public boolean isHasInvoices(Long id) {
+        return invoiceRepository.existsByClientVendorId(id);
+    }
+
     public List<ClientVendorDto> findAllByCurrentCompanyClientVendorTypeAndIsDeleted(ClientVendorType clientVendorType, Boolean isDeleted) {
         Long companyId = companyService.getCompanyIdByLoggedInUser();
-        return mapperUtil.convert(clientVendorRepository.findAllByCompanyIdAndClientVendorTypeAndIsDeleted(companyId,clientVendorType,isDeleted),new ArrayList<>());
+        return mapperUtil.convert(clientVendorRepository.findAllByCompanyIdAndClientVendorTypeAndIsDeleted(companyId, clientVendorType, isDeleted), new ArrayList<>());
     }
+
+//    @Override
+//    public void deleteClientVendor(Long id) {
+//        boolean hasInvoices = invoiceRepository.existsByClientVendorId(id);
+//
+//        if (hasInvoices) {
+//            throw new IllegalStateException("Can not be deleted! This client/vendor has invoice(s).");
+//        }
+//    }
+
     @Override
     public void deleteClientVendor(Long id) {
-        boolean hasInvoices = invoiceRepository.existsByClientVendorId(id);
-
-        if (hasInvoices) {
-            throw new IllegalStateException("Can not be deleted! This client/vendor has invoice(s).");
-        }
-
         clientVendorRepository.deleteById(id);
     }
 
     @Override
-    public boolean existsByName(String clientVendorName) {
+    public boolean existsByName(String clientVendorName){
         return clientVendorRepository.existsByClientVendorName(clientVendorName);
     }
 }

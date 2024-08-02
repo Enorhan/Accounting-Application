@@ -9,6 +9,7 @@ import com.cydeo.entity.Invoice;
 import com.cydeo.enums.InvoiceStatus;
 import com.cydeo.enums.InvoiceType;
 import com.cydeo.repository.InvoiceProductRepository;
+import com.cydeo.exceptions.InvoiceNotFoundException;
 import com.cydeo.repository.InvoiceRepository;
 import com.cydeo.service.*;
 import com.cydeo.util.MapperUtil;
@@ -20,7 +21,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -81,7 +81,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Override
     public InvoiceDto findById(Long id) {
         Invoice invoice = invoiceRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Invoice not found with id: " + id));
+                .orElseThrow(() -> new InvoiceNotFoundException("Invoice not found with id: " + id));
 
         InvoiceDto invoiceDto = mapperUtil.convert(invoice, new InvoiceDto());
 
@@ -132,7 +132,8 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Override
     public InvoiceDto update(InvoiceDto invoiceDto, Long id) {
         Invoice oldInvoice = invoiceRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Invoice not found with id: " + id));
+                .orElseThrow(() -> new InvoiceNotFoundException("Invoice not found with id: " + id));
+
         invoiceDto.setId(id);
         Invoice invoice = mapperUtil.convert(invoiceDto, new Invoice());
 
@@ -167,7 +168,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Override
     public void delete(Long id) {
         Invoice invoice = invoiceRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Invoice not found with id: " + id));
+                .orElseThrow(() -> new InvoiceNotFoundException("Invoice not found with id: " + id));
 
         invoice.setIsDeleted(true);
 
@@ -178,7 +179,8 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Override
     public void approvePurchaseInvoice(Long invoiceId) {
         Invoice invoice = invoiceRepository.findById(invoiceId)
-                .orElseThrow(() -> new NoSuchElementException("Invoice not found with invoiceId: " + invoiceId));
+                .orElseThrow(() -> new InvoiceNotFoundException("Invoice not found with id: " + invoiceId));
+
         List<InvoiceProductDto> invoiceProductsDto = invoiceProductService.findAllByInvoiceIdAndIsDeleted(invoiceId, false);
 
         for (InvoiceProductDto invoiceProduct : invoiceProductsDto) {
@@ -206,7 +208,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Override
     public void approveSalesInvoice(Long id) {
         Invoice invoice = invoiceRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Invoice not found with id: " + id));
+                .orElseThrow(() -> new InvoiceNotFoundException("Invoice not found with id: " + id));
 
         List<InvoiceProductDto> invoiceProducts = invoiceProductService.findAllByInvoiceIdAndIsDeleted(id, false);
 
