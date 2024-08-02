@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
+import java.util.ArrayList;
 @Service
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
@@ -22,20 +22,17 @@ public class CategoryServiceImpl implements CategoryService {
         this.companyService = companyService;
         this.mapperUtil = mapperUtil;
     }
-
     public List<CategoryDto> listAllCategories(){
         return categoryRepository.findAll().stream()
                 .map(category -> mapperUtil.convert(category, new CategoryDto()))
                 .collect(Collectors.toList());
     }
-
     public CategoryDto findById(Long id){
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found"));
 
         return mapperUtil.convert(category, new CategoryDto());
     }
-
     public CategoryDto saveCategory(CategoryDto category){
         Long companyId = companyService.getCompanyIdByLoggedInUser();
 
@@ -49,7 +46,13 @@ public class CategoryServiceImpl implements CategoryService {
 
         return mapperUtil.convert(categoryRepository.save(mapperUtil.convert(category, new Category())), new CategoryDto());
     }
+
+    @Override
+    public List<CategoryDto> listAllCategoriesByCompany() {
+        List<Category> categories=categoryRepository.findAllByCompanyId(companyService.getCompanyIdByLoggedInUser());
+        return mapperUtil.convert(categories,new ArrayList<>());
+    }
+
+
+
 }
-
-
-

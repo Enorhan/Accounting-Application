@@ -8,6 +8,7 @@ import com.cydeo.entity.Company;
 import com.cydeo.entity.Invoice;
 import com.cydeo.enums.InvoiceStatus;
 import com.cydeo.enums.InvoiceType;
+import com.cydeo.repository.InvoiceProductRepository;
 import com.cydeo.exceptions.InvoiceNotFoundException;
 import com.cydeo.repository.InvoiceRepository;
 import com.cydeo.service.*;
@@ -19,9 +20,7 @@ import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,13 +30,15 @@ public class InvoiceServiceImpl implements InvoiceService {
     private final CompanyService companyService;
     private final ProductService productService;
     private final InvoiceProductService invoiceProductService;
+    private final InvoiceProductRepository invoiceProductRepository;
 
-      public InvoiceServiceImpl(InvoiceRepository invoiceRepository, MapperUtil mapperUtil, CompanyService companyService, @Lazy InvoiceProductService invoiceProductService, ProductService productService) {
+      public InvoiceServiceImpl(InvoiceRepository invoiceRepository, MapperUtil mapperUtil, CompanyService companyService, @Lazy InvoiceProductService invoiceProductService, ProductService productService,InvoiceProductRepository invoiceProductRepository) {
         this.invoiceRepository = invoiceRepository;
         this.mapperUtil = mapperUtil;
         this.companyService = companyService;
         this.productService = productService;
         this.invoiceProductService = invoiceProductService;
+        this.invoiceProductRepository = invoiceProductRepository;
     }
 
     private void calculateTotalsForInvoice(InvoiceDto invoiceDto) {
@@ -189,9 +190,6 @@ public class InvoiceServiceImpl implements InvoiceService {
             invoiceProduct.setRemainingQuantity(invoiceProduct.getQuantity());
             invoiceProduct.setProfitLoss(BigDecimal.ZERO);
 
-            //added part
-            invoiceProduct.setRemainingQuantity(invoiceProduct.getQuantity());
-            invoiceProduct.setProfitLoss(BigDecimal.ZERO);
             invoiceProductService.save(invoiceProduct,invoiceId);
 
 
@@ -228,13 +226,13 @@ public class InvoiceServiceImpl implements InvoiceService {
             BigDecimal totalCost = BigDecimal.ZERO;
             BigDecimal salePrice = invoiceProductDto.getPrice();
 
-            List<InvoiceProductDto> purchaseProducts = invoiceProductService.findAll().stream()
-                    .filter(p -> p.getInvoice().getCompany().getId().equals(companyService.getCompanyIdByLoggedInUser()))
-                    .filter(p -> p.getInvoice().getInvoiceType().equals(InvoiceType.PURCHASE))
-                    .filter(p -> p.getInvoice().getInvoiceStatus().equals(InvoiceStatus.APPROVED))
-                    .filter(p -> p.getProduct().getId().equals(invoiceProductDto.getProduct().getId()))
-                    .sorted(Comparator.comparing(p -> p.getInvoice().getDate()))
-                    .toList();
+            List<InvoiceProductDto> purchaseProducts = invoiceProductRepository.findPurchaseProducts(
+                            companyService.getCompanyIdByLoggedInUser(),
+                            InvoiceType.PURCHASE,
+                            InvoiceStatus.APPROVED,
+                            invoiceProductDto.getProduct().getId()).stream()
+                       .map(purchaseProduct->mapperUtil.convert(purchaseProduct,new InvoiceProductDto()))
+                       .toList();
 
 
             for (InvoiceProductDto purchaseProduct : purchaseProducts) {

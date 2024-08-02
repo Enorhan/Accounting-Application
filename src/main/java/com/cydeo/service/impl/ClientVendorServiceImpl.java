@@ -7,7 +7,6 @@ import com.cydeo.repository.ClientVendorRepository;
 import com.cydeo.repository.InvoiceRepository;
 import com.cydeo.service.ClientVendorService;
 import com.cydeo.service.CompanyService;
-import com.cydeo.service.SecurityService;
 import com.cydeo.util.MapperUtil;
 import org.springframework.stereotype.Service;
 
