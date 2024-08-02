@@ -21,8 +21,11 @@ public class CompanyStatusLogging {
 
     Logger logger = LoggerFactory.getLogger(CompanyStatusLogging.class);
 
-    private UserService userService;
+    private final UserService userService;
 
+    public CompanyStatusLogging(UserService userService) {
+        this.userService = userService;
+    }
 
     @Pointcut("execution(* com.cydeo.service.CompanyService.activateCompany(..))")
     public void activateMethod() {}
