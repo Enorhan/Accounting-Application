@@ -9,7 +9,12 @@ import com.cydeo.util.MapperUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
 import java.util.NoSuchElementException;
+
+
+import java.util.stream.Collectors;
+import java.util.ArrayList;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -22,7 +27,6 @@ public class CategoryServiceImpl implements CategoryService {
         this.companyService = companyService;
         this.mapperUtil = mapperUtil;
     }
-
     public List<CategoryDto> listAllCategories(){
         Long companyId = companyService.getCompanyIdByLoggedInUser();
 
@@ -36,14 +40,12 @@ public class CategoryServiceImpl implements CategoryService {
                 })
                 .toList();
     }
-
     public CategoryDto findById(Long id){
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found"));
 
         return mapperUtil.convert(category, new CategoryDto());
     }
-
     public CategoryDto saveCategory(CategoryDto category){
         Long companyId = companyService.getCompanyIdByLoggedInUser();
 
@@ -57,8 +59,17 @@ public class CategoryServiceImpl implements CategoryService {
 
         return mapperUtil.convert(categoryRepository.save(mapperUtil.convert(category, new Category())), new CategoryDto());
     }
+
     public boolean existsByDescription(String description) {
         Category category = categoryRepository.findByDescription(description);
+
+
+    @Override
+    public List<CategoryDto> listAllCategoriesByCompany() {
+        List<Category> categories=categoryRepository.findAllByCompanyId(companyService.getCompanyIdByLoggedInUser());
+        return mapperUtil.convert(categories,new ArrayList<>());
+    }
+
 
         return category != null;
     }
@@ -68,6 +79,9 @@ public class CategoryServiceImpl implements CategoryService {
 
         category.setIsDeleted(true);
 
+
         categoryRepository.save(category);
     }
+
+
 }

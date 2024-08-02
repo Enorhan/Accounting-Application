@@ -14,4 +14,6 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     List<Category> findAllByCompanyId(@Param("companyId") Long companyId);
 
     Category findByDescriptionAndCompanyId(String description, Long companyId);
+    List<Category>findAllByCompanyId(Long companyId);
+
 }
