@@ -3,7 +3,6 @@ package com.cydeo.controller;
 
 import com.cydeo.dto.ClientVendorDto;
 import com.cydeo.enums.ClientVendorType;
-import com.cydeo.repository.InvoiceRepository;
 import com.cydeo.service.ClientVendorService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,16 +18,14 @@ import java.util.Arrays;
 public class ClientVendorController {
 
     private final ClientVendorService clientVendorService;
-    private final InvoiceRepository invoiceRepository;
 
-    public ClientVendorController(ClientVendorService clientVendorService, InvoiceRepository invoiceRepository) {
+    public ClientVendorController(ClientVendorService clientVendorService) {
         this.clientVendorService = clientVendorService;
-        this.invoiceRepository = invoiceRepository;
     }
 
     @GetMapping("/list")
     public String getClientVendors(Model model) {
-        model.addAttribute("clientVendors", clientVendorService.listAllClientVendorsWithInvoiceStatusByCompany());
+        model.addAttribute("clientVendors", clientVendorService.listAllClientVendorsByCompany());
         return "clientVendor/clientVendor-list";
     }
 
@@ -80,11 +77,13 @@ public class ClientVendorController {
         return "redirect:/clientVendors/list";
     }
 
-
-    @GetMapping("/delete/{id}")
-    public String deleteClientVendor(@PathVariable Long id) {
-        if (!clientVendorService.isHasInvoices(id)) {
+    @DeleteMapping("/delete/{id}")
+    public String deleteClientVendor(@PathVariable Long id, Model model) {
+        try {
             clientVendorService.deleteClientVendor(id);
+        } catch (IllegalStateException e) {
+            model.addAttribute("error", e.getMessage());
+            return "redirect:/clientVendors/list";
         }
         return "redirect:/clientVendors/list";
     }
