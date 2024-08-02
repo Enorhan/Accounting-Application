@@ -11,6 +11,10 @@ public interface CategoryService {
 
     CategoryDto saveCategory(CategoryDto category);
 
+
+
+
+
     boolean existsByDescription(String description);
 
     void deleteCategory(Long id);

@@ -9,9 +9,17 @@ import com.cydeo.util.MapperUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
 import java.util.NoSuchElementException;
+
+
+import java.util.NoSuchElementException;
+
+
+
 import java.util.stream.Collectors;
 import java.util.ArrayList;
+
 @Service
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
@@ -24,7 +32,13 @@ public class CategoryServiceImpl implements CategoryService {
         this.mapperUtil = mapperUtil;
     }
     public List<CategoryDto> listAllCategories(){
+
         return categoryRepository.findAll().stream()
+
+        Long companyId = companyService.getCompanyIdByLoggedInUser();
+
+        return categoryRepository.findAllByCompanyId(companyId).stream()
+
                 .map(category -> {
                     CategoryDto categoryDto =  mapperUtil.convert(category, new CategoryDto());
                     if(!category.getProductList().stream().toList().isEmpty()){
@@ -56,6 +70,10 @@ public class CategoryServiceImpl implements CategoryService {
     public boolean existsByDescription(String description) {
         Category category = categoryRepository.findByDescription(description);
 
+    public boolean existsByDescription(String description) {
+        Category category = categoryRepository.findByDescription(description);
+
+
     @Override
     public List<CategoryDto> listAllCategoriesByCompany() {
         List<Category> categories=categoryRepository.findAllByCompanyId(companyService.getCompanyIdByLoggedInUser());
@@ -68,9 +86,24 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Category not found with id: " + id));
 
+
         category.setIsDeleted(true);
 
         categoryRepository.save(category);
     }
+
+        return category != null;
+    }
+    public void deleteCategory(Long id){
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Category not found with id: " + id));
+
+        category.setIsDeleted(true);
+
+
+        categoryRepository.save(category);
+    }
+
+
 
 }
