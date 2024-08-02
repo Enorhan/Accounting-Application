@@ -12,4 +12,5 @@ public interface CategoryService {
     CategoryDto saveCategory(Category category);
 
     List<CategoryDto>listAllCategoriesByCompany();
+    CategoryDto saveCategory(CategoryDto category);
 }
