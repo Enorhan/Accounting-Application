@@ -1,10 +1,7 @@
 package com.cydeo.dto;
 
 import com.cydeo.enums.ProductUnit;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.validation.constraints.*;
 
@@ -12,6 +9,7 @@ import javax.validation.constraints.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ProductDto {
 
     private Long id;
