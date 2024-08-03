@@ -5,7 +5,10 @@ import com.cydeo.dto.CompanyDto;
 import com.cydeo.dto.InvoiceDto;
 import com.cydeo.dto.InvoiceProductDto;
 import com.cydeo.enums.InvoiceType;
+import com.cydeo.exceptions.InvoiceProductNotFoundException;
 import com.cydeo.service.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -24,6 +27,12 @@ public class PurchasesInvoiceController {
     private final ClientVendorService clientVendorService;
     private final ProductService productService;
     private final CompanyService companyService;
+
+
+    @ExceptionHandler(InvoiceProductNotFoundException.class)
+    public ResponseEntity<String> handleInvoiceProductNotFoundException(InvoiceProductNotFoundException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+    }
 
     public PurchasesInvoiceController(InvoiceService invoiceService, InvoiceProductService invoiceProductService, ClientVendorService clientVendorService, ProductService productService, CompanyService companyService) {
         this.invoiceService = invoiceService;
