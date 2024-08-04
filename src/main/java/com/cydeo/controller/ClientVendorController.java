@@ -5,6 +5,7 @@ import com.cydeo.dto.ClientVendorDto;
 import com.cydeo.enums.ClientVendorType;
 import com.cydeo.repository.InvoiceRepository;
 import com.cydeo.service.ClientVendorService;
+import com.cydeo.service.CountryService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -20,10 +21,13 @@ public class ClientVendorController {
 
     private final ClientVendorService clientVendorService;
     private final InvoiceRepository invoiceRepository;
+    private final CountryService countryService;
 
-    public ClientVendorController(ClientVendorService clientVendorService, InvoiceRepository invoiceRepository) {
+
+    public ClientVendorController(ClientVendorService clientVendorService, InvoiceRepository invoiceRepository, CountryService countryService) {
         this.clientVendorService = clientVendorService;
         this.invoiceRepository = invoiceRepository;
+        this.countryService = countryService;
     }
 
     @GetMapping("/list")
@@ -36,6 +40,7 @@ public class ClientVendorController {
     public String createClientVendorForm(Model model) {
         model.addAttribute("newClientVendor", new ClientVendorDto());
         model.addAttribute("clientVendorTypes", Arrays.asList(ClientVendorType.values()));
+        model.addAttribute("countries",countryService.getAllCountries());
         return "clientVendor/clientVendor-create";
     }
 
@@ -62,6 +67,7 @@ public class ClientVendorController {
         ClientVendorDto clientVendorDto = clientVendorService.findById(id);
         model.addAttribute("clientVendor", clientVendorDto);
         model.addAttribute("clientVendorTypes", ClientVendorType.values());
+        model.addAttribute("countries",countryService.getAllCountries());
         return "clientVendor/clientVendor-update";
     }
 
