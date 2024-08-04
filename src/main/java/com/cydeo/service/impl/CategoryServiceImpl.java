@@ -59,18 +59,13 @@ public class CategoryServiceImpl implements CategoryService {
 
     public boolean existsByDescription(String description) {
         Category category = categoryRepository.findByDescription(description);
-
-
-
             return category != null;
         }
-
     @Override
     public List<CategoryDto> listAllCategoriesByCompany() {
         List<Category> categories=categoryRepository.findAllByCompanyID(companyService.getCompanyIdByLoggedInUser());
         return mapperUtil.convert(categories,new ArrayList<>());
     }
-
     public void deleteCategory(Long id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new CategoryNotFoundException("Category not found with id: " + id));
