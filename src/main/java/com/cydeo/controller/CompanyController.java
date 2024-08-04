@@ -2,6 +2,7 @@ package com.cydeo.controller;
 
 import com.cydeo.dto.CompanyDto;
 import com.cydeo.service.CompanyService;
+import com.cydeo.service.CountryService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -15,11 +16,12 @@ import java.util.List;
 public class CompanyController {
 
     private final CompanyService companyService;
+    private final CountryService countryService;
 
-    public CompanyController(CompanyService companyService) {
+    public CompanyController(CompanyService companyService, CountryService countryService) {
         this.companyService = companyService;
+        this.countryService = countryService;
     }
-
 
     @GetMapping("/list")
     public String getCompanies(Model model) {
@@ -31,9 +33,10 @@ public class CompanyController {
 
     @GetMapping("/create")
     public String createCompany(Model model) {
-            model.addAttribute("newCompany", new CompanyDto());
-            model.addAttribute("companies", companyService.getAllCompanies());
-            return "company/company-create";
+        model.addAttribute("newCompany", new CompanyDto());
+        model.addAttribute("companies", companyService.getAllCompanies());
+        model.addAttribute("countries", countryService.getAllCountries());
+        return "company/company-create";
     }
 
     @PostMapping("/create")
@@ -53,6 +56,7 @@ public class CompanyController {
     public String getEditCompany(@PathVariable Long id, Model model) {
         CompanyDto companyDto = companyService.findById(id);
         model.addAttribute("company", companyDto);
+        model.addAttribute("countries",countryService.getAllCountries());
         return "company/company-update";
     }
 
