@@ -6,8 +6,8 @@ import com.cydeo.enums.ClientVendorType;
 import java.util.List;
 
 public interface ClientVendorService {
-    List<ClientVendorDto> listAllClientVendors();
     List<ClientVendorDto> listAllClientVendorsByCompany();
+    List<ClientVendorDto> listAllVendorsByCompany();
     ClientVendorDto findById(Long id);
     List<ClientVendorDto> findAllByCurrentCompanyClientVendorTypeAndIsDeleted(ClientVendorType clientVendorType, Boolean isDeleted);
 

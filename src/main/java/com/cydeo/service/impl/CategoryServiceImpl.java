@@ -8,8 +8,9 @@ import com.cydeo.service.CategoryService;
 import com.cydeo.service.CompanyService;
 import com.cydeo.util.MapperUtil;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.ArrayList;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -36,15 +37,13 @@ public class CategoryServiceImpl implements CategoryService {
                 })
                 .toList();
     }
-
-    public CategoryDto findById(Long id) {
+    public CategoryDto findById(Long id){
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found"));
 
         return mapperUtil.convert(category, new CategoryDto());
     }
-
-    public CategoryDto saveCategory(CategoryDto category) {
+    public CategoryDto saveCategory(CategoryDto category){
         Long companyId = companyService.getCompanyIdByLoggedInUser();
 
         Category existingCategory = categoryRepository.findByDescriptionAndCompanyId(category.getDescription(), companyId);
@@ -61,7 +60,15 @@ public class CategoryServiceImpl implements CategoryService {
     public boolean existsByDescription(String description) {
         Category category = categoryRepository.findByDescription(description);
 
-        return category != null;
+
+
+            return category != null;
+        }
+
+    @Override
+    public List<CategoryDto> listAllCategoriesByCompany() {
+        List<Category> categories=categoryRepository.findAllByCompanyID(companyService.getCompanyIdByLoggedInUser());
+        return mapperUtil.convert(categories,new ArrayList<>());
     }
 
     public void deleteCategory(Long id) {

@@ -6,6 +6,7 @@ import com.cydeo.entity.Invoice;
 import com.cydeo.entity.InvoiceProduct;
 import com.cydeo.enums.InvoiceStatus;
 import com.cydeo.enums.InvoiceType;
+import com.cydeo.exceptions.InvoiceProductNotFoundException;
 import com.cydeo.repository.InvoiceProductRepository;
 import com.cydeo.service.CompanyService;
 import com.cydeo.service.InvoiceProductService;
@@ -19,7 +20,6 @@ import java.math.BigDecimal;
 import java.time.format.TextStyle;
 import java.util.*;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,7 +39,7 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
     @Override
     public InvoiceProductDto findById(Long id) {
         InvoiceProduct invoiceProduct = invoiceProductRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Invoice not found with id: " + id));
+                .orElseThrow(() -> new InvoiceProductNotFoundException("Invoice not found with id: " + id));
 
         return mapperUtil.convert(invoiceProduct, new InvoiceProductDto());
     }
@@ -176,7 +176,7 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
     @Override
     public void delete(Long invoiceProductId) {
         InvoiceProduct invoiceProduct = invoiceProductRepository.findById(invoiceProductId)
-                .orElseThrow(() -> new NoSuchElementException("Invoice product not found with id: " + invoiceProductId));
+                .orElseThrow(() -> new InvoiceProductNotFoundException("Invoice product not found with id: " + invoiceProductId));
 
         invoiceProduct.setIsDeleted(true);
 
@@ -195,7 +195,7 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
     @Override
     public void removeInvoiceProduct(Long invoiceProductId) {
         InvoiceProduct invoiceProduct = invoiceProductRepository.findById(invoiceProductId)
-                .orElseThrow(() -> new NoSuchElementException("Invoice product not found with id: " + invoiceProductId));
+                .orElseThrow(() -> new InvoiceProductNotFoundException("Invoice product not found with id: " + invoiceProductId));
 
         invoiceProduct.setIsDeleted(true);
 

@@ -1,6 +1,7 @@
 package com.cydeo.controller;
 
 import com.cydeo.dto.UserDto;
+import com.cydeo.exception.UserNotFoundException;
 import com.cydeo.service.RoleService;
 import com.cydeo.service.SecurityService;
 import com.cydeo.service.UserService;
@@ -73,7 +74,7 @@ public class UserController {
 
 
     @GetMapping("/update/{id}")
-    public String editUser(@PathVariable("id") Long id, @ModelAttribute UserDto user, Model model) {
+    public String editUser(@PathVariable("id") Long id, @ModelAttribute UserDto user, Model model) throws UserNotFoundException{
 
         UserDto userDto = userService.findById(id);
         model.addAttribute("user", userDto);
@@ -86,7 +87,7 @@ public class UserController {
 
 
     @PostMapping("/update/{id}")
-    public String updateUser(@Valid @ModelAttribute("user") UserDto userDto, BindingResult result, Model model) {
+    public String updateUser(@Valid @ModelAttribute("user") UserDto userDto, BindingResult result, Model model) throws UserNotFoundException{
 
 
         boolean passwordMatch = userService.isPasswordMatch(userDto.getPassword(), userDto.getConfirmPassword());
@@ -109,7 +110,7 @@ public class UserController {
     }
 
     @GetMapping("/delete/{id}")
-    public String deleteUser(@PathVariable("id") Long id) {
+    public String deleteUser(@PathVariable("id") Long id) throws UserNotFoundException {
         UserDto userDto = userService.findById(id);
 
             if (userService.checkIfOnlyAdmin(userDto)) {

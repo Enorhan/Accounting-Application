@@ -13,6 +13,7 @@ public interface ClientVendorRepository extends JpaRepository<ClientVendor, Long
 
     @Query("SELECT cv FROM ClientVendor cv WHERE cv.company.id = :companyId ORDER BY cv.clientVendorType ASC, cv.clientVendorName ASC")
     List<ClientVendor> findAllByCompanyIdOrderByTypeAndName(@Param("companyId") Long companyId);
+    List<ClientVendor> findAllByCompanyIdAndClientVendorType(Long companyId, ClientVendorType clientVendorType);
     boolean existsByClientVendorName(String clientVendorName);
     List<ClientVendor>findAllByCompanyIdAndClientVendorTypeAndIsDeleted(Long companyId, ClientVendorType clientVendorType,Boolean isDeleted);
 }
