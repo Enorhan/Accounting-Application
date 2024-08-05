@@ -17,5 +17,5 @@ public interface InvoiceService {
     void delete(Long id);
     void approveSalesInvoice(Long id);
     void approvePurchaseInvoice(Long id);
-    List<Invoice> findTop3ApprovedInvoicesByCompanyId(Long companyId, InvoiceStatus invoiceStatus);
+    List<Invoice> findTop3InvoicesByInvoiceStatus(InvoiceStatus invoiceStatus);
 }

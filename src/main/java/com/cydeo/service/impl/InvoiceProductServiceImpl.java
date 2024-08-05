@@ -11,6 +11,7 @@ import com.cydeo.repository.InvoiceProductRepository;
 import com.cydeo.service.CompanyService;
 import com.cydeo.service.InvoiceProductService;
 import com.cydeo.service.InvoiceService;
+import com.cydeo.util.InvoiceUtils;
 import org.springframework.stereotype.Service;
 import com.cydeo.util.MapperUtil;
 import org.springframework.context.annotation.Lazy;
@@ -28,12 +29,14 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
     private final MapperUtil mapperUtil;
     private final CompanyService companyService;
     private final InvoiceService invoiceService;
+    private final InvoiceUtils invoiceUtils;
 
-    public InvoiceProductServiceImpl(InvoiceProductRepository invoiceProductRepository, MapperUtil mapperUtil, @Lazy InvoiceService invoiceService, CompanyService companyService) {
+    public InvoiceProductServiceImpl(InvoiceProductRepository invoiceProductRepository, MapperUtil mapperUtil, @Lazy InvoiceService invoiceService, CompanyService companyService, @Lazy InvoiceUtils invoiceUtils) {
         this.invoiceProductRepository = invoiceProductRepository;
         this.mapperUtil = mapperUtil;
         this.invoiceService = invoiceService;
         this.companyService = companyService;
+        this.invoiceUtils = invoiceUtils;
     }
 
     @Override
@@ -69,6 +72,7 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
                 .collect(Collectors.toList());
 
         BigDecimal totalCost = BigDecimal.valueOf(0);
+
         for (InvoiceProduct invoice : purchasedInvoices) {
             int quantity = invoice.getQuantity();
             BigDecimal price = invoice.getPrice();
@@ -84,6 +88,7 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
                 .collect(Collectors.toList());
 
         BigDecimal totalSalesCost = BigDecimal.valueOf(0);
+
         for (InvoiceProduct invoice : salesInvoices) {
             int quantity = invoice.getQuantity();
             BigDecimal price = invoice.getPrice();
@@ -131,27 +136,14 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
 
     @Override
     public List<InvoiceDto> getLast3ApprovedInvoices() {
-        Long companyId = companyService.getCompanyIdByLoggedInUser();
-
-        List<Invoice> invoices = invoiceService.findTop3ApprovedInvoicesByCompanyId(companyId, InvoiceStatus.APPROVED);
-        List<InvoiceProduct> invoiceProducts = invoiceProductRepository.find3LastApprovedTransactionDesc(companyId);
+        List<Invoice> invoices = invoiceService.findTop3InvoicesByInvoiceStatus(InvoiceStatus.APPROVED);
 
         List<InvoiceDto> invoiceDtos = invoices.stream()
                 .map(invoice -> mapperUtil.convert(invoice, new InvoiceDto()))
                 .collect(Collectors.toList());
 
-
-        for (int i = 0; i < 3; i++) {
-            //Quantity of products
-            BigDecimal quantity = BigDecimal.valueOf(invoiceProducts.get(i).getQuantity());
-            //taxRate of products
-            BigDecimal taxRate = BigDecimal.valueOf(invoiceProducts.get(i).getTax());
-            //unit price of products
-            BigDecimal unitPrice = invoiceProducts.get(i).getPrice();
-
-            invoiceDtos.get(i).setPrice(quantity.multiply(unitPrice));
-            invoiceDtos.get(i).setTax(quantity.multiply(unitPrice).multiply(taxRate.divide(BigDecimal.valueOf(100))));
-            invoiceDtos.get(i).setTotal(quantity.multiply(unitPrice).add(quantity.multiply(unitPrice).divide(taxRate)));
+        for (InvoiceDto eachInvoiceDto : invoiceDtos) {
+            invoiceUtils.calculateTotalsForInvoice(eachInvoiceDto);
         }
 
         return invoiceDtos;

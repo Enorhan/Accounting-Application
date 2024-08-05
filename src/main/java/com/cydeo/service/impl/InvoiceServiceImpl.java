@@ -12,11 +12,14 @@ import com.cydeo.repository.InvoiceProductRepository;
 import com.cydeo.exceptions.InvoiceNotFoundException;
 import com.cydeo.repository.InvoiceRepository;
 import com.cydeo.service.*;
+import com.cydeo.util.InvoiceUtils;
 import com.cydeo.util.MapperUtil;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.awt.print.Pageable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -31,15 +34,17 @@ public class InvoiceServiceImpl implements InvoiceService {
     private final ProductService productService;
     private final InvoiceProductService invoiceProductService;
     private final InvoiceProductRepository invoiceProductRepository;
+    private final InvoiceUtils invoiceUtils;
 
-      public InvoiceServiceImpl(InvoiceRepository invoiceRepository, MapperUtil mapperUtil, CompanyService companyService, @Lazy InvoiceProductService invoiceProductService, ProductService productService,InvoiceProductRepository invoiceProductRepository) {
+      public InvoiceServiceImpl(InvoiceRepository invoiceRepository, MapperUtil mapperUtil, CompanyService companyService, @Lazy InvoiceProductService invoiceProductService, ProductService productService, InvoiceProductRepository invoiceProductRepository, InvoiceUtils invoiceUtils) {
         this.invoiceRepository = invoiceRepository;
         this.mapperUtil = mapperUtil;
         this.companyService = companyService;
         this.productService = productService;
         this.invoiceProductService = invoiceProductService;
         this.invoiceProductRepository = invoiceProductRepository;
-    }
+          this.invoiceUtils = invoiceUtils;
+      }
 
     private void calculateTotalsForInvoice(InvoiceDto invoiceDto) {
         Long invoiceId = invoiceDto.getId();
@@ -72,7 +77,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                 .collect(Collectors.toList());
 
         for (InvoiceDto eachInvoiceDto : invoiceDtos) {
-            calculateTotalsForInvoice(eachInvoiceDto);
+            invoiceUtils.calculateTotalsForInvoice(eachInvoiceDto);
         }
 
         return invoiceDtos;
@@ -85,7 +90,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         InvoiceDto invoiceDto = mapperUtil.convert(invoice, new InvoiceDto());
 
-        calculateTotalsForInvoice(invoiceDto);
+        invoiceUtils.calculateTotalsForInvoice(invoiceDto);
 
         return invoiceDto;
     }
@@ -201,8 +206,10 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoiceRepository.save(invoice);
     }
 
-    public List<Invoice> findTop3ApprovedInvoicesByCompanyId(Long companyId, InvoiceStatus invoiceStatus) {
-        return invoiceRepository.findTop3ByCompanyIdAndInvoiceStatusOrderByDateDesc(companyId, InvoiceStatus.APPROVED);
+    public List<Invoice> findTop3InvoicesByInvoiceStatus(InvoiceStatus invoiceStatus) {
+        Long companyId = companyService.getCompanyIdByLoggedInUser();
+
+        return invoiceRepository.findTop3ByCompanyIdAndInvoiceStatusOrderByInsertDateTimeDesc(companyId, invoiceStatus);
     }
 
     @Override
