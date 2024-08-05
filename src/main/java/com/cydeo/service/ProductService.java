@@ -13,4 +13,7 @@ public interface ProductService {
     void delete(Long productId);
     Boolean hasInvoice(Long productId);
     Boolean isInStock(Long productId);
+
+
+    void checkProductStock(Long productId, int requiredQuantity);
 }
