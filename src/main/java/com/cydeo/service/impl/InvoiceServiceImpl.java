@@ -276,4 +276,8 @@ public class InvoiceServiceImpl implements InvoiceService {
         }
     }
 
+    @Override
+    public InvoiceDto findByInvoiceNo(String invoiceNo) {
+        return mapperUtil.convert(invoiceRepository.findByInvoiceNo(invoiceNo),new InvoiceDto());
+    }
 }
