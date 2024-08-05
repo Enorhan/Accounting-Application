@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Value;
 
 @Service
 public class CountryServiceImpl implements CountryService {
@@ -16,6 +17,12 @@ public class CountryServiceImpl implements CountryService {
     private final CountryClient countryClient;
     private final AuthClient authClient;
     private String token;
+
+    @Value("${app.auth.token}")
+    private String apiToken;
+
+    @Value("${app.auth.email}")
+    private String userEmail;
 
     public CountryServiceImpl(CountryClient countryClient, AuthClient authClient) {
         this.countryClient = countryClient;
@@ -25,14 +32,12 @@ public class CountryServiceImpl implements CountryService {
 
     private String getToken() {
         if (token == null || token.isEmpty()) {
-            Map<String, String> tokenResponse = authClient.getAccessToken(
-                    "Ey-ZHdDfnXfMp0eIDVfjviiNCEaxbDnraP41Zc2ndRCekvvIS052MxpV-s-UvUy9sTc",
-                    "martin.manuilov.asenov@gmail.com"
-            );
+            Map<String, String> tokenResponse = authClient.getAccessToken(apiToken, userEmail);
             token = "Bearer " + tokenResponse.get("auth_token");
         }
         return token;
     }
+
 
     @Override
     public List<String> getAllCountries() {
