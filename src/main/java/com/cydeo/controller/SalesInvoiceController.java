@@ -66,9 +66,11 @@ public class SalesInvoiceController {
             return "invoice/sales-invoice-create";
         }
 
-        invoiceService.save(invoiceDto,InvoiceType.SALES);
+        invoiceService.save(invoiceDto, InvoiceType.SALES);
 
-        return "redirect:/salesInvoices/list";
+        InvoiceDto savedInvoice = invoiceService.findByInvoiceNo(invoiceDto.getInvoiceNo());
+
+        return "redirect:/salesInvoices/update/" + savedInvoice.getId();
     }
 
 
