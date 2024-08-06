@@ -5,6 +5,7 @@ import com.cydeo.entity.Company;
 import com.cydeo.entity.User;
 import com.cydeo.entity.common.UserPrincipal;
 import com.cydeo.enums.CompanyStatus;
+import com.cydeo.exceptions.CompanyNotFoundException;
 import com.cydeo.repository.CompanyRepository;
 import com.cydeo.repository.UserRepository;
 import com.cydeo.service.CategoryService;
@@ -71,7 +72,7 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     @Transactional
     public CompanyDto activateCompany(Long Id) {
-        Company company = companyRepository.findById(Id).orElseThrow(() -> new IllegalArgumentException("Company not found"));
+        Company company = companyRepository.findById(Id).orElseThrow(() -> new CompanyNotFoundException("Company not found"));
          company.setCompanyStatus(CompanyStatus.ACTIVE);
          companyRepository.save(company);
 
@@ -84,7 +85,7 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     @Transactional
     public CompanyDto deactivateCompany(Long Id) {
-        Company company = companyRepository.findById(Id).orElseThrow(() -> new IllegalArgumentException("Company not found"));
+        Company company = companyRepository.findById(Id).orElseThrow(() -> new CompanyNotFoundException("Company not found"));
         company.setCompanyStatus(CompanyStatus.PASSIVE);
         companyRepository.save(company);
 
@@ -94,7 +95,7 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public void updateCompany(CompanyDto companyDto) {
-        Company existingCompany = companyRepository.findById(companyDto.getId()).orElseThrow(() -> new RuntimeException("Company not found"));
+        Company existingCompany = companyRepository.findById(companyDto.getId()).orElseThrow(() -> new CompanyNotFoundException("Company not found"));
         Company company = mapperUtil.convert(companyDto, existingCompany);
         company.setCompanyStatus(existingCompany.getCompanyStatus());
         companyRepository.save(company);
@@ -113,7 +114,7 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     public CompanyDto findById(Long id) {
         Company company = companyRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Incorrect id" + id + " Try another Id"));
+                .orElseThrow(() -> new CompanyNotFoundException("Incorrect id" + id + " Try another Id"));
         return mapperUtil.convert(company, new CompanyDto());
     }
 

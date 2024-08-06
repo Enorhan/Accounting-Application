@@ -8,10 +8,14 @@ import com.cydeo.entity.Company;
 import com.cydeo.entity.Invoice;
 import com.cydeo.enums.InvoiceStatus;
 import com.cydeo.enums.InvoiceType;
-import com.cydeo.repository.InvoiceProductRepository;
 import com.cydeo.exceptions.InvoiceNotFoundException;
+import com.cydeo.exceptions.ProductLowLimitAlertException;
+import com.cydeo.repository.InvoiceProductRepository;
 import com.cydeo.repository.InvoiceRepository;
-import com.cydeo.service.*;
+import com.cydeo.service.CompanyService;
+import com.cydeo.service.InvoiceProductService;
+import com.cydeo.service.InvoiceService;
+import com.cydeo.service.ProductService;
 import com.cydeo.util.MapperUtil;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -19,7 +23,6 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,7 +35,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     private final InvoiceProductService invoiceProductService;
     private final InvoiceProductRepository invoiceProductRepository;
 
-      public InvoiceServiceImpl(InvoiceRepository invoiceRepository, MapperUtil mapperUtil, CompanyService companyService, @Lazy InvoiceProductService invoiceProductService, ProductService productService,InvoiceProductRepository invoiceProductRepository) {
+    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, MapperUtil mapperUtil, CompanyService companyService, @Lazy InvoiceProductService invoiceProductService, ProductService productService, InvoiceProductRepository invoiceProductRepository) {
         this.invoiceRepository = invoiceRepository;
         this.mapperUtil = mapperUtil;
         this.companyService = companyService;
@@ -190,7 +193,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             invoiceProduct.setRemainingQuantity(invoiceProduct.getQuantity());
             invoiceProduct.setProfitLoss(BigDecimal.ZERO);
 
-            invoiceProductService.save(invoiceProduct,invoiceId);
+            invoiceProductService.save(invoiceProduct, invoiceId);
 
 
             productService.save(productDto);
@@ -218,9 +221,14 @@ public class InvoiceServiceImpl implements InvoiceService {
             int quantityToSell = invoiceProductDto.getQuantity();
 
             if (quantityToSell > totalAvailableStock) {
-                throw new IllegalArgumentException("Not enough stock to fulfill the order for product: " + invoiceProductDto.getProduct().getName());
+                throw new ProductLowLimitAlertException("Stock of " + invoiceProductDto.getProduct().getName() + " decreased below low limit!");
+            }
+
+            if (productDto.getQuantityInStock() - quantityToSell < productDto.getLowLimitAlert()) {
+                throw new ProductLowLimitAlertException("Stock of " + productDto.getName() + " decreased below low limit!");
             }
         }
+
         for (InvoiceProductDto invoiceProductDto : invoiceProducts) {
             int quantityToSell = invoiceProductDto.getQuantity();
             BigDecimal totalCost = BigDecimal.ZERO;
@@ -231,9 +239,8 @@ public class InvoiceServiceImpl implements InvoiceService {
                             InvoiceType.PURCHASE,
                             InvoiceStatus.APPROVED,
                             invoiceProductDto.getProduct().getId()).stream()
-                       .map(purchaseProduct->mapperUtil.convert(purchaseProduct,new InvoiceProductDto()))
-                       .toList();
-
+                    .map(purchaseProduct -> mapperUtil.convert(purchaseProduct, new InvoiceProductDto()))
+                    .toList();
 
             for (InvoiceProductDto purchaseProduct : purchaseProducts) {
                 int availableQuantity = purchaseProduct.getRemainingQuantity();
@@ -241,7 +248,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                     int quantityToUse = Math.min(quantityToSell, availableQuantity);
                     BigDecimal costPrice = purchaseProduct.getPrice();
 
-                    BigDecimal taxToBeAdded=costPrice.multiply(BigDecimal.valueOf(0.01).multiply(BigDecimal.valueOf(purchaseProduct.getTax())));
+                    BigDecimal taxToBeAdded = costPrice.multiply(BigDecimal.valueOf(0.01).multiply(BigDecimal.valueOf(purchaseProduct.getTax())));
                     BigDecimal cost = (costPrice.multiply(BigDecimal.valueOf(quantityToUse)).add(taxToBeAdded));
                     totalCost = totalCost.add(cost);
 
@@ -255,22 +262,23 @@ public class InvoiceServiceImpl implements InvoiceService {
                 }
             }
 
-            BigDecimal taxToBeAdded=salePrice.multiply(BigDecimal.valueOf(0.01).multiply(BigDecimal.valueOf(invoiceProductDto.getTax())));
+            BigDecimal taxToBeAdded = salePrice.multiply(BigDecimal.valueOf(0.01).multiply(BigDecimal.valueOf(invoiceProductDto.getTax())));
             BigDecimal totalSale = (salePrice.multiply(BigDecimal.valueOf(invoiceProductDto.getQuantity()))).add(taxToBeAdded);
             BigDecimal profitLoss = totalSale.subtract(totalCost);
             invoiceProductDto.setProfitLoss(profitLoss);
 
             invoiceProductService.saveSalesInvoice(invoiceProductDto);
 
-
             ProductDto productDto = productService.findById(invoiceProductDto.getProduct().getId());
             int newQuantityInStock = productDto.getQuantityInStock() - invoiceProductDto.getQuantity();
             productDto.setQuantityInStock(newQuantityInStock);
             productService.save(productDto);
         }
+    }
 
-        invoice.setInvoiceStatus(InvoiceStatus.APPROVED);
-        invoice.setDate(LocalDate.now());
-        invoiceRepository.save(invoice);
+    @Override
+    public InvoiceDto findByInvoiceNo(String invoiceNo) {
+        Long companyId=companyService.getCompanyIdByLoggedInUser();
+        return mapperUtil.convert(invoiceRepository.findByInvoiceNoAndCompanyId(invoiceNo,companyId),new InvoiceDto());
     }
 }
