@@ -74,7 +74,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto findById(Long id) {
+    public UserDto findById(Long id) throws UserNotFoundException{
         User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
         UserDto dto = mapperUtil.convert(user, new UserDto());
         dto.setIsOnlyAdmin(dto.getRole().getDescription().equals("Admin")&&this.checkIfOnlyAdmin(dto));
@@ -97,11 +97,9 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public void update(UserDto userDto) {
-
-        User user = mapperUtil.convert(userDto, new User());
-
-        userRepository.save(user);
+    public UserDto update(UserDto userDto) throws UserNotFoundException {
+        save(userDto);
+        return findById(userDto.getId());
     }
 
     public List<CompanyDto> listCompaniesByLoggedInUser() {
@@ -116,7 +114,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean userNameExists(UserDto userDto) {
+    public boolean userNameExists(UserDto userDto) throws UserNotFoundException{
         User user = userRepository.findByUsername(userDto.getUsername());
         if (user == null) {
             return false;
@@ -125,7 +123,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void delete(Long id) {
+    public void delete(Long id) throws UserNotFoundException{
         User user = userRepository.findById(id).orElseThrow(() -> new NoSuchElementException("User not found with id: " + id));
         user.setIsDeleted(true);
         userRepository.save(user);
