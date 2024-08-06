@@ -11,9 +11,15 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface InvoiceProductRepository  extends JpaRepository<InvoiceProduct,Long> {
+public interface InvoiceProductRepository extends JpaRepository<InvoiceProduct, Long> {
+
     List<InvoiceProduct> findAllByOrderByInvoiceDesc();
+
     List<InvoiceProduct> findAllByInvoiceIdAndIsDeleted(Long id, boolean isDeleted);
+
+    List<InvoiceProduct> findAllByInvoiceInvoiceStatusAndInvoiceInvoiceTypeAndInvoiceCompanyIdAndIsDeleted(
+            InvoiceStatus invoice_invoiceStatus, InvoiceType invoice_invoiceType, Long invoice_company_id, Boolean isDeleted
+    );
 
     @Query("SELECT ip FROM InvoiceProduct ip " +
             "WHERE ip.invoice.company.id = :companyId " +

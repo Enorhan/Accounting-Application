@@ -13,7 +13,7 @@ import java.util.List;
 @Repository
 public interface InvoiceRepository extends JpaRepository<Invoice,Long> {
     List<Invoice> findAllByInvoiceTypeAndCompanyIdAndIsDeletedOrderByInvoiceNoDesc(InvoiceType invoiceType, Long companyId, boolean isDeleted);
-    List<Invoice> findAllByInvoiceTypeAndCompanyIdAndIsDeletedAndInvoiceStatus(InvoiceType invoiceType, Long companyId, boolean isDeleted, InvoiceStatus invoiceStatus);
+    List<Invoice> findAllByInvoiceTypeAndInvoiceStatusAndCompanyIdAndIsDeleted(InvoiceType invoiceType, InvoiceStatus invoiceStatus, Long companyId, boolean isDeleted);
     List<Invoice> findAllByInvoiceTypeAndCompanyIdOrderByInvoiceNoDesc(InvoiceType invoiceType, Long companyId);
 
      //finds the latest Sales invoice in DB

@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import com.cydeo.util.MapperUtil;
 import org.springframework.context.annotation.Lazy;
 
-
 import java.math.BigDecimal;
 import java.time.format.TextStyle;
 import java.util.*;
@@ -70,7 +69,7 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
 
         // Purchase Invoice Calculations
         List<InvoiceDto> purchaseInvoiceDtos = invoiceRepository.
-                findAllByInvoiceTypeAndCompanyIdAndIsDeletedAndInvoiceStatus(InvoiceType.PURCHASE, companyId, false, InvoiceStatus.APPROVED)
+                findAllByInvoiceTypeAndInvoiceStatusAndCompanyIdAndIsDeleted(InvoiceType.PURCHASE, InvoiceStatus.APPROVED, companyId, false)
                 .stream()
                 .map(invoice -> mapperUtil.convert(invoice, new InvoiceDto()))
                 .toList();
@@ -84,7 +83,7 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
 
         // Sale Invoice Calculations
         List<InvoiceDto> salesInvoiceDtos = invoiceRepository.
-                findAllByInvoiceTypeAndCompanyIdAndIsDeletedAndInvoiceStatus(InvoiceType.SALES, companyId, false, InvoiceStatus.APPROVED)
+                findAllByInvoiceTypeAndInvoiceStatusAndCompanyIdAndIsDeleted(InvoiceType.SALES, InvoiceStatus.APPROVED, companyId, false)
                 .stream()
                 .map(invoice -> mapperUtil.convert(invoice, new InvoiceDto()))
                 .toList();
@@ -108,12 +107,12 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
     public Map<String, BigDecimal> getMonthlyProfitLoss() {
         Long companyId = companyService.getCompanyIdByLoggedInUser();
 
-        List<InvoiceProduct> salesInvoices = invoiceProductRepository.findAll().stream()
-                .filter(p -> p.getInvoice().getCompany().getId().equals(companyId))
-                .filter(invoice -> invoice.getInvoice().getInvoiceType() == InvoiceType.SALES && invoice.getInvoice().getInvoiceStatus() == InvoiceStatus.APPROVED)
-                .collect(Collectors.toList());
+        List<InvoiceProduct> salesProductInvoices = invoiceProductRepository.
+                findAllByInvoiceInvoiceStatusAndInvoiceInvoiceTypeAndInvoiceCompanyIdAndIsDeleted(
+                        InvoiceStatus.APPROVED, InvoiceType.SALES, companyId, false
+                );
 
-        return salesInvoices.stream()
+        return salesProductInvoices.stream()
                 .collect(Collectors.groupingBy(
                         invoiceProduct -> invoiceProduct.getInvoice().getDate().getMonth()
                                 .getDisplayName(TextStyle.FULL, Locale.ENGLISH),
