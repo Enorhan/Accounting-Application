@@ -16,4 +16,5 @@ public interface ProductService {
 
 
     void checkProductStock(Long productId, int requiredQuantity);
+    Boolean isExist(String productName);
 }

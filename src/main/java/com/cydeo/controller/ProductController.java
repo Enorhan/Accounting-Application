@@ -45,6 +45,11 @@ public class ProductController {
     @PostMapping("/create")
     public String insertProduct(@Valid @ModelAttribute("newProduct") ProductDto productDto,
                                 BindingResult bindingResult,Model model){
+
+        if (productDto != null && productDto.getName() != null && productService.isExist(productDto.getName())) {
+            bindingResult.rejectValue("name", "error.newProduct", "This product name: "+productDto.getName()+" already exist. Please try another name.");
+        }
+
         if (bindingResult.hasErrors()){
             model.addAttribute("categories",categoryService.listAllCategoriesByCompany());
             model.addAttribute("productUnits", Arrays.asList(ProductUnit.values()));
@@ -70,6 +75,10 @@ public class ProductController {
                                 BindingResult bindingResult, Model model) {
 
         productDto.setId(productId);
+
+        if (productDto.getName() != null && productService.isExist(productDto.getName())) {
+            bindingResult.rejectValue("name", "error.newProduct", "This product name: "+productDto.getName()+" already exist. Please try another name.");
+        }
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("categories", categoryService.listAllCategoriesByCompany());
