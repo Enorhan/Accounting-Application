@@ -9,7 +9,6 @@ import com.cydeo.entity.Invoice;
 import com.cydeo.enums.InvoiceStatus;
 import com.cydeo.enums.InvoiceType;
 import com.cydeo.exceptions.InvoiceNotFoundException;
-import com.cydeo.exceptions.ProductLowLimitAlertException;
 import com.cydeo.repository.InvoiceProductRepository;
 import com.cydeo.repository.InvoiceRepository;
 import com.cydeo.service.CompanyService;
@@ -23,6 +22,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -221,12 +221,17 @@ public class InvoiceServiceImpl implements InvoiceService {
             int quantityToSell = invoiceProductDto.getQuantity();
 
             if (quantityToSell > totalAvailableStock) {
+                throw new IllegalArgumentException("Not enough stock to fulfill the order for product: " + invoiceProductDto.getProduct().getName());
+            }
+          /*  if we add these statements below the logic doesn't work, the page gets directed to error.html
+
+          if (quantityToSell > totalAvailableStock) {
                 throw new ProductLowLimitAlertException("Stock of " + invoiceProductDto.getProduct().getName() + " decreased below low limit!");
             }
 
             if (productDto.getQuantityInStock() - quantityToSell < productDto.getLowLimitAlert()) {
                 throw new ProductLowLimitAlertException("Stock of " + productDto.getName() + " decreased below low limit!");
-            }
+            }*/
         }
 
         for (InvoiceProductDto invoiceProductDto : invoiceProducts) {
@@ -274,6 +279,9 @@ public class InvoiceServiceImpl implements InvoiceService {
             productDto.setQuantityInStock(newQuantityInStock);
             productService.save(productDto);
         }
+        invoice.setInvoiceStatus(InvoiceStatus.APPROVED);
+        invoice.setDate(LocalDate.now());
+        invoiceRepository.save(invoice);
     }
 
     @Override
