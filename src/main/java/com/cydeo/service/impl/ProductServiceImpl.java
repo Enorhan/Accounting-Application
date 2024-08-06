@@ -11,6 +11,7 @@ import com.cydeo.service.CompanyService;
 import com.cydeo.service.ProductService;
 import com.cydeo.util.MapperUtil;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -111,7 +112,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Boolean isExist(String productName) {
-        return productRepository.existsByName(productName);
+    public Boolean checkIfProductNameAlreadyExists(String productName, BindingResult bindingResult) {
+        boolean exists = productRepository.existsByName(productName);
+        if (exists) {
+            bindingResult.rejectValue("name", "error.newProduct", "This product name: " + productName + " already exists. Please try another name.");
+        }
+        return exists;
     }
 }

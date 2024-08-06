@@ -1,6 +1,7 @@
 package com.cydeo.service;
 
 import com.cydeo.dto.ProductDto;
+import org.springframework.validation.BindingResult;
 
 import java.util.List;
 
@@ -16,5 +17,5 @@ public interface ProductService {
 
 
     void checkProductStock(Long productId, int requiredQuantity);
-    Boolean isExist(String productName);
+    Boolean checkIfProductNameAlreadyExists(String productName, BindingResult bindingResult);
 }
