@@ -45,14 +45,12 @@ public class ProductController {
     @PostMapping("/create")
     public String insertProduct(@Valid @ModelAttribute("newProduct") ProductDto productDto,
                                 BindingResult bindingResult, Model model) {
-
-        productService.checkIfProductNameAlreadyExists(productDto.getName(), bindingResult);
-
         if (bindingResult.hasErrors()) {
             model.addAttribute("categories", categoryService.listAllCategoriesByCompany());
             model.addAttribute("productUnits", Arrays.asList(ProductUnit.values()));
             return "product/product-create";
         }
+        productService.checkIfProductNameAlreadyExists(productDto.getName(), bindingResult);
         productService.save(productDto);
         return "redirect:/products/list";
     }
@@ -71,19 +69,14 @@ public class ProductController {
     public String updateProduct(@PathVariable("productId") Long productId,
                                 @Valid @ModelAttribute("product") ProductDto productDto,
                                 BindingResult bindingResult, Model model) {
-
         productDto.setId(productId);
-
-        productService.checkIfProductNameAlreadyExists(productDto.getName(), bindingResult);
-
         if (bindingResult.hasErrors()) {
             model.addAttribute("categories", categoryService.listAllCategoriesByCompany());
             model.addAttribute("productUnits", Arrays.asList(ProductUnit.values()));
             return "product/product-update";
         }
-
+        productService.checkIfProductNameAlreadyExists(productDto.getName(), bindingResult);
         productService.update(productDto, productId);
-
         return "redirect:/products/list";
     }
 
