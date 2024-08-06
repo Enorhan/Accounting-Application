@@ -3,6 +3,7 @@ package com.cydeo.controller;
 import com.cydeo.dto.CompanyDto;
 import com.cydeo.dto.InvoiceDto;
 import com.cydeo.dto.InvoiceProductDto;
+import com.cydeo.dto.ProductDto;
 import com.cydeo.enums.ClientVendorType;
 import com.cydeo.enums.InvoiceType;
 import com.cydeo.service.*;
@@ -101,6 +102,12 @@ public class SalesInvoiceController {
                                     @Valid @ModelAttribute("newInvoiceProduct") InvoiceProductDto invoiceProductDto,
                                     BindingResult bindingResult,
                                     Model model) {
+
+        ProductDto productDto = invoiceProductDto.getProduct();
+        if (productDto != null && invoiceProductDto.getQuantity() != null &&
+                invoiceProductDto.getQuantity() > productDto.getQuantityInStock()) {
+            bindingResult.rejectValue("quantity", "error.newInvoiceProduct", "Not enough "+productDto.getName()+" quantity to sell.");
+        }
 
         if (bindingResult.hasErrors()) {
 
