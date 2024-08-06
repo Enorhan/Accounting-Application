@@ -1,6 +1,5 @@
 package com.cydeo.service.unit_tests;
 
-import com.cydeo.TestDocumentInitializer;
 import com.cydeo.dto.InvoiceProductDto;
 import com.cydeo.entity.InvoiceProduct;
 import com.cydeo.exceptions.InvoiceProductNotFoundException;

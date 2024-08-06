@@ -36,36 +36,14 @@ public class InvoiceServiceImpl implements InvoiceService {
     private final InvoiceProductRepository invoiceProductRepository;
     private final InvoiceUtils invoiceUtils;
 
-      public InvoiceServiceImpl(InvoiceRepository invoiceRepository, MapperUtil mapperUtil, CompanyService companyService, @Lazy InvoiceProductService invoiceProductService, ProductService productService, InvoiceProductRepository invoiceProductRepository, InvoiceUtils invoiceUtils) {
+    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, MapperUtil mapperUtil, CompanyService companyService, @Lazy InvoiceProductService invoiceProductService, ProductService productService, InvoiceProductRepository invoiceProductRepository, InvoiceUtils invoiceUtils) {
         this.invoiceRepository = invoiceRepository;
         this.mapperUtil = mapperUtil;
         this.companyService = companyService;
         this.productService = productService;
         this.invoiceProductService = invoiceProductService;
         this.invoiceProductRepository = invoiceProductRepository;
-          this.invoiceUtils = invoiceUtils;
-      }
-
-    private void calculateTotalsForInvoice(InvoiceDto invoiceDto) {
-        Long invoiceId = invoiceDto.getId();
-        List<InvoiceProductDto> invoiceProducts = invoiceProductService.findAllByInvoiceIdAndIsDeleted(invoiceId, false);
-
-        BigDecimal totalPriceWithoutTax = invoiceProducts.stream()
-                .map(invoiceProduct -> invoiceProduct.getPrice().multiply(BigDecimal.valueOf(invoiceProduct.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        BigDecimal totalTax = invoiceProducts.stream()
-                .map(invoiceProduct -> invoiceProduct.getPrice()
-                        .multiply(BigDecimal.valueOf(invoiceProduct.getTax()))
-                        .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP)
-                        .multiply(BigDecimal.valueOf(invoiceProduct.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        BigDecimal totalPriceWithTax = totalPriceWithoutTax.add(totalTax);
-
-        invoiceDto.setPrice(totalPriceWithoutTax);
-        invoiceDto.setTax(totalTax);
-        invoiceDto.setTotal(totalPriceWithTax);
+        this.invoiceUtils = invoiceUtils;
     }
 
     public List<InvoiceDto> listAllInvoicesByType(InvoiceType invoiceType) {
@@ -195,7 +173,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             invoiceProduct.setRemainingQuantity(invoiceProduct.getQuantity());
             invoiceProduct.setProfitLoss(BigDecimal.ZERO);
 
-            invoiceProductService.save(invoiceProduct,invoiceId);
+            invoiceProductService.save(invoiceProduct, invoiceId);
 
 
             productService.save(productDto);
@@ -238,8 +216,8 @@ public class InvoiceServiceImpl implements InvoiceService {
                             InvoiceType.PURCHASE,
                             InvoiceStatus.APPROVED,
                             invoiceProductDto.getProduct().getId()).stream()
-                       .map(purchaseProduct->mapperUtil.convert(purchaseProduct,new InvoiceProductDto()))
-                       .toList();
+                    .map(purchaseProduct -> mapperUtil.convert(purchaseProduct, new InvoiceProductDto()))
+                    .toList();
 
 
             for (InvoiceProductDto purchaseProduct : purchaseProducts) {
@@ -248,7 +226,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                     int quantityToUse = Math.min(quantityToSell, availableQuantity);
                     BigDecimal costPrice = purchaseProduct.getPrice();
 
-                    BigDecimal taxToBeAdded=costPrice.multiply(BigDecimal.valueOf(0.01).multiply(BigDecimal.valueOf(purchaseProduct.getTax())));
+                    BigDecimal taxToBeAdded = costPrice.multiply(BigDecimal.valueOf(0.01).multiply(BigDecimal.valueOf(purchaseProduct.getTax())));
                     BigDecimal cost = (costPrice.multiply(BigDecimal.valueOf(quantityToUse)).add(taxToBeAdded));
                     totalCost = totalCost.add(cost);
 
@@ -262,7 +240,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                 }
             }
 
-            BigDecimal taxToBeAdded=salePrice.multiply(BigDecimal.valueOf(0.01).multiply(BigDecimal.valueOf(invoiceProductDto.getTax())));
+            BigDecimal taxToBeAdded = salePrice.multiply(BigDecimal.valueOf(0.01).multiply(BigDecimal.valueOf(invoiceProductDto.getTax())));
             BigDecimal totalSale = (salePrice.multiply(BigDecimal.valueOf(invoiceProductDto.getQuantity()))).add(taxToBeAdded);
             BigDecimal profitLoss = totalSale.subtract(totalCost);
             invoiceProductDto.setProfitLoss(profitLoss);
