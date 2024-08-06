@@ -276,4 +276,9 @@ public class InvoiceServiceImpl implements InvoiceService {
         }
     }
 
+    @Override
+    public InvoiceDto findByInvoiceNo(String invoiceNo) {
+        Long companyId=companyService.getCompanyIdByLoggedInUser();
+        return mapperUtil.convert(invoiceRepository.findByInvoiceNoAndCompanyId(invoiceNo,companyId),new InvoiceDto());
+    }
 }
