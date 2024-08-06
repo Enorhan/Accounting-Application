@@ -114,7 +114,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Boolean checkIfProductNameAlreadyExists(String productName, BindingResult bindingResult) {
         boolean exists = productRepository.existsByName(productName);
-        if (exists) {
+        if (exists && !productName.isEmpty()) {
             bindingResult.rejectValue("name", "error.newProduct", "This product name: " + productName + " already exists. Please try another name.");
         }
         return exists;
