@@ -12,7 +12,6 @@ import java.util.List;
 
 @Repository
 public interface InvoiceProductRepository  extends JpaRepository<InvoiceProduct,Long> {
-
     List<InvoiceProduct> findAllByOrderByInvoiceDesc();
     List<InvoiceProduct> findAllByInvoiceIdAndIsDeleted(Long id, boolean isDeleted);
 
