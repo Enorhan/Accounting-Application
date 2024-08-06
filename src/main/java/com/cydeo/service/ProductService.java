@@ -8,7 +8,7 @@ public interface ProductService {
     List<ProductDto> findAllInStock();
     List<ProductDto> findAllByCurrentCompany();
     ProductDto findById(Long id);
-    void save(ProductDto productDto);
+    ProductDto save(ProductDto productDto);
     void update(ProductDto productDto,Long productId);
     void delete(Long productId);
     Boolean hasInvoice(Long productId);
