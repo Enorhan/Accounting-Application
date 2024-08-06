@@ -224,14 +224,6 @@ public class InvoiceServiceImpl implements InvoiceService {
             if (quantityToSell > totalAvailableStock) {
                 throw new IllegalArgumentException("Not enough stock to fulfill the order for product: " + invoiceProductDto.getProduct().getName());
             }
-          /*
-          if (quantityToSell > totalAvailableStock) {
-                throw new ProductLowLimitAlertException("Stock of " + invoiceProductDto.getProduct().getName() + " decreased below low limit!");
-            }
-
-            if (productDto.getQuantityInStock() - quantityToSell < productDto.getLowLimitAlert()) {
-                throw new ProductLowLimitAlertException("Stock of " + productDto.getName() + " decreased below low limit!");
-            }*/
         }
 
         for (InvoiceProductDto invoiceProductDto : invoiceProducts) {
