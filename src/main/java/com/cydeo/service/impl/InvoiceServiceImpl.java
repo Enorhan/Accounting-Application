@@ -18,6 +18,7 @@ import com.cydeo.service.ProductService;
 import com.cydeo.util.MapperUtil;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
@@ -223,8 +224,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             if (quantityToSell > totalAvailableStock) {
                 throw new IllegalArgumentException("Not enough stock to fulfill the order for product: " + invoiceProductDto.getProduct().getName());
             }
-          /*  if we add these statements below the logic doesn't work, the page gets directed to error.html
-
+          /*
           if (quantityToSell > totalAvailableStock) {
                 throw new ProductLowLimitAlertException("Stock of " + invoiceProductDto.getProduct().getName() + " decreased below low limit!");
             }
@@ -288,5 +288,16 @@ public class InvoiceServiceImpl implements InvoiceService {
     public InvoiceDto findByInvoiceNo(String invoiceNo) {
         Long companyId=companyService.getCompanyIdByLoggedInUser();
         return mapperUtil.convert(invoiceRepository.findByInvoiceNoAndCompanyId(invoiceNo,companyId),new InvoiceDto());
+    }
+
+    @Override
+    public Boolean isQuantityAvailable(InvoiceProductDto invoiceProductDto, BindingResult bindingResult) {
+        ProductDto productDto = invoiceProductDto.getProduct();
+        boolean isAvailable=productDto != null && invoiceProductDto.getQuantity() != null &&
+                invoiceProductDto.getQuantity() > productDto.getQuantityInStock();
+        if (isAvailable){
+            bindingResult.rejectValue("quantity", "error.newInvoiceProduct", "Not enough " + productDto.getName() + " quantity to sell.");
+        }
+        return isAvailable;
     }
 }
