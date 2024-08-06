@@ -11,6 +11,7 @@ import com.cydeo.service.CompanyService;
 import com.cydeo.service.ProductService;
 import com.cydeo.util.MapperUtil;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -108,5 +109,14 @@ public class ProductServiceImpl implements ProductService {
         if (productDto.getQuantityInStock() - requiredQuantity < productDto.getLowLimitAlert()) {
             throw new ProductLowLimitAlertException("Stock of " + productDto.getName() + " decreased below low limit!");
         }
+    }
+
+    @Override
+    public Boolean checkIfProductNameAlreadyExists(String productName, BindingResult bindingResult) {
+        boolean exists = productRepository.existsByName(productName);
+        if (exists && !productName.isEmpty()) {
+            bindingResult.rejectValue("name", "error.newProduct", "This product name: " + productName + " already exists. Please try another name.");
+        }
+        return exists;
     }
 }
