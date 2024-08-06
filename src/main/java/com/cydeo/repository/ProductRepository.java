@@ -16,5 +16,6 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
     List<Product> findAllByCompanyIdAndIsDeleted(@Param("companyId") Long companyId, @Param("isDeleted") boolean isDeleted);
 
     Product findProductById(Long productId);
+    Boolean existsByName(String productName);
 
 }

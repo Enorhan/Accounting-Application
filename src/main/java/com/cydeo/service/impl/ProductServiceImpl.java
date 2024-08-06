@@ -109,4 +109,9 @@ public class ProductServiceImpl implements ProductService {
             throw new ProductLowLimitAlertException("Stock of " + productDto.getName() + " decreased below low limit!");
         }
     }
+
+    @Override
+    public Boolean isExist(String productName) {
+        return productRepository.existsByName(productName);
+    }
 }
