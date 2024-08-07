@@ -9,6 +9,8 @@ import com.cydeo.entity.Invoice;
 import com.cydeo.enums.InvoiceStatus;
 import com.cydeo.enums.InvoiceType;
 import com.cydeo.exceptions.InvoiceNotFoundException;
+import com.cydeo.exceptions.ProductLowLimitAlertException;
+import com.cydeo.exceptions.ProductNotFoundException;
 import com.cydeo.repository.InvoiceProductRepository;
 import com.cydeo.repository.InvoiceRepository;
 import com.cydeo.service.CompanyService;
@@ -199,6 +201,8 @@ public class InvoiceServiceImpl implements InvoiceService {
                 .orElseThrow(() -> new InvoiceNotFoundException("Invoice not found with id: " + id));
 
         List<InvoiceProductDto> invoiceProducts = invoiceProductService.findAllByInvoiceIdAndIsDeleted(id, false);
+        boolean lowLimitAlert = false;
+        String lowLimitAlertMessage = "";
 
         for (InvoiceProductDto invoiceProductDto : invoiceProducts) {
             ProductDto productDto = productService.findById(invoiceProductDto.getProduct().getId());
@@ -206,7 +210,12 @@ public class InvoiceServiceImpl implements InvoiceService {
             int quantityToSell = invoiceProductDto.getQuantity();
 
             if (quantityToSell > totalAvailableStock) {
-                throw new IllegalArgumentException("Not enough stock to fulfill the order for product: " + invoiceProductDto.getProduct().getName());
+                throw new ProductNotFoundException("Stock of " + invoiceProductDto.getProduct().getName() + " is insufficient. Available: " + totalAvailableStock + ", Required: " + quantityToSell);
+            }
+
+            if (totalAvailableStock - quantityToSell < productDto.getLowLimitAlert()) {
+                lowLimitAlert = true;
+                lowLimitAlertMessage = "Stock of " + productDto.getName() + " will go below the low limit if this invoice is approved. Available: " + totalAvailableStock + ", After sale: " + (totalAvailableStock - quantityToSell);
             }
         }
 
@@ -259,6 +268,10 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoice.setInvoiceStatus(InvoiceStatus.APPROVED);
         invoice.setDate(LocalDate.now());
         invoiceRepository.save(invoice);
+
+        if (lowLimitAlert) {
+            throw new ProductLowLimitAlertException(lowLimitAlertMessage);
+        }
     }
 
     @Override

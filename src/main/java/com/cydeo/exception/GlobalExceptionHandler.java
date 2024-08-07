@@ -1,8 +1,6 @@
 package com.cydeo.exception;
 
-import com.cydeo.exceptions.InvoiceNotFoundException;
-import com.cydeo.exceptions.InvoiceProductNotFoundException;
-import com.cydeo.exceptions.RoleNotFoundException;
+import com.cydeo.exceptions.*;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
@@ -30,9 +28,26 @@ public class GlobalExceptionHandler {
         return getModelAndView(ex.getMessage());
     }
 
+    @ExceptionHandler(ProductLowLimitAlertException.class)
+    public ModelAndView handleProductLowLimitAlertException(ProductLowLimitAlertException ex){
+        return getModelAndView(ex.getMessage());
+    }
+
+    @ExceptionHandler(ProductNotFoundException.class)
+    public ModelAndView handleProductNotFoundException(ProductNotFoundException ex){
+        return getModelAndView(ex.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     public ModelAndView handleGenericException() {
         return getModelAndView("An unexpected error occurred. Please try again later.");
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ModelAndView handleRuntimeException(RuntimeException ex) {
+        ModelAndView modelAndView = new ModelAndView("redirect:/salesInvoices");
+        modelAndView.addObject("message", ex.getMessage());
+        return modelAndView;
     }
 
     private ModelAndView getModelAndView(String message) {
