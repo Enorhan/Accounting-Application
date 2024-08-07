@@ -264,18 +264,15 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public InvoiceDto findByInvoiceNo(String invoiceNo) {
-        Long companyId=companyService.getCompanyIdByLoggedInUser();
-        return mapperUtil.convert(invoiceRepository.findByInvoiceNoAndCompanyId(invoiceNo,companyId),new InvoiceDto());
+        Long companyId = companyService.getCompanyIdByLoggedInUser();
+        return mapperUtil.convert(invoiceRepository.findByInvoiceNoAndCompanyId(invoiceNo, companyId), new InvoiceDto());
     }
 
     @Override
-    public Boolean isQuantityAvailable(InvoiceProductDto invoiceProductDto, BindingResult bindingResult) {
+    public Boolean isQuantityAvailable(InvoiceProductDto invoiceProductDto) {
         ProductDto productDto = invoiceProductDto.getProduct();
-        boolean isAvailable=productDto != null && invoiceProductDto.getQuantity() != null &&
-                invoiceProductDto.getQuantity() > productDto.getQuantityInStock();
-        if (isAvailable){
-            bindingResult.rejectValue("quantity", "error.newInvoiceProduct", "Not enough " + productDto.getName() + " quantity to sell.");
-        }
-        return isAvailable;
+
+        return productDto != null && invoiceProductDto.getQuantity() != null
+                && invoiceProductDto.getQuantity() > productDto.getQuantityInStock();
     }
 }

@@ -21,5 +21,5 @@ public interface InvoiceService {
     void approvePurchaseInvoice(Long id);
     List<Invoice> findTop3InvoicesByInvoiceStatus(InvoiceStatus invoiceStatus);
     InvoiceDto findByInvoiceNo(String invoiceNo);
-    Boolean isQuantityAvailable(InvoiceProductDto invoiceProductDto, BindingResult bindingResult);
+    Boolean isQuantityAvailable(InvoiceProductDto invoiceProductDto);
 }
