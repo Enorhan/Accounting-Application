@@ -26,7 +26,9 @@ import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -220,18 +222,26 @@ public class InvoiceServiceImpl implements InvoiceService {
         boolean lowLimitAlert = false;
         String lowLimitAlertMessage = "";
 
+        Map<Long, Integer> productQuantities = new HashMap<>();
         for (InvoiceProductDto invoiceProductDto : invoiceProducts) {
-            ProductDto productDto = productService.findById(invoiceProductDto.getProduct().getId());
-            int totalAvailableStock = productDto.getQuantityInStock();
+            Long productId = invoiceProductDto.getProduct().getId();
             int quantityToSell = invoiceProductDto.getQuantity();
+            productQuantities.put(productId, productQuantities.getOrDefault(productId, 0) + quantityToSell);
+        }
 
-            if (quantityToSell > totalAvailableStock) {
-                throw new ProductNotFoundException("Stock of " + invoiceProductDto.getProduct().getName() + " is insufficient. Available: " + totalAvailableStock + ", Required: " + quantityToSell);
+        for (Map.Entry<Long, Integer> entry : productQuantities.entrySet()) {
+            Long productId = entry.getKey();
+            int totalQuantityToSell = entry.getValue();
+            ProductDto productDto = productService.findById(productId);
+            int totalAvailableStock = productDto.getQuantityInStock();
+
+            if (totalQuantityToSell > totalAvailableStock) {
+                throw new ProductNotFoundException("Stock of " + productDto.getName() + " is insufficient. Available: " + totalAvailableStock + ", Required: " + totalQuantityToSell+". Please update the invoice.");
             }
 
-            if (totalAvailableStock - quantityToSell < productDto.getLowLimitAlert()) {
+            if (totalAvailableStock - totalQuantityToSell < productDto.getLowLimitAlert()) {
                 lowLimitAlert = true;
-                lowLimitAlertMessage = "Stock of " + productDto.getName() + " will go below the low limit if this invoice is approved. Available: " + totalAvailableStock + ", After sale: " + (totalAvailableStock - quantityToSell);
+                lowLimitAlertMessage = "Stock of " + productDto.getName() + " will go below the low limit if this invoice is approved. Available: " + totalAvailableStock + ", After sale: " + (totalAvailableStock - totalQuantityToSell);
             }
         }
 
