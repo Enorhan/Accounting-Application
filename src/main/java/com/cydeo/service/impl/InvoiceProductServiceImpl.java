@@ -63,37 +63,29 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public Map<String, BigDecimal> getTotalCostAndSalesAndProfit_loss() {
+    private BigDecimal calculateTotalForInvoiceType(InvoiceType invoiceType) {
         Long companyId = companyService.getCompanyIdByLoggedInUser();
 
-        // Purchase Invoice Calculations
-        List<InvoiceDto> purchaseInvoiceDtos = invoiceRepository.
-                findAllByInvoiceTypeAndInvoiceStatusAndCompanyIdAndIsDeleted(InvoiceType.PURCHASE, InvoiceStatus.APPROVED, companyId, false)
+        List<InvoiceDto> invoiceDtos = invoiceRepository
+                .findAllByInvoiceTypeAndInvoiceStatusAndCompanyIdAndIsDeleted(invoiceType, InvoiceStatus.APPROVED, companyId, false)
                 .stream()
                 .map(invoice -> mapperUtil.convert(invoice, new InvoiceDto()))
                 .toList();
 
-        BigDecimal totalCost = BigDecimal.valueOf(0);
+        BigDecimal total = BigDecimal.valueOf(0);
 
-        for (InvoiceDto eachInvoiceDto : purchaseInvoiceDtos) {
+        for (InvoiceDto eachInvoiceDto : invoiceDtos) {
             invoiceUtils.calculateTotalsForInvoice(eachInvoiceDto);
-            totalCost = totalCost.add(eachInvoiceDto.getTotal());
+            total = total.add(eachInvoiceDto.getTotal());
         }
 
-        // Sale Invoice Calculations
-        List<InvoiceDto> salesInvoiceDtos = invoiceRepository.
-                findAllByInvoiceTypeAndInvoiceStatusAndCompanyIdAndIsDeleted(InvoiceType.SALES, InvoiceStatus.APPROVED, companyId, false)
-                .stream()
-                .map(invoice -> mapperUtil.convert(invoice, new InvoiceDto()))
-                .toList();
+        return total;
+    }
 
-        BigDecimal totalSalesCost = BigDecimal.valueOf(0);
-
-        for (InvoiceDto eachInvoiceDto : salesInvoiceDtos) {
-            invoiceUtils.calculateTotalsForInvoice(eachInvoiceDto);
-            totalSalesCost = totalSalesCost.add(eachInvoiceDto.getTotal());
-        }
+    @Override
+    public Map<String, BigDecimal> getTotalCostAndSalesAndProfit_loss() {
+        BigDecimal totalCost = calculateTotalForInvoiceType(InvoiceType.PURCHASE);
+        BigDecimal totalSalesCost = calculateTotalForInvoiceType(InvoiceType.SALES);
 
         Map<String, BigDecimal> calculations = new HashMap<>();
         calculations.put("totalCost", totalCost);
