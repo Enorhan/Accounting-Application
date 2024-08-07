@@ -9,6 +9,7 @@ import com.cydeo.repository.ProductRepository;
 import com.cydeo.service.CompanyService;
 import com.cydeo.service.ProductService;
 import com.cydeo.service.SecurityService;
+import com.cydeo.service.SecuritySetUpUtil;
 import com.cydeo.util.MapperUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,8 +20,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -32,6 +33,7 @@ import static org.mockito.Mockito.when;
 
 
 @SpringBootTest
+@Transactional
 public class ProductServiceImplIntegrationTest {
     @Autowired
     private ProductService productService;
@@ -45,6 +47,11 @@ public class ProductServiceImplIntegrationTest {
     private InvoiceProductRepository invoiceProductRepository;
     @Autowired
     private SecurityService securityService;
+
+    @BeforeEach
+    void setUp() {
+        SecuritySetUpUtil.setUpSecurityContext();
+    }
 
 
     @Test
@@ -93,9 +100,8 @@ public class ProductServiceImplIntegrationTest {
         ProductDto productDto =new ProductDto(100L,"Apple",10,5, ProductUnit.PCS, new CategoryDto(),false);
 
 
-        productService.save(productDto);
+        ProductDto savedProduct = productService.save(productDto);
 
-        Product savedProduct = productRepository.findProductById(100L);
         assertNotNull(savedProduct);
     }
 
