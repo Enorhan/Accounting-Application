@@ -3,12 +3,15 @@ package com.cydeo.service.impl;
 import com.cydeo.dto.ProductDto;
 import com.cydeo.entity.Category;
 import com.cydeo.entity.Product;
+import com.cydeo.exceptions.ProductLowLimitAlertException;
+import com.cydeo.exceptions.ProductNotFoundException;
 import com.cydeo.repository.InvoiceProductRepository;
 import com.cydeo.repository.ProductRepository;
 import com.cydeo.service.CompanyService;
 import com.cydeo.service.ProductService;
 import com.cydeo.util.MapperUtil;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -93,5 +96,27 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Boolean isInStock(Long productId) {
         return productRepository.findProductById(productId).getQuantityInStock()>0;
+    }
+
+    @Override
+    public void checkProductStock(Long productId, int requiredQuantity) {
+        ProductDto productDto = findById(productId);
+
+        if (productDto.getQuantityInStock() < requiredQuantity) {
+            throw new ProductNotFoundException("Stock of " + productDto.getName() + " is not enough to approve this invoice. Please update the invoice.");
+        }
+
+        if (productDto.getQuantityInStock() - requiredQuantity < productDto.getLowLimitAlert()) {
+            throw new ProductLowLimitAlertException("Stock of " + productDto.getName() + " decreased below low limit!");
+        }
+    }
+
+    @Override
+    public Boolean checkIfProductNameAlreadyExists(String productName, BindingResult bindingResult) {
+        boolean exists = productRepository.existsByName(productName);
+        if (exists && !productName.isEmpty()) {
+            bindingResult.rejectValue("name", "error.newProduct", "This product name: " + productName + " already exists. Please try another name.");
+        }
+        return exists;
     }
 }

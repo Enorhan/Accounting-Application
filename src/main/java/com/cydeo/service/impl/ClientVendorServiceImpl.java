@@ -3,6 +3,7 @@ package com.cydeo.service.impl;
 import com.cydeo.dto.ClientVendorDto;
 import com.cydeo.entity.ClientVendor;
 import com.cydeo.enums.ClientVendorType;
+import com.cydeo.exceptions.ClientVendorNotFoundException;
 import com.cydeo.repository.ClientVendorRepository;
 import com.cydeo.repository.InvoiceRepository;
 import com.cydeo.service.ClientVendorService;
@@ -13,7 +14,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
 @Service
 public class ClientVendorServiceImpl implements ClientVendorService {
     private final ClientVendorRepository clientVendorRepository;
@@ -78,7 +78,7 @@ public class ClientVendorServiceImpl implements ClientVendorService {
     @Override
     public ClientVendorDto findById(Long id) {
         ClientVendor clientVendor = clientVendorRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("ClientVendor not found"));
+                .orElseThrow(() -> new ClientVendorNotFoundException("ClientVendor not found with id: " + id));
         return mapperUtil.convert(clientVendor, new ClientVendorDto());
     }
 
@@ -89,19 +89,12 @@ public class ClientVendorServiceImpl implements ClientVendorService {
                 .map(clientVendor -> mapperUtil.convert(clientVendor, new ClientVendorDto()))
                 .collect(Collectors.toList());
     }
-//    @Override
-//    public List<ClientVendorDto> findAll() {
-//        List<ClientVendor> clientVendorList = clientVendorRepository.findAll();
-//        return clientVendorList.stream()
-//        .map(clientVendor -> mapperUtil.convert(clientVendor, new ClientVendorDto()))
-//        .collect(Collectors.toList());
-//    }
 
 
     @Override
     public ClientVendorDto updateClientVendor(Long id, ClientVendorDto clientVendorDTO) {
         ClientVendor clientVendor = clientVendorRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("ClientVendor not found"));
+                .orElseThrow(() -> new ClientVendorNotFoundException("ClientVendor not found with id: " + id));
         ClientVendor updatedClientVendor = mapperUtil.convert(clientVendorDTO, clientVendor);
         updatedClientVendor.setCompany(clientVendor.getCompany());
         clientVendor = clientVendorRepository.save(updatedClientVendor);
@@ -127,9 +120,16 @@ public class ClientVendorServiceImpl implements ClientVendorService {
 //        }
 //    }
 
+//    @Override
+//    public void deleteClientVendor(Long id) {
+//        clientVendorRepository.deleteById(id);
+//    }
+
     @Override
     public void deleteClientVendor(Long id) {
-        clientVendorRepository.deleteById(id);
+        ClientVendor clientVendor = clientVendorRepository.findById(id)
+            .orElseThrow(() -> new ClientVendorNotFoundException("ClientVendor not found with id: " + id));
+        clientVendorRepository.delete(clientVendor);
     }
 
     @Override

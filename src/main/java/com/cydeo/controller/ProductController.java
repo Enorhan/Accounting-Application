@@ -25,18 +25,18 @@ public class ProductController {
     }
 
     @GetMapping("/list")
-    public String getAllProducts(Model model){
+    public String getAllProducts(Model model) {
 
-        model.addAttribute("products",productService.findAllByCurrentCompany());
+        model.addAttribute("products", productService.findAllByCurrentCompany());
 
         return "product/product-list";
     }
 
     @GetMapping("/create")
-    public String createProduct(Model model){
+    public String createProduct(Model model) {
 
-        model.addAttribute("newProduct",new ProductDto());
-        model.addAttribute("categories",categoryService.listAllCategoriesByCompany());
+        model.addAttribute("newProduct", new ProductDto());
+        model.addAttribute("categories", categoryService.listAllCategoriesByCompany());
         model.addAttribute("productUnits", Arrays.asList(ProductUnit.values()));
 
         return "product/product-create";
@@ -44,21 +44,25 @@ public class ProductController {
 
     @PostMapping("/create")
     public String insertProduct(@Valid @ModelAttribute("newProduct") ProductDto productDto,
-                                BindingResult bindingResult,Model model){
-        if (bindingResult.hasErrors()){
-            model.addAttribute("categories",categoryService.listAllCategoriesByCompany());
+                                BindingResult bindingResult, Model model) {
+
+        productService.checkIfProductNameAlreadyExists(productDto.getName(), bindingResult);
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("categories", categoryService.listAllCategoriesByCompany());
             model.addAttribute("productUnits", Arrays.asList(ProductUnit.values()));
             return "product/product-create";
         }
+
         productService.save(productDto);
         return "redirect:/products/list";
     }
 
     @GetMapping("/update/{productId}")
-    public String editProduct(@PathVariable("productId") Long productId,Model model){
+    public String editProduct(@PathVariable("productId") Long productId, Model model) {
 
-        model.addAttribute("product",productService.findById(productId));
-        model.addAttribute("categories",categoryService.listAllCategoriesByCompany());
+        model.addAttribute("product", productService.findById(productId));
+        model.addAttribute("categories", categoryService.listAllCategoriesByCompany());
         model.addAttribute("productUnits", Arrays.asList(ProductUnit.values()));
 
         return "product/product-update";
@@ -69,22 +73,21 @@ public class ProductController {
                                 @Valid @ModelAttribute("product") ProductDto productDto,
                                 BindingResult bindingResult, Model model) {
 
-        productDto.setId(productId);
+        productService.checkIfProductNameAlreadyExists(productDto.getName(), bindingResult);
 
+        productDto.setId(productId);
         if (bindingResult.hasErrors()) {
             model.addAttribute("categories", categoryService.listAllCategoriesByCompany());
             model.addAttribute("productUnits", Arrays.asList(ProductUnit.values()));
             return "product/product-update";
         }
-
         productService.update(productDto, productId);
-
         return "redirect:/products/list";
     }
 
     @GetMapping("/delete/{productId}")
-    public String deleteProduct(@PathVariable("productId")Long productId){
-        if (!(productService.hasInvoice(productId) | productService.isInStock(productId))){
+    public String deleteProduct(@PathVariable("productId") Long productId) {
+        if (!(productService.hasInvoice(productId) | productService.isInStock(productId))) {
             productService.delete(productId);
         }
         return "redirect:/products/list";

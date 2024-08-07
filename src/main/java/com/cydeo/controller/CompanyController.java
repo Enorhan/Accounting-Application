@@ -1,6 +1,7 @@
 package com.cydeo.controller;
 
 import com.cydeo.dto.CompanyDto;
+import com.cydeo.exceptions.CompanyNotFoundException;
 import com.cydeo.service.CompanyService;
 import com.cydeo.service.CountryService;
 import org.springframework.stereotype.Controller;
@@ -25,10 +26,14 @@ public class CompanyController {
 
     @GetMapping("/list")
     public String getCompanies(Model model) {
-        List<CompanyDto> companies = companyService.getAllCompanies();
-
-        model.addAttribute("companies", companies);
-        return "company/company-list";
+      try {
+          List<CompanyDto> companies = companyService.getAllCompanies();
+          model.addAttribute("companies", companies);
+          return "company/company-list";
+      }catch( CompanyNotFoundException e){
+          model.addAttribute("error",e.getMessage());
+          return "error 404";
+      }
     }
 
     @GetMapping("/create")
@@ -53,7 +58,7 @@ public class CompanyController {
         return "redirect:/companies/list";
     }
     @GetMapping("/update/{id}")
-    public String getEditCompany(@PathVariable Long id, Model model) {
+    public String getEditCompany(@PathVariable Long id, Model model) throws CompanyNotFoundException {
         CompanyDto companyDto = companyService.findById(id);
         model.addAttribute("company", companyDto);
         model.addAttribute("countries",countryService.getAllCountries());
