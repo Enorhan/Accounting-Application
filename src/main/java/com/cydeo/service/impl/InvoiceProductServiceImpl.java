@@ -98,7 +98,7 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
         Map<String, BigDecimal> calculations = new HashMap<>();
         calculations.put("totalCost", totalCost);
         calculations.put("totalSales", totalSalesCost);
-        calculations.put("profitLoss", totalCost.subtract(totalSalesCost));
+        calculations.put("profitLoss", totalSalesCost.subtract(totalCost));
 
         return calculations;
     }
