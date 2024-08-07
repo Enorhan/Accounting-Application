@@ -9,7 +9,6 @@ import com.cydeo.entity.Invoice;
 import com.cydeo.enums.InvoiceStatus;
 import com.cydeo.enums.InvoiceType;
 import com.cydeo.exceptions.InvoiceNotFoundException;
-import com.cydeo.exceptions.ProductLowLimitAlertException;
 import com.cydeo.repository.InvoiceProductRepository;
 import com.cydeo.repository.InvoiceRepository;
 import com.cydeo.service.CompanyService;
@@ -19,10 +18,12 @@ import com.cydeo.service.ProductService;
 import com.cydeo.util.MapperUtil;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -221,11 +222,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             int quantityToSell = invoiceProductDto.getQuantity();
 
             if (quantityToSell > totalAvailableStock) {
-                throw new ProductLowLimitAlertException("Stock of " + invoiceProductDto.getProduct().getName() + " decreased below low limit!");
-            }
-
-            if (productDto.getQuantityInStock() - quantityToSell < productDto.getLowLimitAlert()) {
-                throw new ProductLowLimitAlertException("Stock of " + productDto.getName() + " decreased below low limit!");
+                throw new IllegalArgumentException("Not enough stock to fulfill the order for product: " + invoiceProductDto.getProduct().getName());
             }
         }
 
@@ -274,11 +271,25 @@ public class InvoiceServiceImpl implements InvoiceService {
             productDto.setQuantityInStock(newQuantityInStock);
             productService.save(productDto);
         }
+        invoice.setInvoiceStatus(InvoiceStatus.APPROVED);
+        invoice.setDate(LocalDate.now());
+        invoiceRepository.save(invoice);
     }
 
     @Override
     public InvoiceDto findByInvoiceNo(String invoiceNo) {
         Long companyId=companyService.getCompanyIdByLoggedInUser();
         return mapperUtil.convert(invoiceRepository.findByInvoiceNoAndCompanyId(invoiceNo,companyId),new InvoiceDto());
+    }
+
+    @Override
+    public Boolean isQuantityAvailable(InvoiceProductDto invoiceProductDto, BindingResult bindingResult) {
+        ProductDto productDto = invoiceProductDto.getProduct();
+        boolean isAvailable=productDto != null && invoiceProductDto.getQuantity() != null &&
+                invoiceProductDto.getQuantity() > productDto.getQuantityInStock();
+        if (isAvailable){
+            bindingResult.rejectValue("quantity", "error.newInvoiceProduct", "Not enough " + productDto.getName() + " quantity to sell.");
+        }
+        return isAvailable;
     }
 }
