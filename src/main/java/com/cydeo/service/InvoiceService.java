@@ -1,9 +1,11 @@
 package com.cydeo.service;
 
 import com.cydeo.dto.InvoiceDto;
+import com.cydeo.dto.InvoiceProductDto;
 import com.cydeo.entity.Invoice;
 import com.cydeo.enums.InvoiceStatus;
 import com.cydeo.enums.InvoiceType;
+import org.springframework.validation.BindingResult;
 
 import java.util.List;
 
@@ -18,4 +20,6 @@ public interface InvoiceService {
     void approveSalesInvoice(Long id);
     void approvePurchaseInvoice(Long id);
     List<Invoice> findTop3InvoicesByInvoiceStatus(InvoiceStatus invoiceStatus);
+    InvoiceDto findByInvoiceNo(String invoiceNo);
+    Boolean isQuantityAvailable(InvoiceProductDto invoiceProductDto, BindingResult bindingResult);
 }

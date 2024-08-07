@@ -8,15 +8,19 @@ import com.cydeo.entity.Company;
 import com.cydeo.entity.Invoice;
 import com.cydeo.enums.InvoiceStatus;
 import com.cydeo.enums.InvoiceType;
-import com.cydeo.repository.InvoiceProductRepository;
 import com.cydeo.exceptions.InvoiceNotFoundException;
+import com.cydeo.repository.InvoiceProductRepository;
 import com.cydeo.repository.InvoiceRepository;
-import com.cydeo.service.*;
+import com.cydeo.service.CompanyService;
+import com.cydeo.service.InvoiceProductService;
+import com.cydeo.service.InvoiceService;
+import com.cydeo.service.ProductService;
 import com.cydeo.util.InvoiceUtils;
 import com.cydeo.util.MapperUtil;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
 
 import javax.transaction.Transactional;
 import java.awt.print.Pageable;
@@ -206,6 +210,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                 throw new IllegalArgumentException("Not enough stock to fulfill the order for product: " + invoiceProductDto.getProduct().getName());
             }
         }
+
         for (InvoiceProductDto invoiceProductDto : invoiceProducts) {
             int quantityToSell = invoiceProductDto.getQuantity();
             BigDecimal totalCost = BigDecimal.ZERO;
@@ -218,7 +223,6 @@ public class InvoiceServiceImpl implements InvoiceService {
                             invoiceProductDto.getProduct().getId()).stream()
                     .map(purchaseProduct -> mapperUtil.convert(purchaseProduct, new InvoiceProductDto()))
                     .toList();
-
 
             for (InvoiceProductDto purchaseProduct : purchaseProducts) {
                 int availableQuantity = purchaseProduct.getRemainingQuantity();
@@ -247,7 +251,6 @@ public class InvoiceServiceImpl implements InvoiceService {
 
             invoiceProductService.saveSalesInvoice(invoiceProductDto);
 
-
             ProductDto productDto = productService.findById(invoiceProductDto.getProduct().getId());
             int newQuantityInStock = productDto.getQuantityInStock() - invoiceProductDto.getQuantity();
             productDto.setQuantityInStock(newQuantityInStock);
@@ -257,5 +260,22 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoice.setInvoiceStatus(InvoiceStatus.APPROVED);
         invoice.setDate(LocalDate.now());
         invoiceRepository.save(invoice);
+    }
+
+    @Override
+    public InvoiceDto findByInvoiceNo(String invoiceNo) {
+        Long companyId=companyService.getCompanyIdByLoggedInUser();
+        return mapperUtil.convert(invoiceRepository.findByInvoiceNoAndCompanyId(invoiceNo,companyId),new InvoiceDto());
+    }
+
+    @Override
+    public Boolean isQuantityAvailable(InvoiceProductDto invoiceProductDto, BindingResult bindingResult) {
+        ProductDto productDto = invoiceProductDto.getProduct();
+        boolean isAvailable=productDto != null && invoiceProductDto.getQuantity() != null &&
+                invoiceProductDto.getQuantity() > productDto.getQuantityInStock();
+        if (isAvailable){
+            bindingResult.rejectValue("quantity", "error.newInvoiceProduct", "Not enough " + productDto.getName() + " quantity to sell.");
+        }
+        return isAvailable;
     }
 }

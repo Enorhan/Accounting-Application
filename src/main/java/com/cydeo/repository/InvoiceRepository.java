@@ -25,4 +25,5 @@ public interface InvoiceRepository extends JpaRepository<Invoice,Long> {
 //    List<Invoice> findTop3ByCompanyIdAndInvoiceStatusOrderByDateDesc(@Param("companyId") Long companyId, @Param("invoiceStatus") InvoiceStatus invoiceStatus);
     List<Invoice> findTop3ByCompanyIdAndInvoiceStatusOrderByInsertDateTimeDesc(Long companyId, InvoiceStatus invoiceStatus);
     boolean existsByClientVendorId(Long id);
+    Invoice findByInvoiceNoAndCompanyId(String invoiceNo,Long companyId);
 }
