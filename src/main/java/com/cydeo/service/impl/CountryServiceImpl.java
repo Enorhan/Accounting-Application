@@ -52,6 +52,7 @@ public class CountryServiceImpl implements CountryService {
         List<String> countryList = countries.stream()
                 .map(CountryResponse::getCountryName)
                 .collect(Collectors.toList());
+
         countryList.remove("United States");
         return countryList;
     }
