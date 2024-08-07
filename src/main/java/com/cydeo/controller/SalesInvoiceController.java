@@ -33,7 +33,7 @@ public class SalesInvoiceController {
     }
 
     @GetMapping("/list")
-    public String listSaleInvoices(Model model){
+    public String listSaleInvoices(Model model) {
         List<InvoiceDto> invoices = invoiceService.listAllInvoicesByType(InvoiceType.SALES);
 
         model.addAttribute("invoices", invoices);
@@ -43,25 +43,25 @@ public class SalesInvoiceController {
     }
 
     @GetMapping("/create")
-    public String createSalesInvoice(Model model){
+    public String createSalesInvoice(Model model) {
 
-        InvoiceDto newInvoiceDto=new InvoiceDto();
+        InvoiceDto newInvoiceDto = new InvoiceDto();
         newInvoiceDto.setInvoiceNo(invoiceService.createNewSalesInvoiceNo());
         newInvoiceDto.setDate(LocalDate.now());
 
-        model.addAttribute("newSalesInvoice",newInvoiceDto);
-        model.addAttribute("clients",clientVendorService.findAllByCurrentCompanyClientVendorTypeAndIsDeleted(ClientVendorType.CLIENT,false));
+        model.addAttribute("newSalesInvoice", newInvoiceDto);
+        model.addAttribute("clients", clientVendorService.findAllByCurrentCompanyClientVendorTypeAndIsDeleted(ClientVendorType.CLIENT, false));
 
         return "invoice/sales-invoice-create";
     }
 
 
     @PostMapping("/create")
-    public String saveCreatedSalesInvoice(@Valid @ModelAttribute("newSalesInvoice") InvoiceDto invoiceDto, BindingResult bindingResult, Model model){
+    public String saveCreatedSalesInvoice(@Valid @ModelAttribute("newSalesInvoice") InvoiceDto invoiceDto, BindingResult bindingResult, Model model) {
 
-        if (bindingResult.hasErrors()){
-            model.addAttribute("newSalesInvoice",invoiceDto);
-            model.addAttribute("clients",clientVendorService.findAllByCurrentCompanyClientVendorTypeAndIsDeleted(ClientVendorType.CLIENT,false));
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("newSalesInvoice", invoiceDto);
+            model.addAttribute("clients", clientVendorService.findAllByCurrentCompanyClientVendorTypeAndIsDeleted(ClientVendorType.CLIENT, false));
 
             return "invoice/sales-invoice-create";
         }
@@ -75,12 +75,12 @@ public class SalesInvoiceController {
 
 
     @GetMapping("/update/{invoiceId}")
-    public String editSalesInvoice(@PathVariable("invoiceId") Long invoiceId,Model model){
+    public String editSalesInvoice(@PathVariable("invoiceId") Long invoiceId, Model model) {
 
-        model.addAttribute("invoice",invoiceService.findById(invoiceId));
-        model.addAttribute("clients",clientVendorService.findAllByCurrentCompanyClientVendorTypeAndIsDeleted(ClientVendorType.CLIENT,false));
-        model.addAttribute("products",productService.findAllInStock());
-        model.addAttribute("invoiceProducts",invoiceProductService.findAllByInvoiceIdAndIsDeleted(invoiceId, false));
+        model.addAttribute("invoice", invoiceService.findById(invoiceId));
+        model.addAttribute("clients", clientVendorService.findAllByCurrentCompanyClientVendorTypeAndIsDeleted(ClientVendorType.CLIENT, false));
+        model.addAttribute("products", productService.findAllInStock());
+        model.addAttribute("invoiceProducts", invoiceProductService.findAllByInvoiceIdAndIsDeleted(invoiceId, false));
         model.addAttribute("newInvoiceProduct", new InvoiceProductDto());
 
 
@@ -101,24 +101,22 @@ public class SalesInvoiceController {
                                     @Valid @ModelAttribute("newInvoiceProduct") InvoiceProductDto invoiceProductDto,
                                     BindingResult bindingResult,
                                     Model model) {
+        invoiceService.isQuantityAvailable(invoiceProductDto,bindingResult);
 
         if (bindingResult.hasErrors()) {
 
             model.addAttribute("invoice", invoiceService.findById(invoiceId));
-            model.addAttribute("clients", clientVendorService.findAllByCurrentCompanyClientVendorTypeAndIsDeleted(ClientVendorType.CLIENT,false));
+            model.addAttribute("clients", clientVendorService.findAllByCurrentCompanyClientVendorTypeAndIsDeleted(ClientVendorType.CLIENT, false));
             model.addAttribute("products", productService.findAllInStock());
             model.addAttribute("invoiceProducts", invoiceProductService.findAllByInvoiceIdAndIsDeleted(invoiceId, false));
             return "invoice/sales-invoice-update";
         }
-
-
-        invoiceProductService.save(invoiceProductDto,invoiceId);
-
+        invoiceProductService.save(invoiceProductDto, invoiceId);
         return "redirect:/salesInvoices/update/" + invoiceId;
     }
 
     @GetMapping("/delete/{invoiceId}")
-    public String deleteSaleInvoices(@PathVariable("invoiceId") String invoiceId){
+    public String deleteSaleInvoices(@PathVariable("invoiceId") String invoiceId) {
 
         invoiceService.delete(Long.valueOf(invoiceId));
 
@@ -143,13 +141,13 @@ public class SalesInvoiceController {
     @PostMapping("/update/{invoiceId}")
     public String insertSalesInvoice(@PathVariable("invoiceId") Long invoiceId,
                                      @Valid @ModelAttribute("invoice") InvoiceDto invoiceDto,
-                                     BindingResult bindingResult,Model model){
+                                     BindingResult bindingResult, Model model) {
 
         if (bindingResult.hasErrors()) {
 
             model.addAttribute("invoice", invoiceService.findById(invoiceId));
             model.addAttribute("clients",
-                    clientVendorService.findAllByCurrentCompanyClientVendorTypeAndIsDeleted(ClientVendorType.CLIENT,false));
+                    clientVendorService.findAllByCurrentCompanyClientVendorTypeAndIsDeleted(ClientVendorType.CLIENT, false));
             model.addAttribute("products", productService.findAllInStock());
             model.addAttribute("invoiceProducts", invoiceProductService.findAllByInvoiceIdAndIsDeleted(invoiceId, false));
             return "invoice/sales-invoice-update";
@@ -157,16 +155,16 @@ public class SalesInvoiceController {
 
         invoiceService.update(invoiceDto, invoiceId);
 
-        return "redirect:/salesInvoices/update/"+invoiceId;
+        return "redirect:/salesInvoices/update/" + invoiceId;
     }
 
 
     @GetMapping("/approve/{invoiceId}")
-    public String approveInvoice(@PathVariable("invoiceId") Long invoiceId){
+    public String approveInvoice(@PathVariable("invoiceId") Long invoiceId) {
 
-     invoiceService.approveSalesInvoice(invoiceId);
+        invoiceService.approveSalesInvoice(invoiceId);
 
-      return "redirect:/salesInvoices/list";
+        return "redirect:/salesInvoices/list";
     }
 
 

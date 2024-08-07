@@ -77,7 +77,7 @@ public class PurchasesInvoiceController {
 
         InvoiceDto savedInvoice = invoiceService.findByInvoiceNo(invoiceDto.getInvoiceNo());
 
-        return "redirect:/salesInvoices/update/" + savedInvoice.getId();
+        return "redirect:/purchaseInvoices/update/" + savedInvoice.getId();
     }
 
     @GetMapping("/update/{invoiceId}")
