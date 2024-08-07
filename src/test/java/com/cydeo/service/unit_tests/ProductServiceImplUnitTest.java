@@ -53,7 +53,7 @@ public class ProductServiceImplUnitTest {
         mockProduct2.setIsDeleted(false);
         mockProduct2.setId(2L);
         Product mockProduct3 = new Product();
-        mockProduct3.setQuantityInStock(5);
+        mockProduct3.setQuantityInStock(0);
         mockProduct3.setIsDeleted(false);
         mockProduct3.setId(3L);
         Product mockProduct4 = new Product();
@@ -61,14 +61,14 @@ public class ProductServiceImplUnitTest {
         mockProduct4.setIsDeleted(false);
         mockProduct4.setId(4L);
 
-        List<Product> mockProducts = Arrays.asList(mockProduct1, mockProduct2, mockProduct3, mockProduct4);
-        when(productRepository.findAllByCompanyIdAndIsDeleted(mockCompanyId, false)).thenReturn(mockProducts);
+          List<Product> mockProducts = Arrays.asList(mockProduct1, mockProduct2, mockProduct3, mockProduct4);
+          when(productRepository.findAllByCompanyIdAndIsDeleted(1L, false)).thenReturn(mockProducts);
 
 
         List<ProductDto> result = productService.findAllInStock();
 
 
-        assertEquals(3, result.size());
+        assertEquals(2, result.size());
     }
 
 
@@ -174,6 +174,8 @@ public class ProductServiceImplUnitTest {
         verify(productRepository).findProductById(productId);
         verify(productRepository, never()).save(any(Product.class));
     }
+
+
 
     @Test
     void testUpdate() {
