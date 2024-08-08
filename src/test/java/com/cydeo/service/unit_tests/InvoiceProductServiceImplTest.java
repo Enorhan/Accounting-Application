@@ -161,4 +161,31 @@ public class InvoiceProductServiceImplTest {
                 .findAllByInvoiceInvoiceStatusAndInvoiceInvoiceTypeAndInvoiceCompanyIdAndIsDeleted(
                         InvoiceStatus.APPROVED, InvoiceType.SALES, 0L, false);
     }
+
+    @Test
+    void getLast3ApprovedInvoices_Test() {
+        InvoiceDto invoiceDto1 = TestDocumentInitializer.getInvoice(InvoiceStatus.APPROVED, InvoiceType.PURCHASE);
+        InvoiceDto invoiceDto2 = TestDocumentInitializer.getInvoice(InvoiceStatus.APPROVED, InvoiceType.SALES);
+        InvoiceDto invoiceDto3 = TestDocumentInitializer.getInvoice(InvoiceStatus.APPROVED, InvoiceType.PURCHASE);
+
+        Invoice invoice1 = mapperUtilSpy.convert(invoiceDto1, new Invoice());
+        Invoice invoice2 = mapperUtilSpy.convert(invoiceDto2, new Invoice());
+        Invoice invoice3 = mapperUtilSpy.convert(invoiceDto3, new Invoice());
+
+        when(invoiceService.findTop3InvoicesByInvoiceStatus(InvoiceStatus.APPROVED)).thenReturn(List.of(invoice1, invoice2, invoice3));
+        when(mapperUtil.convert(any(), any())).thenReturn(TestDocumentInitializer.getInvoice(InvoiceStatus.APPROVED, InvoiceType.PURCHASE));
+
+        List<InvoiceDto> last3ApprovedInvoices = invoiceProductService.getLast3ApprovedInvoices();
+
+        assertNotNull(last3ApprovedInvoices);
+        assertEquals(3, last3ApprovedInvoices.size());
+
+        for (InvoiceDto invoiceDto : last3ApprovedInvoices) {
+            assertNotNull(invoiceDto.getPrice());
+            assertNotNull(invoiceDto.getTax());
+            assertNotNull(invoiceDto.getTotal());
+        }
+
+        verify(invoiceUtils, times(3)).calculateTotalsForInvoice(any(InvoiceDto.class));
+    }
 }
