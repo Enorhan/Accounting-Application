@@ -19,14 +19,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.time.LocalDate;
+import java.time.format.TextStyle;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -45,6 +46,9 @@ public class InvoiceProductServiceImplTest {
 
     @Mock
     MapperUtil mapperUtil;
+
+    @Spy
+    MapperUtil mapperUtilSpy = new MapperUtil(new ModelMapper());
 
     @Mock
     InvoiceUtils invoiceUtils;
@@ -95,6 +99,7 @@ public class InvoiceProductServiceImplTest {
 
     @Test
     void getTotalCostAndSalesAndProfit_loss_Test() {
+
         Long companyId = TestDocumentInitializer.getUser("Manager").getId();
         InvoiceDto purchaseInvoiceDto = TestDocumentInitializer.getInvoice(InvoiceStatus.APPROVED, InvoiceType.PURCHASE);
         InvoiceDto salesInvoiceDto = TestDocumentInitializer.getInvoice(InvoiceStatus.APPROVED, InvoiceType.SALES);
@@ -123,5 +128,37 @@ public class InvoiceProductServiceImplTest {
         verify(invoiceService, times(1)).findAllByInvoiceTypeAndInvoiceStatusAndCompanyIdAndIsDeleted(
                 InvoiceType.SALES, InvoiceStatus.APPROVED, companyId, false
         );
+    }
+
+    @Test
+    void getMonthlyProfitLoss_Test() {
+        InvoiceProduct janInvoiceProduct = mapperUtilSpy.convert(TestDocumentInitializer.getInvoiceProduct(), new InvoiceProduct());
+        janInvoiceProduct.setProfitLoss(BigDecimal.valueOf(100));
+        janInvoiceProduct.getInvoice().setDate(LocalDate.of(2023, 1, 15));
+
+        InvoiceProduct janInvoiceProduct2 = mapperUtilSpy.convert(TestDocumentInitializer.getInvoiceProduct(), new InvoiceProduct());
+        janInvoiceProduct2.setProfitLoss(BigDecimal.valueOf(200));
+        janInvoiceProduct2.getInvoice().setDate(LocalDate.of(2023, 1, 12));
+
+        InvoiceProduct febInvoiceProduct = mapperUtilSpy.convert(TestDocumentInitializer.getInvoiceProduct(), new InvoiceProduct());
+        febInvoiceProduct.setProfitLoss(BigDecimal.valueOf(200));
+        febInvoiceProduct.getInvoice().setDate(LocalDate.of(2023, 2, 20));
+
+        List<InvoiceProduct> mockInvoiceProducts = List.of(janInvoiceProduct, janInvoiceProduct2, febInvoiceProduct);
+
+        when(invoiceProductRepository
+                .findAllByInvoiceInvoiceStatusAndInvoiceInvoiceTypeAndInvoiceCompanyIdAndIsDeleted(
+                        InvoiceStatus.APPROVED, InvoiceType.SALES, 0L, false
+                )
+        ).thenReturn(mockInvoiceProducts);
+
+        Map<String, BigDecimal> monthlyProfitLoss = invoiceProductService.getMonthlyProfitLoss();
+
+        assertEquals(janInvoiceProduct.getProfitLoss().add(janInvoiceProduct2.getProfitLoss()), monthlyProfitLoss.get("January"));
+        assertEquals(febInvoiceProduct.getProfitLoss(), monthlyProfitLoss.get("February"));
+
+        verify(invoiceProductRepository, times(1))
+                .findAllByInvoiceInvoiceStatusAndInvoiceInvoiceTypeAndInvoiceCompanyIdAndIsDeleted(
+                        InvoiceStatus.APPROVED, InvoiceType.SALES, 0L, false);
     }
 }
