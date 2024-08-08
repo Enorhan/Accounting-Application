@@ -9,10 +9,7 @@ import com.cydeo.repository.PaymentRepository;
 import com.cydeo.service.CompanyService;
 import com.cydeo.service.PaymentService;
 import com.cydeo.util.MapperUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Comparator;
