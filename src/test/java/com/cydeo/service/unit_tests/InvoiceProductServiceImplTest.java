@@ -8,7 +8,6 @@ import com.cydeo.enums.InvoiceStatus;
 import com.cydeo.enums.InvoiceType;
 import com.cydeo.exceptions.InvoiceProductNotFoundException;
 import com.cydeo.repository.InvoiceProductRepository;
-import com.cydeo.repository.InvoiceRepository;
 import com.cydeo.service.CompanyService;
 import com.cydeo.service.InvoiceService;
 import com.cydeo.service.impl.InvoiceProductServiceImpl;
@@ -205,5 +204,34 @@ public class InvoiceProductServiceImplTest {
 
         verify(invoiceProductRepository, times(1)).save(invoiceProduct);
         assertEquals(invoice.getId(), invoiceProduct.getInvoice().getId());
+    }
+
+    @Test
+    void delete_Test() {
+        Long invoiceProductId = anyLong();
+        InvoiceProduct invoiceProduct = new InvoiceProduct();
+        invoiceProduct.setIsDeleted(false);
+
+        when(invoiceProductRepository.findById(invoiceProductId)).thenReturn(Optional.of(invoiceProduct));
+
+        invoiceProductService.delete(invoiceProductId);
+
+        assertTrue(invoiceProduct.getIsDeleted());
+    }
+
+    @Test
+    void deleteException_Test() {
+        Long invoiceProductId = anyLong();
+        InvoiceProduct invoiceProduct = new InvoiceProduct();
+        invoiceProduct.setIsDeleted(false);
+
+        when(invoiceProductRepository.findById(invoiceProductId)).thenReturn(Optional.empty());
+
+        assertThrows(InvoiceProductNotFoundException.class, () -> {
+            invoiceProductService.delete(invoiceProductId);
+        });
+
+        verify(invoiceProductRepository, times(1)).findById(invoiceProductId);
+        assertFalse(invoiceProduct.getIsDeleted());
     }
 }
