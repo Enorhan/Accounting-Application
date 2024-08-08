@@ -1,12 +1,18 @@
 package com.cydeo.service.unit_tests;
 
 import com.cydeo.TestDocumentInitializer;
+import com.cydeo.dto.InvoiceDto;
 import com.cydeo.dto.InvoiceProductDto;
-import com.cydeo.entity.InvoiceProduct;
+import com.cydeo.entity.*;
+import com.cydeo.enums.InvoiceStatus;
+import com.cydeo.enums.InvoiceType;
 import com.cydeo.exceptions.InvoiceProductNotFoundException;
 import com.cydeo.repository.InvoiceProductRepository;
+import com.cydeo.repository.InvoiceRepository;
+import com.cydeo.service.CompanyService;
 import com.cydeo.service.InvoiceService;
 import com.cydeo.service.impl.InvoiceProductServiceImpl;
+import com.cydeo.util.InvoiceUtils;
 import com.cydeo.util.MapperUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,7 +22,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -29,7 +38,17 @@ public class InvoiceProductServiceImplTest {
     InvoiceProductRepository invoiceProductRepository;
 
     @Mock
+    InvoiceService invoiceService;
+
+    @Mock
+    CompanyService companyService;
+
+    @Mock
     MapperUtil mapperUtil;
+
+    @Mock
+    InvoiceUtils invoiceUtils;
+
 
     @InjectMocks
     InvoiceProductServiceImpl invoiceProductService;
@@ -74,4 +93,35 @@ public class InvoiceProductServiceImplTest {
         assertEquals(BigDecimal.valueOf(55), invoiceProductDtos.get(0).getTotal());
     }
 
+    @Test
+    void getTotalCostAndSalesAndProfit_loss_Test() {
+        Long companyId = TestDocumentInitializer.getUser("Manager").getId();
+        InvoiceDto purchaseInvoiceDto = TestDocumentInitializer.getInvoice(InvoiceStatus.APPROVED, InvoiceType.PURCHASE);
+        InvoiceDto salesInvoiceDto = TestDocumentInitializer.getInvoice(InvoiceStatus.APPROVED, InvoiceType.SALES);
+
+        when(companyService.getCompanyIdByLoggedInUser()).thenReturn(companyId);
+        when(invoiceService.findAllByInvoiceTypeAndInvoiceStatusAndCompanyIdAndIsDeleted(
+                InvoiceType.PURCHASE, InvoiceStatus.APPROVED, companyId, false
+        )).thenReturn(List.of(purchaseInvoiceDto));
+        when(invoiceService.findAllByInvoiceTypeAndInvoiceStatusAndCompanyIdAndIsDeleted(
+                InvoiceType.SALES, InvoiceStatus.APPROVED, companyId, false
+        )).thenReturn(List.of(salesInvoiceDto));
+
+        Map<String, BigDecimal> result = invoiceProductService.getTotalCostAndSalesAndProfit_loss();
+
+        BigDecimal expectedTotalCost = purchaseInvoiceDto.getPrice();
+        BigDecimal expectedTotalSales = salesInvoiceDto.getPrice();
+        BigDecimal expectedProfitLoss = expectedTotalSales.subtract(expectedTotalCost);
+
+        assertEquals(expectedTotalCost, result.get("totalCost"));
+        assertEquals(expectedTotalSales, result.get("totalSales"));
+        assertEquals(expectedProfitLoss, result.get("profitLoss"));
+
+        verify(invoiceService, times(1)).findAllByInvoiceTypeAndInvoiceStatusAndCompanyIdAndIsDeleted(
+                InvoiceType.PURCHASE, InvoiceStatus.APPROVED, companyId, false
+        );
+        verify(invoiceService, times(1)).findAllByInvoiceTypeAndInvoiceStatusAndCompanyIdAndIsDeleted(
+                InvoiceType.SALES, InvoiceStatus.APPROVED, companyId, false
+        );
+    }
 }

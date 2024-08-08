@@ -11,6 +11,12 @@ import java.util.List;
 
 public interface InvoiceService {
     List<InvoiceDto> listAllInvoicesByType(InvoiceType invoiceType);
+    List<InvoiceDto> findAllByInvoiceTypeAndInvoiceStatusAndCompanyIdAndIsDeleted(
+            InvoiceType invoiceType,
+            InvoiceStatus invoiceStatus,
+            Long companyId,
+            boolean isDeleted
+            );
     InvoiceDto findById(Long id);
     String getNewPurchaseInvoiceNumberId();
     void save(InvoiceDto invoiceDto, InvoiceType invoiceType);

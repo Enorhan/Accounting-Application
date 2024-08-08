@@ -30,7 +30,6 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
     private final CompanyService companyService;
     private final InvoiceService invoiceService;
     private final InvoiceUtils invoiceUtils;
-    private final InvoiceRepository invoiceRepository;
 
     public InvoiceProductServiceImpl(InvoiceProductRepository invoiceProductRepository, MapperUtil mapperUtil, @Lazy InvoiceService invoiceService, CompanyService companyService, @Lazy InvoiceUtils invoiceUtils, InvoiceRepository invoiceRepository) {
         this.invoiceProductRepository = invoiceProductRepository;
@@ -38,7 +37,6 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
         this.invoiceService = invoiceService;
         this.companyService = companyService;
         this.invoiceUtils = invoiceUtils;
-        this.invoiceRepository = invoiceRepository;
     }
 
     @Override
@@ -66,13 +64,14 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
     private BigDecimal calculateTotalForInvoiceType(InvoiceType invoiceType) {
         Long companyId = companyService.getCompanyIdByLoggedInUser();
 
-        List<InvoiceDto> invoiceDtos = invoiceRepository
-                .findAllByInvoiceTypeAndInvoiceStatusAndCompanyIdAndIsDeleted(invoiceType, InvoiceStatus.APPROVED, companyId, false)
-                .stream()
-                .map(invoice -> mapperUtil.convert(invoice, new InvoiceDto()))
-                .toList();
+        List<InvoiceDto> invoiceDtos = invoiceService.findAllByInvoiceTypeAndInvoiceStatusAndCompanyIdAndIsDeleted(
+                invoiceType,
+                InvoiceStatus.APPROVED,
+                companyId,
+                false
+        );
 
-        BigDecimal total = BigDecimal.valueOf(0);
+        BigDecimal total = BigDecimal.ZERO;
 
         for (InvoiceDto eachInvoiceDto : invoiceDtos) {
             invoiceUtils.calculateTotalsForInvoice(eachInvoiceDto);

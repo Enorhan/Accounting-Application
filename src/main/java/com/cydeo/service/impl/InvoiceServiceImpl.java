@@ -67,6 +67,15 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
+    public List<InvoiceDto> findAllByInvoiceTypeAndInvoiceStatusAndCompanyIdAndIsDeleted(InvoiceType invoiceType, InvoiceStatus invoiceStatus, Long companyId, boolean isDeleted) {
+        return invoiceRepository
+                .findAllByInvoiceTypeAndInvoiceStatusAndCompanyIdAndIsDeleted(invoiceType, InvoiceStatus.APPROVED, companyId, false)
+                .stream()
+                .map(invoice -> mapperUtil.convert(invoice, new InvoiceDto()))
+                .toList();
+    }
+
+    @Override
     public InvoiceDto findById(Long id) {
         Invoice invoice = invoiceRepository.findById(id)
                 .orElseThrow(() -> new InvoiceNotFoundException("Invoice not found with id: " + id));
