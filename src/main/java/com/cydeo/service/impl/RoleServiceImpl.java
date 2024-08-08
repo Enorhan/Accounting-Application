@@ -3,6 +3,7 @@ package com.cydeo.service.impl;
 import com.cydeo.dto.RoleDto;
 import com.cydeo.dto.UserDto;
 import com.cydeo.entity.Role;
+import com.cydeo.exceptions.RoleNotFoundException;
 import com.cydeo.repository.RoleRepository;
 import com.cydeo.service.RoleService;
 import com.cydeo.service.SecurityService;
@@ -25,8 +26,8 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public RoleDto findById(Long id) {
-        Role role = roleRepository.findById(id).orElseThrow(()->new NoSuchElementException("role not found with id: "+id));
+    public RoleDto findById(Long id) throws RoleNotFoundException{
+        Role role = roleRepository.findById(id).orElseThrow(()->new RoleNotFoundException("role not found with id: "+id));
         return mapperUtil.convert(role,new RoleDto());
     }
     @Override
