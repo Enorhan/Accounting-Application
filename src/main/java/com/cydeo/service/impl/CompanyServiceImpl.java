@@ -72,7 +72,7 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     @Transactional
-    public CompanyDto activateCompany(Long Id) {
+    public CompanyDto activateCompany(Long Id) throws CompanyNotFoundException{
         Company company = companyRepository.findById(Id).orElseThrow(() -> new CompanyNotFoundException("Company not found"));
          company.setCompanyStatus(CompanyStatus.ACTIVE);
          companyRepository.save(company);
@@ -80,12 +80,11 @@ public class CompanyServiceImpl implements CompanyService {
 
         return mapperUtil.convert(company,new CompanyDto());
 
-
     }
 
     @Override
     @Transactional
-    public CompanyDto deactivateCompany(Long Id) {
+    public CompanyDto deactivateCompany(Long Id) throws CompanyNotFoundException{
         Company company = companyRepository.findById(Id).orElseThrow(() -> new CompanyNotFoundException("Company not found"));
         company.setCompanyStatus(CompanyStatus.PASSIVE);
         companyRepository.save(company);
@@ -95,7 +94,7 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
-    public void updateCompany(CompanyDto companyDto) {
+    public void updateCompany(CompanyDto companyDto) throws CompanyNotFoundException {
         Company existingCompany = companyRepository.findById(companyDto.getId()).orElseThrow(() -> new CompanyNotFoundException("Company not found"));
         Company company = mapperUtil.convert(companyDto, existingCompany);
         company.setCompanyStatus(existingCompany.getCompanyStatus());
@@ -113,7 +112,7 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
-    public CompanyDto findById(Long id) {
+    public CompanyDto findById(Long id) throws CompanyNotFoundException{
         Company company = companyRepository.findById(id)
                 .orElseThrow(() -> new CompanyNotFoundException("Incorrect id" + id + " Try another Id"));
         return mapperUtil.convert(company, new CompanyDto());
