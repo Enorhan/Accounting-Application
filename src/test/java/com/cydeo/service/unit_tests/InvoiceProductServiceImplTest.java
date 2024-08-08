@@ -188,4 +188,22 @@ public class InvoiceProductServiceImplTest {
 
         verify(invoiceUtils, times(3)).calculateTotalsForInvoice(any(InvoiceDto.class));
     }
+
+    @Test
+    void save_Test() {
+        InvoiceProductDto invoiceProductDto = TestDocumentInitializer.getInvoiceProduct();
+        InvoiceDto invoiceDto = TestDocumentInitializer.getInvoice(InvoiceStatus.APPROVED, InvoiceType.PURCHASE);
+
+        Invoice invoice = mapperUtilSpy.convert(invoiceDto, new Invoice());
+        InvoiceProduct invoiceProduct = mapperUtilSpy.convert(invoiceProductDto, new InvoiceProduct());
+
+        when(mapperUtil.convert(any(InvoiceProductDto.class), any(InvoiceProduct.class))).thenReturn(invoiceProduct);
+
+        when(invoiceService.findById(anyLong())).thenReturn(invoiceDto);
+
+        invoiceProductService.save(invoiceProductDto, anyLong());
+
+        verify(invoiceProductRepository, times(1)).save(invoiceProduct);
+        assertEquals(invoice.getId(), invoiceProduct.getInvoice().getId());
+    }
 }

@@ -69,7 +69,7 @@ public class TestDocumentInitializer {
                 .price(BigDecimal.TEN)
                 .tax(10)
                 .quantity(5)
-                .invoice(new InvoiceDto())
+                .invoice(getInvoice(InvoiceStatus.APPROVED, InvoiceType.PURCHASE))
                 .build();
     }
 
