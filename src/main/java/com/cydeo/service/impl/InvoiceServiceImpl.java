@@ -311,7 +311,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         boolean isAvailable=productDto != null && invoiceProductDto.getQuantity() != null &&
                 invoiceProductDto.getQuantity() > productDto.getQuantityInStock();
         if (isAvailable){
-            bindingResult.rejectValue("quantity", "error.newInvoiceProduct", "Not enough " + productDto.getName() + " quantity to sell.");
+            bindingResult.rejectValue("quantity", "error.newInvoiceProduct", "Not enough " + productDto.getName() + " quantity to sell."+" Available: "+productDto.getQuantityInStock());
         }
         return isAvailable;
     }
