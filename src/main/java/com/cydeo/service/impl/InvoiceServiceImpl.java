@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -248,6 +249,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                     .map(purchaseProduct -> mapperUtil.convert(purchaseProduct, new InvoiceProductDto()))
                     .toList();
 
+            BigDecimal totalCostForEachItem=BigDecimal.ZERO;
             for (InvoiceProductDto purchaseProduct : purchaseProducts) {
                 int availableQuantity = purchaseProduct.getRemainingQuantity();
                 if (availableQuantity > 0) {
@@ -257,6 +259,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                     BigDecimal taxToBeAdded = costPrice.multiply(BigDecimal.valueOf(0.01).multiply(BigDecimal.valueOf(purchaseProduct.getTax()))).multiply(BigDecimal.valueOf(purchaseProduct.getQuantity()));
                     BigDecimal cost = (costPrice.multiply(BigDecimal.valueOf(purchaseProduct.getQuantity())).add(taxToBeAdded));
                     totalCost = totalCost.add(cost);
+                    totalCostForEachItem = totalCost.divide(BigDecimal.valueOf(purchaseProduct.getQuantity()), 2, RoundingMode.HALF_UP);
 
                     purchaseProduct.setRemainingQuantity(availableQuantity - quantityToUse);
                     invoiceProductService.saveSalesInvoice(purchaseProduct);
@@ -270,7 +273,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
             BigDecimal taxToBeAdded = salePrice.multiply(BigDecimal.valueOf(0.01).multiply(BigDecimal.valueOf(invoiceProductDto.getTax()).multiply(BigDecimal.valueOf(invoiceProductDto.getQuantity()))));
             BigDecimal totalSale = (salePrice.multiply(BigDecimal.valueOf(invoiceProductDto.getQuantity()))).add(taxToBeAdded);
-            BigDecimal profitLoss = totalSale.subtract(totalCost);
+            BigDecimal profitLoss = totalSale.subtract(totalCostForEachItem.multiply(BigDecimal.valueOf(invoiceProductDto.getQuantity())));
             invoiceProductDto.setProfitLoss(profitLoss);
 
             invoiceProductService.saveSalesInvoice(invoiceProductDto);
