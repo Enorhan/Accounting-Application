@@ -255,7 +255,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                     BigDecimal costPrice = purchaseProduct.getPrice();
 
                     BigDecimal taxToBeAdded = costPrice.multiply(BigDecimal.valueOf(0.01).multiply(BigDecimal.valueOf(purchaseProduct.getTax())));
-                    BigDecimal cost = (costPrice.multiply(BigDecimal.valueOf(quantityToUse)).add(taxToBeAdded));
+                    BigDecimal cost = (costPrice.multiply(BigDecimal.valueOf(quantityToSell)).add(taxToBeAdded));
                     totalCost = totalCost.add(cost);
 
                     purchaseProduct.setRemainingQuantity(availableQuantity - quantityToUse);

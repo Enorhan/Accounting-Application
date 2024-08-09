@@ -28,8 +28,8 @@ public class InvoiceProductDto {
     BigDecimal price;
 
     @NotNull(message = "Tax is a required field.")
-    @Min(value = 0, message = "Tax should be between 0% and 20%.")
-    @Max(value = 20, message = "Tax should be between 0% and 20%.")
+    @Min(value = 5, message = "Tax should be between 5% and 20%.")
+    @Max(value = 20, message = "Tax should be between 5% and 20%.")
     Integer tax;
 
     BigDecimal total;
