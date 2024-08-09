@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Repository
@@ -20,6 +21,8 @@ public interface InvoiceProductRepository extends JpaRepository<InvoiceProduct, 
     List<InvoiceProduct> findAllByInvoiceInvoiceStatusAndInvoiceInvoiceTypeAndInvoiceCompanyIdAndIsDeleted(
             InvoiceStatus invoice_invoiceStatus, InvoiceType invoice_invoiceType, Long invoice_company_id, Boolean isDeleted
     );
+
+    List<InvoiceProduct> findAllByInvoiceCompanyId(Long companyId);
 
     @Query("SELECT ip FROM InvoiceProduct ip " +
             "WHERE ip.invoice.company.id = :companyId " +
