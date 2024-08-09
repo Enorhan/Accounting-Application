@@ -11,6 +11,12 @@ import java.util.List;
 
 public interface InvoiceService {
     List<InvoiceDto> listAllInvoicesByType(InvoiceType invoiceType);
+    List<InvoiceDto> findAllByInvoiceTypeAndInvoiceStatusAndCompanyIdAndIsDeleted(
+            InvoiceType invoiceType,
+            InvoiceStatus invoiceStatus,
+            Long companyId,
+            boolean isDeleted
+            );
     InvoiceDto findById(Long id);
     String getNewPurchaseInvoiceNumberId();
     void save(InvoiceDto invoiceDto, InvoiceType invoiceType);
@@ -19,7 +25,7 @@ public interface InvoiceService {
     void delete(Long id);
     void approveSalesInvoice(Long id);
     void approvePurchaseInvoice(Long id);
-    List<Invoice> findTop3ApprovedInvoicesByCompanyId(Long companyId, InvoiceStatus invoiceStatus);
+    List<Invoice> findTop3InvoicesByInvoiceStatus(InvoiceStatus invoiceStatus);
     InvoiceDto findByInvoiceNo(String invoiceNo);
-    Boolean isQuantityAvailable(InvoiceProductDto invoiceProductDto, BindingResult bindingResult);
+    Boolean isQuantityAvailable(InvoiceProductDto invoiceProductDto);
 }

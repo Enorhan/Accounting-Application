@@ -4,6 +4,7 @@ import com.cydeo.dto.*;
 import com.cydeo.enums.*;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 
 
@@ -68,7 +69,7 @@ public class TestDocumentInitializer {
                 .price(BigDecimal.TEN)
                 .tax(10)
                 .quantity(5)
-                .invoice(new InvoiceDto())
+                .invoice(getInvoice(InvoiceStatus.APPROVED, InvoiceType.PURCHASE))
                 .build();
     }
 
@@ -83,7 +84,7 @@ public class TestDocumentInitializer {
                 .company(getCompany(CompanyStatus.ACTIVE))
                 .price(BigDecimal.valueOf(1000))
                 .tax(BigDecimal.TEN)
-                .total(BigDecimal.TEN.multiply(BigDecimal.valueOf(1000)))
+                .total(BigDecimal.TEN.divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP).add(BigDecimal.valueOf(1000)))
                 .build();
     }
 }

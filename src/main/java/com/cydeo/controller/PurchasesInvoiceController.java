@@ -4,9 +4,12 @@ import com.cydeo.annotation.ExecutionTime;
 import com.cydeo.dto.CompanyDto;
 import com.cydeo.dto.InvoiceDto;
 import com.cydeo.dto.InvoiceProductDto;
+import com.cydeo.entity.Invoice;
 import com.cydeo.enums.InvoiceType;
 import com.cydeo.exceptions.InvoiceProductNotFoundException;
 import com.cydeo.service.*;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -21,13 +24,11 @@ import java.util.List;
 @Controller
 @RequestMapping("/purchaseInvoices")
 public class PurchasesInvoiceController {
-
     private final InvoiceService invoiceService;
     private final InvoiceProductService invoiceProductService;
     private final ClientVendorService clientVendorService;
     private final ProductService productService;
     private final CompanyService companyService;
-
 
     @ExceptionHandler(InvoiceProductNotFoundException.class)
     public ResponseEntity<String> handleInvoiceProductNotFoundException(InvoiceProductNotFoundException e) {

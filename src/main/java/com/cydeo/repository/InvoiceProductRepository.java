@@ -11,14 +11,15 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface InvoiceProductRepository  extends JpaRepository<InvoiceProduct,Long> {
+public interface InvoiceProductRepository extends JpaRepository<InvoiceProduct, Long> {
 
     List<InvoiceProduct> findAllByOrderByInvoiceDesc();
+
     List<InvoiceProduct> findAllByInvoiceIdAndIsDeleted(Long id, boolean isDeleted);
 
-    @Query(value = "select a.* from invoice_products a join invoices b on a.invoice_id=b.id where b.invoice_status='APPROVED' and b.company_id= :companyId order by b.date desc limit 3", nativeQuery = true)
-    List<InvoiceProduct> find3LastApprovedTransactionDesc(@Param("companyId") Long companyId);
-
+    List<InvoiceProduct> findAllByInvoiceInvoiceStatusAndInvoiceInvoiceTypeAndInvoiceCompanyIdAndIsDeleted(
+            InvoiceStatus invoice_invoiceStatus, InvoiceType invoice_invoiceType, Long invoice_company_id, Boolean isDeleted
+    );
 
     @Query("SELECT ip FROM InvoiceProduct ip " +
             "WHERE ip.invoice.company.id = :companyId " +
@@ -32,5 +33,5 @@ public interface InvoiceProductRepository  extends JpaRepository<InvoiceProduct,
             @Param("invoiceStatus") InvoiceStatus invoiceStatus,
             @Param("productId") Long productId);
 
-     Boolean existsByProductId(Long productId);
+    Boolean existsByProductId(Long productId);
 }

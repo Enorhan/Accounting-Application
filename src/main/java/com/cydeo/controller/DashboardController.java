@@ -12,24 +12,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/dashboard")
 public class DashboardController {
-
     private final CurrencyServiceImpl currencyService;
-
     private final InvoiceProductService invoiceProductService;
 
-    public DashboardController(DashboardServiceImpl dashboardService, CurrencyServiceImpl currencyService, InvoiceProductService invoiceProductService) {
+    public DashboardController(CurrencyServiceImpl currencyService, InvoiceProductService invoiceProductService) {
         this.currencyService = currencyService;
         this.invoiceProductService = invoiceProductService;
     }
 
     @GetMapping
     public String getDashboardSummaryFunctionalities(Model model) {
-
         model.addAttribute("summaryNumbers", invoiceProductService.getTotalCostAndSalesAndProfit_loss());
         model.addAttribute("invoices", invoiceProductService.getLast3ApprovedInvoices() );
         model.addAttribute("exchangeRates", currencyService.getDataFromApi());
 
         return "/dashboard";
     }
-
 }

@@ -97,20 +97,28 @@ public class SalesInvoiceController {
 
 
     @PostMapping("/addInvoiceProduct/{invoiceId}")
-    public String addInvoiceProduct(@PathVariable("invoiceId") Long invoiceId,
-                                    @Valid @ModelAttribute("newInvoiceProduct") InvoiceProductDto invoiceProductDto,
-                                    BindingResult bindingResult,
-                                    Model model) {
-        invoiceService.isQuantityAvailable(invoiceProductDto,bindingResult);
+    public String addInvoiceProduct(
+            @PathVariable("invoiceId") Long invoiceId,
+            @Valid @ModelAttribute("newInvoiceProduct") InvoiceProductDto invoiceProductDto,
+            BindingResult bindingResult,
+            Model model
+    ) {
+        if (invoiceService.isQuantityAvailable(invoiceProductDto)) {
+            bindingResult.rejectValue(
+                    "quantity", "error.newInvoiceProduct", "Not enough "
+                            + invoiceProductDto.getProduct().getName() + " quantity to sell."
+            );
+        }
 
         if (bindingResult.hasErrors()) {
-
             model.addAttribute("invoice", invoiceService.findById(invoiceId));
             model.addAttribute("clients", clientVendorService.findAllByCurrentCompanyClientVendorTypeAndIsDeleted(ClientVendorType.CLIENT, false));
             model.addAttribute("products", productService.findAllInStock());
             model.addAttribute("invoiceProducts", invoiceProductService.findAllByInvoiceIdAndIsDeleted(invoiceId, false));
+
             return "invoice/sales-invoice-update";
         }
+
         invoiceProductService.save(invoiceProductDto, invoiceId);
         return "redirect:/salesInvoices/update/" + invoiceId;
     }

@@ -1,12 +1,8 @@
 package com.cydeo.service.impl;
 
-import com.cydeo.dto.InvoiceDto;
 import com.cydeo.dto.InvoiceProductDto;
-import com.cydeo.dto.ProductDto;
-import com.cydeo.entity.Invoice;
 import com.cydeo.entity.InvoiceProduct;
 import com.cydeo.repository.InvoiceProductRepository;
-import com.cydeo.repository.InvoiceRepository;
 import com.cydeo.service.InvoiceProductService;
 import com.cydeo.service.ReportingService;
 import com.cydeo.util.MapperUtil;
@@ -19,7 +15,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class ReportingServiceImpl implements ReportingService {
-
     private final MapperUtil mapperUtil;
     private final InvoiceProductRepository invoiceProductRepository;
     private final InvoiceProductService invoiceProductService;
@@ -30,7 +25,6 @@ public class ReportingServiceImpl implements ReportingService {
         this.invoiceProductService = invoiceProductService;
     }
 
-
     @Override
     public List<InvoiceProductDto> getStockData() {
         List<InvoiceProduct> invoiceProducts = invoiceProductRepository.findAll();
@@ -39,9 +33,7 @@ public class ReportingServiceImpl implements ReportingService {
                 .collect(Collectors.toList());
     }
 
-
     public Map<String, BigDecimal> getMonthlyProfitLossData() {
         return invoiceProductService.getMonthlyProfitLoss();
     }
-
 }

@@ -8,13 +8,14 @@ import com.cydeo.enums.InvoiceStatus;
 import com.cydeo.enums.InvoiceType;
 import com.cydeo.exceptions.InvoiceProductNotFoundException;
 import com.cydeo.repository.InvoiceProductRepository;
+import com.cydeo.repository.InvoiceRepository;
 import com.cydeo.service.CompanyService;
 import com.cydeo.service.InvoiceProductService;
 import com.cydeo.service.InvoiceService;
+import com.cydeo.util.InvoiceUtils;
 import org.springframework.stereotype.Service;
 import com.cydeo.util.MapperUtil;
 import org.springframework.context.annotation.Lazy;
-
 
 import java.math.BigDecimal;
 import java.time.format.TextStyle;
@@ -28,12 +29,14 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
     private final MapperUtil mapperUtil;
     private final CompanyService companyService;
     private final InvoiceService invoiceService;
+    private final InvoiceUtils invoiceUtils;
 
-    public InvoiceProductServiceImpl(InvoiceProductRepository invoiceProductRepository, MapperUtil mapperUtil, @Lazy InvoiceService invoiceService, CompanyService companyService) {
+    public InvoiceProductServiceImpl(InvoiceProductRepository invoiceProductRepository, MapperUtil mapperUtil, @Lazy InvoiceService invoiceService, CompanyService companyService, @Lazy InvoiceUtils invoiceUtils, InvoiceRepository invoiceRepository) {
         this.invoiceProductRepository = invoiceProductRepository;
         this.mapperUtil = mapperUtil;
         this.invoiceService = invoiceService;
         this.companyService = companyService;
+        this.invoiceUtils = invoiceUtils;
     }
 
     @Override
@@ -58,117 +61,76 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
                 .collect(Collectors.toList());
     }
 
+    private BigDecimal calculateTotalForInvoiceType(InvoiceType invoiceType) {
+        Long companyId = companyService.getCompanyIdByLoggedInUser();
+
+        List<InvoiceDto> invoiceDtos = invoiceService.findAllByInvoiceTypeAndInvoiceStatusAndCompanyIdAndIsDeleted(
+                invoiceType,
+                InvoiceStatus.APPROVED,
+                companyId,
+                false
+        );
+
+        BigDecimal total = BigDecimal.ZERO;
+
+        for (InvoiceDto eachInvoiceDto : invoiceDtos) {
+            invoiceUtils.calculateTotalsForInvoice(eachInvoiceDto);
+            total = total.add(eachInvoiceDto.getTotal());
+        }
+
+        return total;
+    }
+
     @Override
     public Map<String, BigDecimal> getTotalCostAndSalesAndProfit_loss() {
+        BigDecimal totalCost = calculateTotalForInvoiceType(InvoiceType.PURCHASE);
+        BigDecimal totalSalesCost = calculateTotalForInvoiceType(InvoiceType.SALES);
 
-        Long loggedInUser=companyService.getCompanyIdByLoggedInUser();
+        Map<String, BigDecimal> calculations = new HashMap<>();
+        calculations.put("totalCost", totalCost);
+        calculations.put("totalSales", totalSalesCost);
+        calculations.put("profitLoss", totalSalesCost.subtract(totalCost));
 
-        //to retrieve purchased invoices total cost
-        List<InvoiceProduct> purchasedInvoices =invoiceProductRepository.findAll().stream()
-                .filter(p->p.getInvoice().getCompany().getId().equals(loggedInUser))
-                .filter(invoice-> invoice.getInvoice().getInvoiceType()== InvoiceType.PURCHASE && invoice.getInvoice().getInvoiceStatus() == InvoiceStatus.APPROVED)
-                .collect(Collectors.toList());
-        BigDecimal totalCost= BigDecimal.valueOf(0);
-        for (InvoiceProduct invoice : purchasedInvoices) {
-            int quantity= invoice.getQuantity();
-            BigDecimal price = invoice.getPrice();
-            int tax= invoice.getTax();
-
-            totalCost=totalCost.add(price.multiply(BigDecimal.valueOf(quantity)).add(price.multiply(BigDecimal.valueOf(quantity)).divide(BigDecimal.valueOf(tax))));
-        }
-
-        //to retrieve sales invoices total
-        List<InvoiceProduct> salesInvoices =invoiceProductRepository.findAll().stream()
-                .filter(p->p.getInvoice().getCompany().getId().equals(loggedInUser))
-                .filter(invoice-> invoice.getInvoice().getInvoiceType()==InvoiceType.SALES && invoice.getInvoice().getInvoiceStatus()== InvoiceStatus.APPROVED)
-                .collect(Collectors.toList());
-        BigDecimal totalSalesCost= BigDecimal.valueOf(0);
-        for (InvoiceProduct invoice : salesInvoices) {
-            int quantity= invoice.getQuantity();
-            BigDecimal price = invoice.getPrice();
-            int tax= invoice.getTax();
-
-            totalSalesCost=totalSalesCost.add(price.multiply(BigDecimal.valueOf(quantity)).add(price.multiply(BigDecimal.valueOf(quantity)).divide(BigDecimal.valueOf(tax))));
-        }
-
-        //to calculate total profit or loss
-        List<BigDecimal> profitLoss =invoiceProductRepository.findAll().stream()
-                .filter(p->p.getInvoice().getCompany().getId().equals(loggedInUser))
-                .map(invoice-> invoice.getProfitLoss()).collect(Collectors.toList());
-
-        BigDecimal totalProfitLoss= BigDecimal.valueOf(0);
-        for (BigDecimal profit_Loss : profitLoss) {
-
-            totalProfitLoss=totalProfitLoss.add(profit_Loss);
-        }
-
-
-        Map<String,BigDecimal> map=new HashMap<>();
-        map.put("totalCost",totalCost);
-        map.put("totalSales",totalSalesCost);
-        map.put("profitLoss",totalProfitLoss);
-
-        return map;
+        return calculations;
     }
 
     @Override
     public Map<String, BigDecimal> getMonthlyProfitLoss() {
+        Long companyId = companyService.getCompanyIdByLoggedInUser();
 
-            Long companyId = companyService.getCompanyIdByLoggedInUser();
+        List<InvoiceProduct> salesProductInvoices = invoiceProductRepository.
+                findAllByInvoiceInvoiceStatusAndInvoiceInvoiceTypeAndInvoiceCompanyIdAndIsDeleted(
+                        InvoiceStatus.APPROVED, InvoiceType.SALES, companyId, false
+                );
 
-            List<InvoiceProduct> salesInvoices = invoiceProductRepository.findAll().stream()
-                    .filter(p -> p.getInvoice().getCompany().getId().equals(companyId))
-                    .filter(invoice -> invoice.getInvoice().getInvoiceType() == InvoiceType.SALES && invoice.getInvoice().getInvoiceStatus() == InvoiceStatus.APPROVED)
-                    .collect(Collectors.toList());
-
-            return salesInvoices.stream()
-                    .collect(Collectors.groupingBy(
-                            invoiceProduct -> invoiceProduct.getInvoice().getDate().getMonth()
-                                    .getDisplayName(TextStyle.FULL, Locale.ENGLISH),
-                            Collectors.reducing(BigDecimal.ZERO, InvoiceProduct::getProfitLoss, BigDecimal::add)
-                    ));
+        return salesProductInvoices.stream()
+                .collect(Collectors.groupingBy(
+                        invoiceProduct -> invoiceProduct.getInvoice().getDate().getMonth()
+                                .getDisplayName(TextStyle.FULL, Locale.ENGLISH),
+                        Collectors.reducing(BigDecimal.ZERO, InvoiceProduct::getProfitLoss, BigDecimal::add)
+                ));
     }
 
     @Override
     public List<InvoiceDto> getLast3ApprovedInvoices() {
-        Long companyId = companyService.getCompanyIdByLoggedInUser();
+        List<Invoice> invoices = invoiceService.findTop3InvoicesByInvoiceStatus(InvoiceStatus.APPROVED);
 
-
-        List<Invoice>  invoices = invoiceService.findTop3ApprovedInvoicesByCompanyId(companyId, InvoiceStatus.APPROVED);
-        List<InvoiceProduct> invoiceProducts = invoiceProductRepository.find3LastApprovedTransactionDesc(companyId);
-
-
-        List<InvoiceDto> invoiceDtos= invoices.stream()
-                .map(invoice-> mapperUtil.convert(invoice,new InvoiceDto()))
+        List<InvoiceDto> invoiceDtos = invoices.stream()
+                .map(invoice -> mapperUtil.convert(invoice, new InvoiceDto()))
                 .collect(Collectors.toList());
 
-
-
-        for (int i = 0; i < 3; i++) {
-            //Quantity of products
-            BigDecimal quantity= BigDecimal.valueOf(invoiceProducts.get(i).getQuantity());
-            //taxRate of products
-            BigDecimal taxRate=BigDecimal.valueOf(invoiceProducts.get(i).getTax());
-            //unit price of products
-            BigDecimal unitPrice=invoiceProducts.get(i).getPrice();
-
-            invoiceDtos.get(i).setPrice(quantity.multiply(unitPrice));
-            invoiceDtos.get(i).setTax(quantity.multiply(unitPrice).multiply(taxRate.divide(BigDecimal.valueOf(100))));
-            invoiceDtos.get(i).setTotal(quantity.multiply(unitPrice).add(quantity.multiply(unitPrice).divide(taxRate)));
-
+        for (InvoiceDto eachInvoiceDto : invoiceDtos) {
+            invoiceUtils.calculateTotalsForInvoice(eachInvoiceDto);
         }
-
 
         return invoiceDtos;
     }
 
     @Override
     public void save(InvoiceProductDto invoiceProductDto, Long invoiceId) {
-        InvoiceProduct invoiceProduct = mapperUtil.convert(invoiceProductDto, new InvoiceProduct());
         InvoiceDto invoiceDto = invoiceService.findById(invoiceId);
-        Invoice invoice = mapperUtil.convert(invoiceDto, new Invoice());
-
-        invoiceProduct.setInvoice(invoice);
+        invoiceProductDto.setInvoice(invoiceDto);
+        InvoiceProduct invoiceProduct = mapperUtil.convert(invoiceProductDto, new InvoiceProduct());
 
         invoiceProductRepository.save(invoiceProduct);
     }
@@ -207,7 +169,6 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
         BigDecimal taxAmount = totalPrice.multiply(BigDecimal.valueOf(tax)).divide(BigDecimal.valueOf(100));
         return totalPrice.add(taxAmount);
     }
-
 
     @Override
     public void saveSalesInvoice(InvoiceProductDto invoiceProductDto) {
