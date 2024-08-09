@@ -22,7 +22,7 @@ public interface InvoiceProductRepository extends JpaRepository<InvoiceProduct, 
             InvoiceStatus invoice_invoiceStatus, InvoiceType invoice_invoiceType, Long invoice_company_id, Boolean isDeleted
     );
 
-    List<InvoiceProduct> findAllByInvoiceCompanyId(Long companyId);
+    List<InvoiceProduct> findAllByInvoiceCompanyIdAndInvoiceInvoiceStatus(Long companyId, InvoiceStatus invoiceStatus);
 
     @Query("SELECT ip FROM InvoiceProduct ip " +
             "WHERE ip.invoice.company.id = :companyId " +
