@@ -23,11 +23,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.time.format.TextStyle;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -62,14 +59,14 @@ public class InvoiceProductServiceImplTest {
         when(mapperUtil.convert(any(InvoiceProduct.class), any(InvoiceProductDto.class)))
                 .thenReturn(TestDocumentInitializer.getInvoiceProduct());
 
-        InvoiceProductDto result = invoiceProductService.findById(anyLong());
+        InvoiceProductDto invoiceProductDtos = invoiceProductService.findById(anyLong());
 
         InOrder inOrder = inOrder(invoiceProductRepository, mapperUtil);
 
         inOrder.verify(invoiceProductRepository, times(1)).findById(anyLong());
         inOrder.verify(mapperUtil).convert(any(InvoiceProduct.class), any(InvoiceProductDto.class));
 
-        assertNotNull(result);
+        assertNotNull(invoiceProductDtos);
     }
 
     @Test
@@ -111,15 +108,15 @@ public class InvoiceProductServiceImplTest {
                 InvoiceType.SALES, InvoiceStatus.APPROVED, companyId, false
         )).thenReturn(List.of(salesInvoiceDto));
 
-        Map<String, BigDecimal> result = invoiceProductService.getTotalCostAndSalesAndProfit_loss();
+        Map<String, BigDecimal> invoiceSummary = invoiceProductService.getTotalCostAndSalesAndProfit_loss();
 
         BigDecimal expectedTotalCost = purchaseInvoiceDto.getPrice();
         BigDecimal expectedTotalSales = salesInvoiceDto.getPrice();
         BigDecimal expectedProfitLoss = expectedTotalSales.subtract(expectedTotalCost);
 
-        assertEquals(expectedTotalCost, result.get("totalCost"));
-        assertEquals(expectedTotalSales, result.get("totalSales"));
-        assertEquals(expectedProfitLoss, result.get("profitLoss"));
+        assertEquals(expectedTotalCost, invoiceSummary.get("totalCost"));
+        assertEquals(expectedTotalSales, invoiceSummary.get("totalSales"));
+        assertEquals(expectedProfitLoss, invoiceSummary.get("profitLoss"));
 
         verify(invoiceService, times(1)).findAllByInvoiceTypeAndInvoiceStatusAndCompanyIdAndIsDeleted(
                 InvoiceType.PURCHASE, InvoiceStatus.APPROVED, companyId, false
@@ -233,5 +230,21 @@ public class InvoiceProductServiceImplTest {
 
         verify(invoiceProductRepository, times(1)).findById(invoiceProductId);
         assertFalse(invoiceProduct.getIsDeleted());
+    }
+
+    @Test
+    void findAll_Test() {
+        when(invoiceProductRepository.findAll()).thenReturn(List.of(new InvoiceProduct()));
+        when(mapperUtil.convert(any(InvoiceProduct.class), any(InvoiceProductDto.class)))
+                .thenReturn(TestDocumentInitializer.getInvoiceProduct());
+
+        List<InvoiceProductDto> invoiceProductDtos = invoiceProductService.findAll();
+
+        InOrder inOrder = inOrder(invoiceProductRepository, mapperUtil);
+
+        inOrder.verify(invoiceProductRepository, times(1)).findAll();
+        inOrder.verify(mapperUtil).convert(any(InvoiceProduct.class), any(InvoiceProductDto.class));
+
+        assertNotNull(invoiceProductDtos);
     }
 }
