@@ -88,7 +88,7 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
         BigDecimal totalCost = calculateTotalForInvoiceType(InvoiceType.PURCHASE);
         BigDecimal totalSalesCost = calculateTotalForInvoiceType(InvoiceType.SALES);
 
-        BigDecimal totalProfitLoss = invoiceProductRepository.findAllByInvoiceCompanyId(companyId)
+        BigDecimal totalProfitLoss = invoiceProductRepository.findAllByInvoiceCompanyIdAndInvoiceInvoiceStatus(companyId, InvoiceStatus.APPROVED)
                 .stream()
                 .map(InvoiceProduct::getProfitLoss)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
