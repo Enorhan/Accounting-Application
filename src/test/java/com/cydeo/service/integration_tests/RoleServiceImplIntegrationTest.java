@@ -1,9 +1,8 @@
 package com.cydeo.service.integration_tests;
-
-import com.cydeo.dto.ProductDto;
 import com.cydeo.dto.RoleDto;
 import com.cydeo.dto.UserDto;
 import com.cydeo.entity.Role;
+import com.cydeo.exceptions.RoleNotFoundException;
 import com.cydeo.repository.RoleRepository;
 import com.cydeo.service.RoleService;
 import com.cydeo.service.SecurityService;
@@ -17,8 +16,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
@@ -53,7 +50,7 @@ public class RoleServiceImplIntegrationTest {
         UserDto loggedInUser = securityService.getLoggedInUser();
 
         Throwable throwable = catchThrowable(() -> roleService.findById(400L));
-        assertThat(throwable).isInstanceOf(NoSuchElementException.class);
+        assertThat(throwable).isInstanceOf(RoleNotFoundException.class);
         assertThat(throwable).hasMessage("role not found with id: " + 400L);
 
         RoleDto roleDto = roleService.findById(loggedInUser.getId());
