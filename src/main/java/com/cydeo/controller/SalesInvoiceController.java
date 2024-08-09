@@ -106,7 +106,8 @@ public class SalesInvoiceController {
         if (invoiceService.isQuantityAvailable(invoiceProductDto)) {
             bindingResult.rejectValue(
                     "quantity", "error.newInvoiceProduct", "Not enough "
-                            + invoiceProductDto.getProduct().getName() + " quantity to sell."
+                            + invoiceProductDto.getProduct().getName() + " quantity to sell. Available in stock: "
+                            + invoiceProductDto.getProduct().getQuantityInStock()
             );
         }
 
