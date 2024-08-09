@@ -8,7 +8,7 @@ public interface PaymentService {
 
     List<PaymentDto> getPaymentForYear(int year);
     void createPaymentsForYear(int year);
-    void processPayment(Long paymentId);
+    void processPayment(Long paymentId, String companyStripeId);
     PaymentDto getInvoice(Long id);
 
 }
