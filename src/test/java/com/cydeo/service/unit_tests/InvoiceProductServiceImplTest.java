@@ -33,23 +33,16 @@ import static org.mockito.Mockito.*;
 public class InvoiceProductServiceImplTest {
     @Mock
     InvoiceProductRepository invoiceProductRepository;
-
     @Mock
     InvoiceService invoiceService;
-
     @Mock
     CompanyService companyService;
-
     @Mock
     MapperUtil mapperUtil;
-
     @Spy
     MapperUtil mapperUtilSpy = new MapperUtil(new ModelMapper());
-
     @Mock
     InvoiceUtils invoiceUtils;
-
-
     @InjectMocks
     InvoiceProductServiceImpl invoiceProductService;
 

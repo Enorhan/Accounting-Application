@@ -83,13 +83,20 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
 
     @Override
     public Map<String, BigDecimal> getTotalCostAndSalesAndProfit_loss() {
+        Long companyId = companyService.getCompanyIdByLoggedInUser();
+
         BigDecimal totalCost = calculateTotalForInvoiceType(InvoiceType.PURCHASE);
         BigDecimal totalSalesCost = calculateTotalForInvoiceType(InvoiceType.SALES);
+
+        BigDecimal totalProfitLoss = invoiceProductRepository.findAllByInvoiceCompanyId(companyId)
+                .stream()
+                .map(InvoiceProduct::getProfitLoss)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         Map<String, BigDecimal> calculations = new HashMap<>();
         calculations.put("totalCost", totalCost);
         calculations.put("totalSales", totalSalesCost);
-        calculations.put("profitLoss", totalSalesCost.subtract(totalCost));
+        calculations.put("profitLoss", totalProfitLoss);
 
         return calculations;
     }
