@@ -1,27 +1,18 @@
 package com.cydeo.service.unit_tests;
 
 import com.cydeo.TestDocumentInitializer;
-import com.cydeo.dto.CompanyDto;
-import com.cydeo.dto.RoleDto;
+
 import com.cydeo.dto.UserDto;
-import com.cydeo.entity.Company;
-import com.cydeo.entity.Role;
 import com.cydeo.entity.User;
-import com.cydeo.enums.CompanyStatus;
 import com.cydeo.exception.UserNotFoundException;
-import com.cydeo.repository.CompanyRepository;
 import com.cydeo.repository.UserRepository;
-import com.cydeo.service.UserService;
 import com.cydeo.service.impl.UserServiceImpl;
 import com.cydeo.util.MapperUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.modelmapper.ModelMapper;
 
 import java.util.Optional;
 
@@ -29,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.inOrder;
 
 @ExtendWith(MockitoExtension.class)//te be able to mock some services and repositories all of these parties
 class UserServiceImplUnitTest {
