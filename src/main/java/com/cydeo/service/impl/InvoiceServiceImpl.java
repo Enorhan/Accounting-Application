@@ -227,7 +227,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             int totalAvailableStock = productDto.getQuantityInStock();
 
             if (totalQuantityToSell > totalAvailableStock) {
-                throw new ProductNotFoundException("Stock of " + productDto.getName() + " is insufficient. Available: " + totalAvailableStock + ", Required: " + totalQuantityToSell+". Please update the invoice.");
+                throw new ProductNotFoundException("Stock of " + productDto.getName() + " is insufficient. Available: " + totalAvailableStock + ", Required: " + totalQuantityToSell + ". Please update the invoice.");
             }
 
             if (totalAvailableStock - totalQuantityToSell < productDto.getLowLimitAlert()) {
@@ -238,7 +238,6 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         for (InvoiceProductDto invoiceProductDto : invoiceProducts) {
             int quantityToSell = invoiceProductDto.getQuantity();
-            BigDecimal totalCost = BigDecimal.ZERO;
             BigDecimal salePrice = invoiceProductDto.getPrice();
 
             List<InvoiceProductDto> purchaseProducts = invoiceProductRepository.findPurchaseProducts(
@@ -249,32 +248,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                     .map(purchaseProduct -> mapperUtil.convert(purchaseProduct, new InvoiceProductDto()))
                     .toList();
 
-            BigDecimal totalCostForEachItem=BigDecimal.ZERO;
-            for (InvoiceProductDto purchaseProduct : purchaseProducts) {
-                int availableQuantity = purchaseProduct.getRemainingQuantity();
-                if (availableQuantity > 0) {
-                    int quantityToUse = Math.min(quantityToSell, availableQuantity);
-                    BigDecimal costPrice = purchaseProduct.getPrice();
-
-                    BigDecimal taxToBeAdded = costPrice.multiply(BigDecimal.valueOf(0.01).multiply(BigDecimal.valueOf(purchaseProduct.getTax()))).multiply(BigDecimal.valueOf(purchaseProduct.getQuantity()));
-                    BigDecimal cost = (costPrice.multiply(BigDecimal.valueOf(purchaseProduct.getQuantity())).add(taxToBeAdded));
-                    totalCost = totalCost.add(cost);
-                    totalCostForEachItem = totalCost.divide(BigDecimal.valueOf(purchaseProduct.getQuantity()), 2, RoundingMode.HALF_UP);
-
-                    purchaseProduct.setRemainingQuantity(availableQuantity - quantityToUse);
-                    invoiceProductService.saveSalesInvoice(purchaseProduct);
-
-                    quantityToSell -= quantityToUse;
-                    if (quantityToSell == 0) {
-                        break;
-                    }
-                }
-            }
-
-            BigDecimal taxToBeAdded = salePrice.multiply(BigDecimal.valueOf(0.01).multiply(BigDecimal.valueOf(invoiceProductDto.getTax()).multiply(BigDecimal.valueOf(invoiceProductDto.getQuantity()))));
-            BigDecimal totalSale = (salePrice.multiply(BigDecimal.valueOf(invoiceProductDto.getQuantity()))).add(taxToBeAdded);
-            BigDecimal profitLoss = totalSale.subtract(totalCostForEachItem.multiply(BigDecimal.valueOf(invoiceProductDto.getQuantity())));
-            invoiceProductDto.setProfitLoss(profitLoss);
+            calculateTotalCostAndSetProfitLoss(purchaseProducts, invoiceProductDto, quantityToSell, salePrice);
 
             invoiceProductService.saveSalesInvoice(invoiceProductDto);
 
@@ -305,5 +279,36 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         return productDto != null && invoiceProductDto.getQuantity() != null
                 && invoiceProductDto.getQuantity() > productDto.getQuantityInStock();
+    }
+
+    private void calculateTotalCostAndSetProfitLoss(List<InvoiceProductDto> purchaseProducts, InvoiceProductDto invoiceProductDto, int quantityToSell, BigDecimal salePrice) {
+        BigDecimal totalCost = BigDecimal.ZERO;
+        BigDecimal totalCostForEachItem = BigDecimal.ZERO;
+
+        for (InvoiceProductDto purchaseProduct : purchaseProducts) {
+            int availableQuantity = purchaseProduct.getRemainingQuantity();
+            if (availableQuantity > 0) {
+                int quantityToUse = Math.min(quantityToSell, availableQuantity);
+                BigDecimal costPrice = purchaseProduct.getPrice();
+
+                BigDecimal taxToBeAdded = costPrice.multiply(BigDecimal.valueOf(0.01).multiply(BigDecimal.valueOf(purchaseProduct.getTax()))).multiply(BigDecimal.valueOf(purchaseProduct.getQuantity()));
+                BigDecimal cost = (costPrice.multiply(BigDecimal.valueOf(purchaseProduct.getQuantity())).add(taxToBeAdded));
+                totalCost = totalCost.add(cost);
+                totalCostForEachItem = totalCost.divide(BigDecimal.valueOf(purchaseProduct.getQuantity()), 2, RoundingMode.HALF_UP);
+
+                purchaseProduct.setRemainingQuantity(availableQuantity - quantityToUse);
+                invoiceProductService.saveSalesInvoice(purchaseProduct);
+
+                quantityToSell -= quantityToUse;
+                if (quantityToSell == 0) {
+                    break;
+                }
+            }
+        }
+
+        BigDecimal taxToBeAdded = salePrice.multiply(BigDecimal.valueOf(0.01).multiply(BigDecimal.valueOf(invoiceProductDto.getTax()).multiply(BigDecimal.valueOf(invoiceProductDto.getQuantity()))));
+        BigDecimal totalSale = (salePrice.multiply(BigDecimal.valueOf(invoiceProductDto.getQuantity()))).add(taxToBeAdded);
+        BigDecimal profitLoss = totalSale.subtract(totalCostForEachItem.multiply(BigDecimal.valueOf(invoiceProductDto.getQuantity())));
+        invoiceProductDto.setProfitLoss(profitLoss);
     }
 }
