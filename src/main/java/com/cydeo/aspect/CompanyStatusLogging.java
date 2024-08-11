@@ -49,7 +49,7 @@ public class CompanyStatusLogging {
         UserDto user = userService.findByUsername(username);
 
 
-        logger.info(String.format("Method: %s, User: %s %s (%s)",
+        logger.info(String.format("Method: %s, Company: %s, User: %s %s, Username:  (%s)",
                 methodName, user.getCompany().getTitle(),
                 user.getFirstname(),
                 user.getLastname(),
